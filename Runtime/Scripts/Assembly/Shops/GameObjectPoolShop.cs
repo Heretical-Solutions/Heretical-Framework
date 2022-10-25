@@ -9,6 +9,8 @@ using HereticalSolutions.Collections;
 
 using HereticalSolutions.Allocations;
 
+using Zenject;
+
 namespace HereticalSolutions.Assembly
 {
 	public class GameObjectPoolShop : IShop<INonAllocDecoratedPool<GameObject>>
@@ -16,6 +18,8 @@ namespace HereticalSolutions.Assembly
 		private const string KEY_COLLECTION_TYPE = "CollectionType";
 
 		private const string KEY_PREFAB = "Prefab";
+
+		private const string KEY_CONTAINER = "Container";
 
 		private const string KEY_POOL_PARENT = "PoolParent";
 
@@ -34,6 +38,8 @@ namespace HereticalSolutions.Assembly
 
 			var prefab = (GameObject)ticket.Arguments.Get(KEY_PREFAB);
 
+			var container = (DiContainer)ticket.Arguments.Get(KEY_CONTAINER);
+
 			var poolParent = (Transform)ticket.Arguments.Get(KEY_POOL_PARENT);
 			
 			var initialAllocation = (AllocationCommandDescriptor)ticket.Arguments.Get(KEY_INIITIAL_ALLOCATION);
@@ -49,6 +55,7 @@ namespace HereticalSolutions.Assembly
 				{
 					CollectionType = collectionType,
 					Prefab = prefab,
+					Container = container,
 					InitialAllocation = initialAllocation,
 					AdditionalAllocation = additionalAllocation,
 					ContainerAllocationDelegate = containerAllocationDelegate
