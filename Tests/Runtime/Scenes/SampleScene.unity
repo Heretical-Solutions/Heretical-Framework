@@ -983,7 +983,7 @@ MonoBehaviour:
     - Chance: 0.5
       DefaultDuration: 1
       Prefab: {fileID: 5442810692408235649, guid: 63e50485fce52b058add89fcc7edd9c2, type: 3}
-  - Address: Capsules
+  - Address: Cubes/Capsules
     Variants:
     - Chance: 1
       DefaultDuration: 1

@@ -190,6 +190,37 @@ namespace HereticalSolutions.Assembly
 
 				if (child.Children.Count != 0)
 				{
+					//You may find yourself,
+					//Parsing "ENEMY/SOLDIER"
+					//And you may find yourself,
+					//Parsing "ENEMY/SOLDIER/RIFLEMAN"
+					//And you may find yourself,
+					//Resolving prefab element behaviour
+					//With "ENEMY/SOLDIER" address
+					//And reach the depth level 3
+					//And catching an exception
+					//And you may ask yourself,
+					//How did I get here?
+
+					//If this node (i.e. "ENEMY/SOLDIER") was parsed as a terminal part of some address then it will have a descriptor assigned to it
+					//All we have to do now is to give it a "self" child with hash 0 to refer to the prefab that was parsed with this address
+					if (child.Descriptor != null)
+					{
+						AddressTreeNode self = new AddressTreeNode
+						{
+							AddressHash = 0,
+
+							Level = child.Level + 1,
+
+							FullAddressHashes = child.FullAddressHashes,
+
+							Descriptor = child.Descriptor
+
+						};
+
+						child.Children.Add(self);
+					}
+
 					poolByHash = BuildAddressedPool(
 						child,
 						nextShop,

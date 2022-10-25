@@ -98,7 +98,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   registration:
     PoolID: Assembly
-    Address: Capsules
+    Address: Cubes/Capsules
     Variant: 0
   resolutionBehaviour: 2
   MinResolveRequestTimeout: 1

@@ -38,7 +38,9 @@ namespace HereticalSolutions.Assembly
 
 			var prefab = (GameObject)ticket.Arguments.Get(KEY_PREFAB);
 
-			var container = (DiContainer)ticket.Arguments.Get(KEY_CONTAINER);
+			DiContainer container = (ticket.Arguments.Has(KEY_CONTAINER))
+				? (DiContainer)ticket.Arguments.Get(KEY_CONTAINER)
+				: null;
 
 			var poolParent = (Transform)ticket.Arguments.Get(KEY_POOL_PARENT);
 			
