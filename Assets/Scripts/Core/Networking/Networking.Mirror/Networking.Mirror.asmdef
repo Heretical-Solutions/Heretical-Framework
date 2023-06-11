@@ -1,0 +1,26 @@
+{
+    "name": "Networking.Mirror",
+    "rootNamespace": "",
+    "references": [
+        "GUID:1528e624ca6af8394bd20a5c2d420b17",
+        "GUID:d545f4dc09e0ce31e8ede01c0d75a44e",
+        "GUID:320c068542306d8c1b6a1c1644f11e6b",
+        "GUID:9e909f3a58657fa7190da30ea7791ebc",
+        "GUID:d2b40202e47dd46f9afc1bf9c8a6dab6",
+        "GUID:b2a0dbb9bac9b5f35aa2597774288694",
+        "GUID:620198706259c2ad58159208a35e9eb0",
+        "GUID:694ca89bd8332dfb48ed18e587f18057",
+        "GUID:1e6f9c9acb97715a0a43019f435f174c",
+        "GUID:30817c1a0e6d646d99c048fc403f5979",
+        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

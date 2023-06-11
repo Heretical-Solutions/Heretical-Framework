@@ -1,0 +1,21 @@
+{
+    "name": "Objectpools.Decorators.Unity",
+    "rootNamespace": "",
+    "references": [
+        "GUID:1528e624ca6af8394bd20a5c2d420b17",
+        "GUID:0c565fc510a0847af9dec277327de112",
+        "GUID:c48cf45a30901b677ba1985cf13fbf90",
+        "GUID:320c068542306d8c1b6a1c1644f11e6b",
+        "GUID:620198706259c2ad58159208a35e9eb0",
+        "GUID:11d6c338014efd2eebdc810a56ba5bdc"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

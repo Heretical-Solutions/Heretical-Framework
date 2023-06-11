@@ -1,0 +1,19 @@
+{
+    "name": "Quests.Unity",
+    "rootNamespace": "",
+    "references": [
+        "GUID:320c068542306d8c1b6a1c1644f11e6b",
+        "GUID:fe280692e160d28e5bfc4fcb108aa6b6",
+        "GUID:e6aa4f3c810f1055ca3df92871d88fb4",
+        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

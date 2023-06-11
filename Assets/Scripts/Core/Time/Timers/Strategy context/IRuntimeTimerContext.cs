@@ -1,0 +1,37 @@
+using HereticalSolutions.Delegates;
+
+namespace HereticalSolutions.Time
+{
+    public interface IRuntimeTimerContext : ITimerWithState
+    {
+        #region Variables
+        
+        float CurrentTimeElapsed { get; set; }
+
+        #endregion
+        
+        #region Duration
+        
+        float CurrentDuration { get; set; }
+
+        float DefaultDuration { get; }
+
+        #endregion
+        
+        #region Controls
+        
+        bool Accumulate { get; }
+
+        bool Repeat { get; }
+
+        #endregion
+
+        #region Publishers
+        
+        IPublisherSingleArgGeneric<IRuntimeTimer> OnStartAsPublisher { get; }
+        
+        IPublisherSingleArgGeneric<IRuntimeTimer> OnFinishAsPublisher { get; }
+        
+        #endregion
+    }
+}

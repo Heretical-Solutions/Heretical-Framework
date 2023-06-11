@@ -1,0 +1,16 @@
+{
+    "name": "Memory",
+    "rootNamespace": "",
+    "references": [
+        "GUID:1528e624ca6af8394bd20a5c2d420b17"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,21 @@
+{
+    "name": "Objectpools.Decorators.Unity.Zenject",
+    "rootNamespace": "",
+    "references": [
+        "GUID:1528e624ca6af8394bd20a5c2d420b17",
+        "GUID:d545f4dc09e0ce31e8ede01c0d75a44e",
+        "GUID:620198706259c2ad58159208a35e9eb0",
+        "GUID:11d6c338014efd2eebdc810a56ba5bdc",
+        "GUID:9b9cfc8693bb7078e950aebe90ef9b15",
+        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

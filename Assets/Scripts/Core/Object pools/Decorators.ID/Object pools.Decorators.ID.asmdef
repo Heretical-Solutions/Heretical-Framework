@@ -1,0 +1,16 @@
+{
+    "name": "Objectpools.Decorators.ID",
+    "rootNamespace": "",
+    "references": [
+        "GUID:620198706259c2ad58159208a35e9eb0"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,16 @@
+{
+    "name": "Networking",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d2b40202e47dd46f9afc1bf9c8a6dab6"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
