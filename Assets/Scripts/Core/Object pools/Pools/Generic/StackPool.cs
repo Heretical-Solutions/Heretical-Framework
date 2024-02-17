@@ -1,87 +1,167 @@
 using System;
+
 using System.Collections.Generic;
 
 using HereticalSolutions.Collections;
+
 using HereticalSolutions.Allocations;
+
+using HereticalSolutions.LifetimeManagement;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools.Generic
 {
-	public class StackPool<T> 
-		: IPool<T>,
-		  IResizable<T>,
-		  IModifiable<Stack<T>>,
-		  ICountUpdateable
-	{
-		private Stack<T> pool;
+    /// <summary>
+    /// Represents a generic stack pool.
+    /// </summary>
+    /// <typeparam name="T">The type of elements in the pool.</typeparam>
+    public class StackPool<T> 
+        : IPool<T>,
+          IResizable<T>,
+          IModifiable<Stack<T>>,
+          ICountUpdateable,
+          ICleanUppable,
+          IDisposable
+    {
+        private readonly ILogger logger;
 
-		public StackPool(
-			Stack<T> pool,
-			Action<StackPool<T>> resizeDelegate,
-			AllocationCommand<T> allocationCommand)
-		{
-			this.pool = pool;
+        //Not readonly because IModifiable's UpdateContents method replaces one pool with another
+        private Stack<T> pool;
 
-			this.resizeDelegate = resizeDelegate;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StackPool{T}"/> class.
+        /// </summary>
+        /// <param name="pool">The stack to be used as the pool.</param>
+        /// <param name="resizeDelegate">The delegate used for resizing the pool.</param>
+        /// <param name="allocationCommand">The allocation command used for resizing the pool.</param>
+        public StackPool(
+            Stack<T> pool,
+            Action<StackPool<T>> resizeDelegate,
+            AllocationCommand<T> allocationCommand,
+            ILogger logger = null)
+        {
+            this.pool = pool;
 
-			ResizeAllocationCommand = allocationCommand;
-		}
-		
-		#region IModifiable
+            this.resizeDelegate = resizeDelegate;
 
-		public Stack<T> Contents { get => pool; }
+            this.logger = logger;
 
-		public void UpdateContents(Stack<T> newContents)
-		{
-			pool = newContents;
-		}
+            ResizeAllocationCommand = allocationCommand;
+        }
+        
+        #region IModifiable
 
-		public void UpdateCount(int newCount)
-		{
-			throw new Exception("[StackPool] CANNOT UPDATE COUNT OF STACK");
-		}
+        /// <summary>
+        /// Gets the contents of the pool.
+        /// </summary>
+        public Stack<T> Contents { get => pool; }
 
-		#endregion
-		
-		#region IResizable
+        /// <summary>
+        /// Updates the contents of the pool with the specified stack.
+        /// </summary>
+        /// <param name="newContents">The new stack to use as the pool's contents.</param>
+        public void UpdateContents(Stack<T> newContents)
+        {
+            pool = newContents;
+        }
 
-		public AllocationCommand<T> ResizeAllocationCommand { get; private set; }
+        /// <summary>
+        /// Updates the count of the pool.
+        /// </summary>
+        /// <param name="newCount">The new count for the pool.</param>
+        public void UpdateCount(int newCount)
+        {
+            throw new Exception(
+                logger.TryFormat<StackPool<T>>(
+                    "CANNOT UPDATE COUNT OF STACK"));
+        }
 
-		private readonly Action<StackPool<T>> resizeDelegate;
+        #endregion
+        
+        #region IResizable
 
-		public void Resize()
-		{
-			resizeDelegate(this);
-		}
+        /// <summary>
+        /// Gets the allocation command used for resizing the pool.
+        /// </summary>
+        public AllocationCommand<T> ResizeAllocationCommand { get; private set; }
 
-		#endregion
+        private readonly Action<StackPool<T>> resizeDelegate;
 
-		#region IPool
+        /// <summary>
+        /// Resizes the pool using the resize delegate.
+        /// </summary>
+        public void Resize()
+        {
+            resizeDelegate(this);
+        }
 
-		public T Pop()
-		{
-			T result = default(T);
+        #endregion
 
-			if (pool.Count != 0)
-			{
-				result = pool.Pop();
-			}
-			else
-			{
-				resizeDelegate(this);
+        #region IPool
 
-				result = pool.Pop();
-			}
-			
-			return result;
-		}
+        /// <summary>
+        /// Removes and returns the top element from the pool.
+        /// </summary>
+        /// <returns>The top element from the pool.</returns>
+        public T Pop()
+        {
+            T result = default(T);
 
-		public void Push(T instance)
-		{
-			pool.Push(instance);
-		}
-		
-		public bool HasFreeSpace { get { return true; } } // ¯\_(ツ)_/¯
+            if (pool.Count != 0)
+            {
+                result = pool.Pop();
+            }
+            else
+            {
+                resizeDelegate(this);
 
-		#endregion
-	}
+                result = pool.Pop();
+            }
+            
+            return result;
+        }
+
+        /// <summary>
+        /// Pushes an element into the pool.
+        /// </summary>
+        /// <param name="instance">The element to push into the pool.</param>
+        public void Push(T instance)
+        {
+            pool.Push(instance);
+        }
+        
+        /// <summary>
+        /// Gets a value indicating whether the pool has free space.
+        /// </summary>
+        public bool HasFreeSpace { get { return true; } } // ¯\_(ツ)_/¯
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            foreach (var item in pool)
+                if (item is ICleanUppable)
+                    (item as ICleanUppable).Cleanup();
+
+            pool.Clear();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            foreach (var item in pool)
+                if (item is IDisposable)
+                    (item as IDisposable).Dispose();
+
+            pool.Clear();
+        }
+
+        #endregion
+    }
 }

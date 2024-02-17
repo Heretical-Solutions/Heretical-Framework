@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach to Unity",
+            "type": "vstuc",
+            "request": "attach"
+        },
+        {
+            "name": "Grammar debug",
+            "type": "antlr-debug",
+            "request": "launch",
+            "input": "Assets/Test scenario.txt",
+            "grammar": "Assets/Plugins/Open source/Stanley script/Grammars/StanleyParser.g4",
+            "printParseTree": true,
+            "visualParseTree": true
+        },
+     ]
+}

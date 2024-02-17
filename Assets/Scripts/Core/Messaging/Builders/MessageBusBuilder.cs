@@ -12,6 +12,8 @@ using HereticalSolutions.Pools.Factories;
 using HereticalSolutions.Repositories;
 using HereticalSolutions.Repositories.Factories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Messaging.Factories
 {
     public class MessageBusBuilder
@@ -19,12 +21,18 @@ namespace HereticalSolutions.Messaging.Factories
         private readonly IObjectRepository messagePoolRepository;
 
         private readonly BroadcasterWithRepositoryBuilder broadcasterBuilder;
-        
-        public MessageBusBuilder()
+
+        private readonly ILoggerResolver loggerResolver;
+
+        public MessageBusBuilder(
+            ILoggerResolver loggerResolver = null)
         {
+            this.loggerResolver = loggerResolver;
+
             messagePoolRepository = RepositoriesFactory.BuildDictionaryObjectRepository();
 
-            broadcasterBuilder = new BroadcasterWithRepositoryBuilder();
+            broadcasterBuilder = new BroadcasterWithRepositoryBuilder(
+                loggerResolver);
         }
 
         public MessageBusBuilder AddMessageType<TMessage>()
@@ -37,7 +45,6 @@ namespace HereticalSolutions.Messaging.Factories
                 {
                     Rule = EAllocationAmountRule.ADD_ONE
                 },
-
                 AllocationDelegate = valueAllocationDelegate
             };
             
@@ -47,13 +54,13 @@ namespace HereticalSolutions.Messaging.Factories
                 {
                     Rule = EAllocationAmountRule.DOUBLE_AMOUNT
                 },
-
                 AllocationDelegate = valueAllocationDelegate
             };
             
             IPool<IMessage> messagePool = PoolsFactory.BuildStackPool<IMessage>(
                 initialAllocationCommand,
-                additionalAllocationCommand);
+                additionalAllocationCommand,
+                loggerResolver);
             
             messagePoolRepository.Add(
                 typeof(TMessage),
@@ -66,10 +73,15 @@ namespace HereticalSolutions.Messaging.Factories
 
         public MessageBus Build()
         {
+            ILogger logger = 
+                loggerResolver?.GetLogger<MessageBus>()
+                ?? null;
+
             return new MessageBus(
                 broadcasterBuilder.Build(),
                 (IReadOnlyObjectRepository)messagePoolRepository,
-                new Queue<IMessage>());
+                new Queue<IMessage>(),
+                logger);
         }
     }
 }

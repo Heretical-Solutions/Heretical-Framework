@@ -1,77 +1,125 @@
 using System;
+
 using System.Runtime.Serialization.Formatters.Binary;
 
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Persistence.Serializers
 {
-	public class BinarySerializer : ISerializer
-	{
-		private readonly IReadOnlyObjectRepository strategyRepository;
-		
-		private readonly BinaryFormatter formatter = new BinaryFormatter();
+    public class BinarySerializer : ISerializer
+    {
+        private readonly IReadOnlyObjectRepository strategyRepository;
 
-		public BinarySerializer(IReadOnlyObjectRepository strategyRepository)
-		{
-			this.strategyRepository = strategyRepository;
-		}
+        private readonly BinaryFormatter formatter = new BinaryFormatter();
 
-		#region ISerializer
-		
-		public bool Serialize<TValue>(ISerializationArgument argument, TValue DTO)
-		{
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[BinarySerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+        private readonly ILogger logger;
 
-			var concreteStrategy = (IBinarySerializationStrategy)strategyObject;
+        public BinarySerializer(
+            IReadOnlyObjectRepository strategyRepository,
+            ILogger logger = null)
+        {
+            this.strategyRepository = strategyRepository;
 
-			return concreteStrategy.Serialize(argument, formatter, DTO);
-		}
+            this.logger = logger;
+        }
 
-		public bool Serialize(ISerializationArgument argument, Type DTOType, object DTO)
-		{
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[BinarySerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+        #region ISerializer
 
-			var concreteStrategy = (IBinarySerializationStrategy)strategyObject;
+        public bool Serialize<TValue>(
+            ISerializationArgument argument,
+            TValue DTO)
+        {
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                throw new Exception(
+                    logger.TryFormat<BinarySerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
-			return concreteStrategy.Serialize(argument, formatter, DTO);
-		}
+            var concreteStrategy = (IBinarySerializationStrategy)strategyObject;
 
-		public bool Deserialize<TValue>(ISerializationArgument argument, out TValue DTO)
-		{
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[BinarySerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+            return concreteStrategy.Serialize(
+                argument,
+                formatter,
+                DTO);
+        }
 
-			var concreteStrategy = (IBinarySerializationStrategy)strategyObject;
+        public bool Serialize(
+            ISerializationArgument argument,
+            Type DTOType,
+            object DTO)
+        {
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                throw new Exception(
+                    logger.TryFormat<BinarySerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
-			var result = concreteStrategy.Deserialize(argument, formatter, out object dtoObject);
+            var concreteStrategy = (IBinarySerializationStrategy)strategyObject;
 
-			DTO = (TValue)dtoObject;
+            return concreteStrategy.Serialize(
+                argument,
+                formatter,
+                DTO);
+        }
 
-			return result;
-		}
+        public bool Deserialize<TValue>(
+            ISerializationArgument argument,
+            out TValue DTO)
+        {
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                throw new Exception(
+                    logger.TryFormat<BinarySerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
-		public bool Deserialize(ISerializationArgument argument, Type DTOType, out object DTO)
-		{
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[BinarySerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+            var concreteStrategy = (IBinarySerializationStrategy)strategyObject;
 
-			var concreteStrategy = (IBinarySerializationStrategy)strategyObject;
+            var result = concreteStrategy.Deserialize(
+                argument,
+                formatter,
+                out object dtoObject);
 
-			return concreteStrategy.Deserialize(argument, formatter, out DTO);
-		}
+            DTO = (TValue)dtoObject;
 
-		public void Erase(ISerializationArgument argument)
-		{
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[BinarySerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+            return result;
+        }
 
-			var concreteStrategy = (IBinarySerializationStrategy)strategyObject;
-			
-			concreteStrategy.Erase(argument);
-		}
-		
-		#endregion
-	}
+        public bool Deserialize(
+            ISerializationArgument argument,
+            Type DTOType,
+            out object DTO)
+        {
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                throw new Exception(
+                    logger.TryFormat<BinarySerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
+
+            var concreteStrategy = (IBinarySerializationStrategy)strategyObject;
+
+            return concreteStrategy.Deserialize(argument, formatter, out DTO);
+        }
+
+        public void Erase(ISerializationArgument argument)
+        {
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                throw new Exception(
+                    logger.TryFormat<BinarySerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
+
+            var concreteStrategy = (IBinarySerializationStrategy)strategyObject;
+
+            concreteStrategy.Erase(argument);
+        }
+
+        #endregion
+    }
 }

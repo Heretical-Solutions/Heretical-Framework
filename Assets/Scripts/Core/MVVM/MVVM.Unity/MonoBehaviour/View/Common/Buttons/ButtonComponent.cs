@@ -1,10 +1,17 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+using ILogger = HereticalSolutions.Logging.ILogger;
+
+using Zenject;
+
 namespace HereticalSolutions.MVVM.Mono
 {
-    public class ButtonComponent : ViewComponent
+    public class ButtonComponent : AViewComponent
     {
+        [Inject]
+        private ILogger logger;
+
         [SerializeField]
         protected string commandID;
 
@@ -13,7 +20,11 @@ namespace HereticalSolutions.MVVM.Mono
 
         protected override void Awake()
         {
-            view = new ButtonView(baseViewModel.ViewModel, commandID, button);
+            view = new ButtonView(
+                baseViewModel.ViewModel,
+                commandID,
+                button,
+                logger);
             
             base.Awake();
         }

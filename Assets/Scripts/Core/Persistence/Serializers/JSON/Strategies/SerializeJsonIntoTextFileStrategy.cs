@@ -1,29 +1,49 @@
 using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.IO;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Persistence.Serializers
 {
     public class SerializeJsonIntoTextFileStrategy : IJsonSerializationStrategy
     {
-        public bool Serialize(ISerializationArgument argument, string json)
+        private readonly ILogger logger;
+
+        public SerializeJsonIntoTextFileStrategy(
+            ILogger logger = null)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
-            
-            return TextFileIO.Write(fileSystemSettings, json);
+            this.logger = logger;
         }
 
-        public bool Deserialize(ISerializationArgument argument, out string json)
+        public bool Serialize(
+            ISerializationArgument argument,
+            string json)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
             
-            return TextFileIO.Read(fileSystemSettings, out json);
+            return TextFileIO.Write(
+                filePathSettings,
+                json,
+                logger);
+        }
+
+        public bool Deserialize(
+            ISerializationArgument argument,
+            out string json)
+        {
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
+            
+            return TextFileIO.Read(
+                filePathSettings,
+                out json,
+                logger);
         }
         
         public void Erase(ISerializationArgument argument)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
             
-            TextFileIO.Erase(fileSystemSettings);
+            TextFileIO.Erase(filePathSettings);
         }
     }
 }

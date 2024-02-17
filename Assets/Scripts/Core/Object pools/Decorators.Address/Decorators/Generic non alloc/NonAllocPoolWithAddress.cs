@@ -5,123 +5,176 @@ using HereticalSolutions.Repositories;
 using HereticalSolutions.Pools.Arguments;
 using HereticalSolutions.Pools.Behaviours;
 
+using HereticalSolutions.LifetimeManagement;
+
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Pools.Decorators
 {
-	public class NonAllocPoolWithAddress<T>
-		: INonAllocDecoratedPool<T>
-	{
-		private readonly int level;
+    /// <summary>
+    /// Represents a decorator for a non-allocating pool with address support.
+    /// </summary>
+    /// <typeparam name="T">The type of object stored in the pool.</typeparam>
+    public class NonAllocPoolWithAddress<T>
+        : INonAllocDecoratedPool<T>,
+          ICleanUppable,
+          IDisposable
+    {
+        private readonly int level;
 
-		private readonly IRepository<int, INonAllocDecoratedPool<T>> innerPoolsRepository;
+        private readonly IRepository<int, INonAllocDecoratedPool<T>> innerPoolsRepository;
 
-		private readonly IPushBehaviourHandler<T> pushBehaviourHandler;
-		
-		public NonAllocPoolWithAddress(
-			IRepository<int, INonAllocDecoratedPool<T>> innerPoolsRepository,
-			int level)
-		{
-			this.innerPoolsRepository = innerPoolsRepository;
+        private readonly IPushBehaviourHandler<T> pushBehaviourHandler;
 
-			this.level = level;
+        private readonly ILogger logger;
 
-			pushBehaviourHandler = new PushToDecoratedPoolBehaviour<T>(this);
-		}
+        public NonAllocPoolWithAddress(
+            IRepository<int, INonAllocDecoratedPool<T>> innerPoolsRepository,
+            int level,
+            ILogger logger = null)
+        {
+            this.innerPoolsRepository = innerPoolsRepository;
 
-		#region Pop
-
-		public IPoolElement<T> Pop(IPoolDecoratorArgument[] args)
-		{
-			#region Validation
-
-			if (!args.TryGetArgument<AddressArgument>(out var arg))
-				throw new Exception("[NonAllocPoolWithAddress] ADDRESS ARGUMENT ABSENT");
-
-			if (arg.AddressHashes.Length < level)
-				throw new Exception($"[NonAllocPoolWithAddress] INVALID ADDRESS DEPTH. LEVEL: {{ {level} }} ADDRESS LENGTH: {{ {arg.AddressHashes.Length} }}");
-
-			#endregion
-			
-			INonAllocDecoratedPool<T> poolByAddress = null;
-
-			#region Pool at the end of address
-			
-			if (arg.AddressHashes.Length == level)
-			{
-				if (!innerPoolsRepository.TryGet(0, out poolByAddress))
-					throw new Exception($"[NonAllocPoolWithAddress] NO POOL DETECTED AT THE END OF ADDRESS. LEVEL: {{ {level} }}");
-
-				var endOfAddressResult = poolByAddress.Pop(args);
-
-				
-				//Update element data
-				var endOfAddressElementAsPushable = (IPushable<T>)endOfAddressResult; 
+            this.level = level;
             
-				endOfAddressElementAsPushable.UpdatePushBehaviour(pushBehaviourHandler);
-				
-				
-				return endOfAddressResult;
-			}
-			
-			#endregion
+            this.logger = logger;
 
-			#region Pool at current level of address
-			
-			int currentAddressHash = arg.AddressHashes[level];
+            pushBehaviourHandler = new PushToDecoratedPoolBehaviour<T>(this);
+        }
 
-			if (!innerPoolsRepository.TryGet(currentAddressHash, out poolByAddress))
-				throw new Exception($"[NonAllocPoolWithAddress] INVALID ADDRESS {{ {currentAddressHash} }}");
+        #region Pop
 
-			var result = poolByAddress.Pop(args);
+        public IPoolElement<T> Pop(IPoolDecoratorArgument[] args)
+        {
+            #region Validation
 
-			
-			//Update element data
-			var elementAsPushable = (IPushable<T>)result; 
-            
-			elementAsPushable.UpdatePushBehaviour(pushBehaviourHandler);
-			
-			
-			return result;
-			
-			#endregion
-		}
+            if (!args.TryGetArgument<AddressArgument>(out var arg))
+                throw new Exception(
+                    logger.TryFormat<NonAllocPoolWithAddress<T>>(
+                        "ADDRESS ARGUMENT ABSENT"));
 
-		#endregion
+            if (arg.AddressHashes.Length < level)
+                throw new Exception(
+                    logger.TryFormat<NonAllocPoolWithAddress<T>>(
+                        $"INVALID ADDRESS DEPTH. LEVEL: {{ {level} }} ADDRESS LENGTH: {{ {arg.AddressHashes.Length} }}"));
 
-		#region Push
+            #endregion
 
-		public void Push(
-			IPoolElement<T> instance,
-			bool decoratorsOnly = false)
-		{
-			if (!instance.Metadata.Has<IContainsAddress>())
-				throw new Exception("[NonAllocPoolWithAddress] INVALID INSTANCE");
+            INonAllocDecoratedPool<T> poolByAddress = null;
 
-			INonAllocDecoratedPool<T> pool = null;
+            #region Pool at the end of address
 
-			var addressHashes = instance.Metadata.Get<IContainsAddress>().AddressHashes;
-			
-			if (addressHashes.Length == level)
-			{
-				if (!innerPoolsRepository.TryGet(0, out pool))
-					throw new Exception($"[NonAllocPoolWithAddress] NO POOL DETECTED AT ADDRESS MAX. DEPTH. LEVEL: {{ {level} }}");
+            if (arg.AddressHashes.Length == level)
+            {
+                if (!innerPoolsRepository.TryGet(0, out poolByAddress))
+                    throw new Exception(
+                        logger.TryFormat<NonAllocPoolWithAddress<T>>(
+                            $"NO POOL DETECTED AT THE END OF ADDRESS. LEVEL: {{ {level} }}"));
 
-				pool.Push(
-					instance,
-					decoratorsOnly);
+                var endOfAddressResult = poolByAddress.Pop(args);
 
-				return;
-			}
+                // Update element data
+                var endOfAddressElementAsPushable = (IPushable<T>)endOfAddressResult;
 
-			int currentAddressHash = addressHashes[level];
+                endOfAddressElementAsPushable.UpdatePushBehaviour(pushBehaviourHandler);
 
-			if (!innerPoolsRepository.TryGet(currentAddressHash, out pool))
-				throw new Exception($"[NonAllocPoolWithAddress] INVALID ADDRESS {{ {currentAddressHash} }}");
+                return endOfAddressResult;
+            }
 
-			pool.Push(
-				instance,
-				decoratorsOnly);
-		}
+            #endregion
 
-		#endregion
-	}
+            #region Pool at current level of address
+
+            int currentAddressHash = arg.AddressHashes[level];
+
+            if (!innerPoolsRepository.TryGet(currentAddressHash, out poolByAddress))
+                throw new Exception(
+                    logger.TryFormat<NonAllocPoolWithAddress<T>>(
+                        $"INVALID ADDRESS {{ {arg.FullAddress} }} ADDRESS HASH: {{ {currentAddressHash} }} LEVEL: {{ {level} }}"));
+
+            var result = poolByAddress.Pop(args);
+
+            // Update element data
+            var elementAsPushable = (IPushable<T>)result;
+
+            elementAsPushable.UpdatePushBehaviour(pushBehaviourHandler);
+
+            return result;
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Push
+
+        /// <summary>
+        /// Pushes an object back into the pool.
+        /// </summary>
+        /// <param name="instance">The object to push back into the pool.</param>
+        /// <param name="decoratorsOnly">
+        ///     If set to true, only the decorators of the object will be pushed back into the pool.
+        ///     Otherwise, the entire object will be pushed back.
+        /// </param>
+        public void Push(IPoolElement<T> instance, bool decoratorsOnly = false)
+        {
+            if (!instance.Metadata.Has<IContainsAddress>())
+                throw new Exception(
+                    logger.TryFormat<NonAllocPoolWithAddress<T>>(
+                        "INVALID INSTANCE"));
+
+            INonAllocDecoratedPool<T> pool = null;
+
+            var addressHashes = instance.Metadata.Get<IContainsAddress>().AddressHashes;
+
+            if (addressHashes.Length == level)
+            {
+                if (!innerPoolsRepository.TryGet(0, out pool))
+                    throw new Exception(
+                        logger.TryFormat<NonAllocPoolWithAddress<T>>(
+                            $"NO POOL DETECTED AT ADDRESS MAX. DEPTH. LEVEL: {{ {level} }}"));
+
+                pool.Push(instance, decoratorsOnly);
+                
+                return;
+            }
+
+            int currentAddressHash = addressHashes[level];
+
+            if (!innerPoolsRepository.TryGet(currentAddressHash, out pool))
+                throw new Exception(
+                    logger.TryFormat<NonAllocPoolWithAddress<T>>(
+                        $"INVALID ADDRESS {{ {currentAddressHash} }}"));
+
+            pool.Push(instance, decoratorsOnly);
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (innerPoolsRepository is ICleanUppable)
+                (innerPoolsRepository as ICleanUppable).Cleanup();
+
+            if (pushBehaviourHandler is ICleanUppable)
+                (pushBehaviourHandler as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (innerPoolsRepository is IDisposable)
+                (innerPoolsRepository as IDisposable).Dispose();
+
+            if (pushBehaviourHandler is IDisposable)
+                (pushBehaviourHandler as IDisposable).Dispose();
+        }
+
+        #endregion
+    }
 }

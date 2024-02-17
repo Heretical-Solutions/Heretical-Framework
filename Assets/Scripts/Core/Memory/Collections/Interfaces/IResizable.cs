@@ -11,6 +11,7 @@ namespace HereticalSolutions.Collections
         /// <summary>
         /// Gets the allocation command for resizing the collection.
         /// </summary>
+        /// <returns>The allocation command for resizing the collection.</returns>
         AllocationCommand<T> ResizeAllocationCommand { get; }
 
         /// <summary>

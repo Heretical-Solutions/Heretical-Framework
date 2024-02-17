@@ -1,6 +1,9 @@
 namespace HereticalSolutions.Pools.Arguments
 {
-	public interface IPoolDecoratorArgument
-	{
-	}
+    /// <summary>
+    /// Represents an argument for a pool decorator.
+    /// </summary>
+    public interface IPoolDecoratorArgument
+    {
+    }
 }

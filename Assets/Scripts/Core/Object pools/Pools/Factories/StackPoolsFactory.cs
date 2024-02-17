@@ -2,87 +2,110 @@ using System;
 using System.Collections.Generic;
 
 using HereticalSolutions.Collections;
+
 using HereticalSolutions.Allocations;
 
 using HereticalSolutions.Pools.Generic;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Pools.Factories
 {
-	public static partial class PoolsFactory
-	{
-		#region Stack pool
+    /// <summary>
+    /// Represents a factory for creating various types of object pools.
+    /// </summary>
+    public static partial class PoolsFactory
+    {
+        #region Stack pool
 
-		public static StackPool<T> BuildStackPool<T>(
-			AllocationCommand<T> initialAllocationCommand,
-			AllocationCommand<T> additionalAllocationCommand)
-		{
-			var stack = new Stack<T>();
+        public static StackPool<T> BuildStackPool<T>(
+            AllocationCommand<T> initialAllocationCommand,
+            AllocationCommand<T> additionalAllocationCommand,
+            ILoggerResolver loggerResolver = null)
+        {
+            var stack = new Stack<T>();
 
-			PerformInitialAllocation<T>(stack, initialAllocationCommand);
+            PerformInitialAllocation<T>(stack, initialAllocationCommand);
 
-			return new StackPool<T>(
-				stack,
-				ResizeStackPool,
-				additionalAllocationCommand);
-		}
+            ILogger logger =
+                loggerResolver?.GetLogger<StackPool<T>>()
+                ?? null;
 
-		private static void PerformInitialAllocation<T>(
-			Stack<T> stack,
-			AllocationCommand<T> initialAllocationCommand)
-		{
-			int initialAmount = -1;
+            return new StackPool<T>(
+                stack,
+                ResizeStackPool,
+                additionalAllocationCommand,
+                logger);
+        }
 
-			switch (initialAllocationCommand.Descriptor.Rule)
-			{
-				case EAllocationAmountRule.ZERO:
-					initialAmount = 0;
-					break;
+        /// <summary>
+        /// Performs the initial allocation of objects in the stack pool.
+        /// </summary>
+        /// <typeparam name="T">The type of objects in the stack pool.</typeparam>
+        /// <param name="stack">The stack in which objects are allocated.</param>
+        /// <param name="initialAllocationCommand">The initial allocation command for the stack pool.</param>
+        private static void PerformInitialAllocation<T>(
+            Stack<T> stack,
+            AllocationCommand<T> initialAllocationCommand)
+        {
+            int initialAmount = -1;
 
-				case EAllocationAmountRule.ADD_ONE:
-					initialAmount = 1;
-					break;
+            switch (initialAllocationCommand.Descriptor.Rule)
+            {
+                case EAllocationAmountRule.ZERO:
+                    initialAmount = 0;
+                    break;
 
-				case EAllocationAmountRule.ADD_PREDEFINED_AMOUNT:
-					initialAmount = initialAllocationCommand.Descriptor.Amount;
-					break;
+                case EAllocationAmountRule.ADD_ONE:
+                    initialAmount = 1;
+                    break;
 
-				default:
-					throw new Exception($"[CollectionFactory] INVALID INITIAL ALLOCATION COMMAND RULE: {initialAllocationCommand.Descriptor.Rule.ToString()}");
-			}
+                case EAllocationAmountRule.ADD_PREDEFINED_AMOUNT:
+                    initialAmount = initialAllocationCommand.Descriptor.Amount;
+                    break;
 
-			for (int i = 0; i < initialAmount; i++)
-				stack.Push(
-					initialAllocationCommand.AllocationDelegate());
-		}
+                default:
+                    throw new Exception($"[CollectionFactory] INVALID INITIAL ALLOCATION COMMAND RULE: {initialAllocationCommand.Descriptor.Rule.ToString()}");
+            }
 
-		public static void ResizeStackPool<T>(
-			StackPool<T> pool)
-		{
-			var stack = ((IModifiable<Stack<T>>)pool).Contents;
+            for (int i = 0; i < initialAmount; i++)
+                stack.Push(
+                    initialAllocationCommand.AllocationDelegate());
+        }
 
-			var allocationCommand = ((IResizable<T>)pool).ResizeAllocationCommand;
+        /// <summary>
+        /// Resizes the stack pool by allocating additional objects.
+        /// </summary>
+        /// <typeparam name="T">The type of objects in the stack pool.</typeparam>
+        /// <param name="pool">The stack pool to be resized.</param>
+        public static void ResizeStackPool<T>(
+            StackPool<T> pool)
+        {
+            var stack = ((IModifiable<Stack<T>>)pool).Contents;
 
-			int addedCapacity = -1;
+            var allocationCommand = ((IResizable<T>)pool).ResizeAllocationCommand;
 
-			switch (allocationCommand.Descriptor.Rule)
-			{
-				case EAllocationAmountRule.ADD_ONE:
-					addedCapacity = 1;
-					break;
+            int addedCapacity = -1;
 
-				case EAllocationAmountRule.ADD_PREDEFINED_AMOUNT:
-					addedCapacity = allocationCommand.Descriptor.Amount;
-					break;
+            switch (allocationCommand.Descriptor.Rule)
+            {
+                case EAllocationAmountRule.ADD_ONE:
+                    addedCapacity = 1;
+                    break;
 
-				default:
-					throw new Exception($"[CollectionFactory] INVALID RESIZE ALLOCATION COMMAND RULE FOR STACK: {allocationCommand.Descriptor.Rule.ToString()}");
-			}
+                case EAllocationAmountRule.ADD_PREDEFINED_AMOUNT:
+                    addedCapacity = allocationCommand.Descriptor.Amount;
+                    break;
 
-			for (int i = 0; i < addedCapacity; i++)
-				stack.Push(
-					allocationCommand.AllocationDelegate());
-		}
+                default:
+                    throw new Exception($"[CollectionFactory] INVALID RESIZE ALLOCATION COMMAND RULE FOR STACK: {allocationCommand.Descriptor.Rule.ToString()}");
+            }
 
-		#endregion
-	}
+            for (int i = 0; i < addedCapacity; i++)
+                stack.Push(
+                    allocationCommand.AllocationDelegate());
+        }
+
+        #endregion
+    }
 }

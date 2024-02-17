@@ -13,6 +13,8 @@ using HereticalSolutions.Pools.Factories;
 using HereticalSolutions.Repositories;
 using HereticalSolutions.Repositories.Factories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Messaging.Factories
 {
     public class NonAllocMessageBusBuilder
@@ -20,12 +22,19 @@ namespace HereticalSolutions.Messaging.Factories
         private readonly IObjectRepository messagePoolRepository;
 
         private readonly NonAllocBroadcasterWithRepositoryBuilder broadcasterBuilder;
-        
-        public NonAllocMessageBusBuilder()
+
+        private readonly ILoggerResolver loggerResolver;
+
+
+        public NonAllocMessageBusBuilder(
+            ILoggerResolver loggerResolver = null)
         {
+            this.loggerResolver = loggerResolver;
+
             messagePoolRepository = RepositoriesFactory.BuildDictionaryObjectRepository();
 
-            broadcasterBuilder = new NonAllocBroadcasterWithRepositoryBuilder();
+            broadcasterBuilder = new NonAllocBroadcasterWithRepositoryBuilder(
+                loggerResolver);
         }
 
         public NonAllocMessageBusBuilder AddMessageType<TMessage>()
@@ -45,7 +54,8 @@ namespace HereticalSolutions.Messaging.Factories
                 new AllocationCommandDescriptor
                 {
                     Rule = EAllocationAmountRule.DOUBLE_AMOUNT
-                });
+                },
+                loggerResolver);
             
             messagePoolRepository.Add(
                 typeof(TMessage),
@@ -73,17 +83,23 @@ namespace HereticalSolutions.Messaging.Factories
                 new AllocationCommandDescriptor
                 {
                     Rule = EAllocationAmountRule.DOUBLE_AMOUNT
-                });
+                },
+                loggerResolver);
             
             var mailboxContents = ((IModifiable<INonAllocPool<IPoolElement<IMessage>>>)mailbox).Contents;
             
             var mailboxContentAsIndexable = (IIndexable<IPoolElement<IPoolElement<IMessage>>>)mailboxContents;
             
+            ILogger logger = 
+                loggerResolver?.GetLogger<NonAllocMessageBus>()
+                ?? null;
+
             return new NonAllocMessageBus(
                 broadcasterBuilder.Build(),
                 (IReadOnlyObjectRepository)messagePoolRepository,
                 mailbox,
-                mailboxContentAsIndexable);
+                mailboxContentAsIndexable,
+                logger);
         }
     }
 }

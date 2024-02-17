@@ -79,6 +79,7 @@ namespace HereticalSolutions.Collections.Unmanaged
         /// Get a pointer to an element in the array
         /// </summary>
         /// <param name="index">Index of the element to get a pointer to</param>
+        /// <returns>Pointer to the element</returns>
         public void* this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -92,6 +93,7 @@ namespace HereticalSolutions.Collections.Unmanaged
         /// Get a pointer to an element in the array
         /// </summary>
         /// <param name="index">Index of the element to get a pointer to</param>
+        /// <returns>Pointer to the element</returns>
         public void* this[uint index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -110,7 +112,7 @@ namespace HereticalSolutions.Collections.Unmanaged
         /// </summary>
         /// <param name="index">Index of the element to get a pointer to</param>
         /// <typeparam name="T">Element type</typeparam>
-        /// <returns>Element in the array at specified index</returns>
+        /// <returns>Pointer to the element</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T* GetGeneric<T>(int index) where T : unmanaged
         {
@@ -122,7 +124,7 @@ namespace HereticalSolutions.Collections.Unmanaged
         /// </summary>
         /// <param name="index">Index of the element to get a pointer to</param>
         /// <typeparam name="T">Element type</typeparam>
-        /// <returns>Element in the array at specified index</returns>
+        /// <returns>Pointer to the element</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T* GetGeneric<T>(uint index) where T : unmanaged
         {
@@ -136,7 +138,7 @@ namespace HereticalSolutions.Collections.Unmanaged
         /// <summary>
         /// Get the element's index in the array
         /// </summary>
-        /// <param name="element">Target element</param>
+        /// <param name="element">Target element pointer</param>
         /// <returns>Element index</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int IndexOfPointer(void* element)
@@ -149,7 +151,7 @@ namespace HereticalSolutions.Collections.Unmanaged
         /// <summary>
         /// Get the element's index in the array
         /// </summary>
-        /// <param name="element">Target element</param>
+        /// <param name="element">Target element pointer</param>
         /// <returns>Element index</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int IndexOfGeneric<T>(T* element) where T : unmanaged

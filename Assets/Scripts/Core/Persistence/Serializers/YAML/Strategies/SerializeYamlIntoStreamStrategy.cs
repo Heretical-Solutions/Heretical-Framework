@@ -3,15 +3,28 @@ using System.IO;
 using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.IO;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Persistence.Serializers
 {
     public class SerializeYamlIntoStreamStrategy : IYamlSerializationStrategy
     {
+        private readonly ILogger logger;
+
+        public SerializeYamlIntoStreamStrategy(
+            ILogger logger = null)
+        {
+            this.logger = logger;
+        }
+
         public bool Serialize(ISerializationArgument argument, string yaml)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            if (!StreamIO.OpenWriteStream(fileSystemSettings, out StreamWriter streamWriter))
+            if (!StreamIO.OpenWriteStream(
+                filePathSettings,
+                out StreamWriter streamWriter,
+                logger))
                 return false;
             
             streamWriter.Write(yaml);
@@ -21,13 +34,18 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
 
-        public bool Deserialize(ISerializationArgument argument, out string yaml)
+        public bool Deserialize(
+            ISerializationArgument argument,
+            out string yaml)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
             yaml = string.Empty;
             
-            if (!StreamIO.OpenReadStream(fileSystemSettings, out StreamReader streamReader))
+            if (!StreamIO.OpenReadStream(
+                filePathSettings,
+                out StreamReader streamReader,
+                logger))
                 return false;
             
             yaml = streamReader.ReadToEnd();
@@ -39,9 +57,9 @@ namespace HereticalSolutions.Persistence.Serializers
 
         public void Erase(ISerializationArgument argument)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            StreamIO.Erase(fileSystemSettings);
+            StreamIO.Erase(filePathSettings);
         }
     }
 }

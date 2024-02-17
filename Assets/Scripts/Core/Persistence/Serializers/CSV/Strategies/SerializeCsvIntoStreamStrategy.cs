@@ -1,10 +1,12 @@
 using System;
+using System.IO;
 using System.Collections;
 using System.Globalization;
-using System.IO;
 
 using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.IO;
+
+using HereticalSolutions.Logging;
 
 using CsvHelper;
 
@@ -12,11 +14,25 @@ namespace HereticalSolutions.Persistence.Serializers
 {
     public class SerializeCsvIntoStreamStrategy : ICsvSerializationStrategy
     {
-        public bool Serialize(ISerializationArgument argument, Type valueType, object value)
+        private readonly ILogger logger;
+
+        public SerializeCsvIntoStreamStrategy(
+            ILogger logger = null)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            this.logger = logger;
+        }
+
+        public bool Serialize(
+            ISerializationArgument argument,
+            Type valueType,
+            object value)
+        {
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            if (!StreamIO.OpenWriteStream(fileSystemSettings, out StreamWriter streamWriter))
+            if (!StreamIO.OpenWriteStream(
+                filePathSettings,
+                out StreamWriter streamWriter,
+                logger))
                 return false;
             
             using (var csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture))
@@ -42,16 +58,21 @@ namespace HereticalSolutions.Persistence.Serializers
 
         public bool Deserialize(ISerializationArgument argument, Type valueType, out object value)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
 
-            if (!StreamIO.OpenReadStream(fileSystemSettings, out StreamReader streamReader))
+            if (!StreamIO.OpenReadStream(
+                filePathSettings,
+                out StreamReader streamReader,
+                logger))
             {
-                value = default(object);
+                value = default;
                 
                 return false;
             }
 
-            using (var csvReader = new CsvReader(streamReader, CultureInfo.InvariantCulture))
+            using (var csvReader = new CsvReader(
+                streamReader,
+                CultureInfo.InvariantCulture))
             {
                 csvReader.Read();
                 
@@ -84,9 +105,9 @@ namespace HereticalSolutions.Persistence.Serializers
 
         public void Erase(ISerializationArgument argument)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            StreamIO.Erase(fileSystemSettings);
+            StreamIO.Erase(filePathSettings);
         }
     }
 }

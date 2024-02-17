@@ -2,131 +2,163 @@ using System;
 using System.Collections.Generic;
 
 using HereticalSolutions.Collections;
+
 using HereticalSolutions.Allocations;
+
+using HereticalSolutions.LifetimeManagement;
 
 using HereticalSolutions.Pools.Arguments;
 using HereticalSolutions.Pools.Behaviours;
 
 namespace HereticalSolutions.Pools.Decorators
 {
-	public class ResizableNonAllocPool<T>
-		: INonAllocDecoratedPool<T>,
-		  IResizable<IPoolElement<T>>,
-		  IModifiable<INonAllocPool<T>>,
-		  ITopUppable<IPoolElement<T>>,
-		  ICountUpdateable
-	{
-		private INonAllocPool<T> contents;
-		
-		private readonly ICountUpdateable contentsAsCountUpdateable;
+    public class ResizableNonAllocPool<T>
+        : INonAllocDecoratedPool<T>,
+          IResizable<IPoolElement<T>>,
+          IModifiable<INonAllocPool<T>>,
+          ITopUppable<IPoolElement<T>>,
+          ICountUpdateable,
+          ICleanUppable,
+          IDisposable
+    {
+        private INonAllocPool<T> contents;
 
-		private readonly IPushBehaviourHandler<T> pushBehaviourHandler;
-		
-		public ResizableNonAllocPool(
-			INonAllocPool<T> contents,
-			ICountUpdateable contentsAsCountUpdateable,
-			Action<ResizableNonAllocPool<T>> resizeDelegate,
-			AllocationCommand<IPoolElement<T>> resizeAllocationCommand,
-			Func<T> topUpAllocationDelegate)
-		{
-			this.contents = contents;
-			
-			this.contentsAsCountUpdateable = contentsAsCountUpdateable;
-			
-			this.resizeDelegate = resizeDelegate;
+        private readonly ICountUpdateable contentsAsCountUpdateable;
 
-			this.topUpAllocationDelegate = topUpAllocationDelegate;
+        private readonly IPushBehaviourHandler<T> pushBehaviourHandler;
 
-			ResizeAllocationCommand = resizeAllocationCommand;
+        public ResizableNonAllocPool(
+            INonAllocPool<T> contents,
+            ICountUpdateable contentsAsCountUpdateable,
+            Action<ResizableNonAllocPool<T>> resizeDelegate,
+            AllocationCommand<IPoolElement<T>> resizeAllocationCommand,
+            Func<T> topUpAllocationDelegate)
+        {
+            this.contents = contents;
 
-			pushBehaviourHandler = new PushToDecoratedPoolBehaviour<T>(this);
-		}
-		
-		#region IModifiable
+            this.contentsAsCountUpdateable = contentsAsCountUpdateable;
 
-		public INonAllocPool<T> Contents { get => contents; }
-		
-		public void UpdateContents(INonAllocPool<T> newContents)
-		{
-			contents = newContents;
-		}
-		
-		public void UpdateCount(int newCount)
-		{
-			contentsAsCountUpdateable.UpdateCount(newCount);
-		}
+            this.resizeDelegate = resizeDelegate;
 
-		#endregion
+            this.topUpAllocationDelegate = topUpAllocationDelegate;
 
-		#region IResizable
+            ResizeAllocationCommand = resizeAllocationCommand;
 
-		public AllocationCommand<IPoolElement<T>> ResizeAllocationCommand { get; private set; }
+            pushBehaviourHandler = new PushToDecoratedPoolBehaviour<T>(this);
+        }
 
-		protected Action<ResizableNonAllocPool<T>> resizeDelegate;
+        #region IModifiable
 
-		public void Resize()
-		{
-			resizeDelegate(this);
-		}
+        public INonAllocPool<T> Contents { get => contents; }
 
-		#endregion
+        public void UpdateContents(INonAllocPool<T> newContents)
+        {
+            contents = newContents;
+        }
 
-		#region ITopUppable
+        public void UpdateCount(int newCount)
+        {
+            contentsAsCountUpdateable.UpdateCount(newCount);
+        }
 
-		private readonly Func<T> topUpAllocationDelegate;
+        #endregion
 
-		public void TopUp(IPoolElement<T> element)
-		{
-			element.Value = topUpAllocationDelegate.Invoke();
-		}
+        #region IResizable
 
-		#endregion
+        public AllocationCommand<IPoolElement<T>> ResizeAllocationCommand { get; private set; }
 
-		#region INonAllocDecoratedPool
+        protected Action<ResizableNonAllocPool<T>> resizeDelegate;
 
-		public IPoolElement<T> Pop(IPoolDecoratorArgument[] args)
-		{
-			#region Resize
-			
-			if (!contents.HasFreeSpace)
-			{
-				resizeDelegate(this);
-			}
-			
-			#endregion
+        public void Resize()
+        {
+            resizeDelegate(this);
+        }
 
-			IPoolElement<T> result = contents.Pop();
-			
-			#region Top up
+        #endregion
 
-			if (EqualityComparer<T>.Default.Equals(result.Value, default(T)))
-			{
-				TopUp(result);
-			}
-			
-			#endregion
+        #region ITopUppable
 
-			#region Update push behaviour
-			
-			var elementAsPushable = (IPushable<T>)result; 
-            
-			elementAsPushable.UpdatePushBehaviour(pushBehaviourHandler);
-			
-			#endregion
-			
-			return result;
-		}
+        private readonly Func<T> topUpAllocationDelegate;
 
-		public void Push(
-			IPoolElement<T> instance,
-			bool decoratorsOnly = false)
-		{
-			if (!decoratorsOnly)
-				contents.Push(instance);
-		}
-		
-		public bool HasFreeSpace { get { return contents.HasFreeSpace; } }
+        public void TopUp(IPoolElement<T> element)
+        {
+            element.Value = topUpAllocationDelegate.Invoke();
+        }
 
-		#endregion
-	}
+        #endregion
+
+        #region INonAllocDecoratedPool
+
+        public IPoolElement<T> Pop(IPoolDecoratorArgument[] args = null)
+        {
+            #region Resize
+
+            if (!contents.HasFreeSpace)
+            {
+                resizeDelegate(this);
+            }
+
+            #endregion
+
+            IPoolElement<T> result = contents.Pop();
+
+            #region Top up
+
+            if (EqualityComparer<T>.Default.Equals(result.Value, default(T)))
+            {
+                TopUp(result);
+            }
+
+            #endregion
+
+            #region Update push behaviour
+
+            var elementAsPushable = (IPushable<T>)result;
+
+            elementAsPushable.UpdatePushBehaviour(pushBehaviourHandler);
+
+            #endregion
+
+            return result;
+        }
+
+        public void Push(
+            IPoolElement<T> instance,
+            bool decoratorsOnly = false)
+        {
+            if (!decoratorsOnly)
+                contents.Push(instance);
+        }
+
+        //public bool HasFreeSpace { get { return contents.HasFreeSpace; } }
+        public bool HasFreeSpace { get { return true; } } // ¯\_(ツ)_/¯
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (contents is ICleanUppable)
+                (contents as ICleanUppable).Cleanup();
+
+            if (pushBehaviourHandler is ICleanUppable)
+                (pushBehaviourHandler as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (contents is IDisposable)
+                (contents as IDisposable).Dispose();
+
+            if (pushBehaviourHandler is IDisposable)
+                (pushBehaviourHandler as IDisposable).Dispose();
+        }
+
+        #endregion
+    }
 }

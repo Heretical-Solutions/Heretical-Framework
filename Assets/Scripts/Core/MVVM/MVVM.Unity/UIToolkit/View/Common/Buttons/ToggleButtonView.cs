@@ -2,11 +2,14 @@ using System;
 
 using HereticalSolutions.MVVM.View;
 
+using HereticalSolutions.Logging;
+
 using UnityEngine.UIElements;
 
 namespace HereticalSolutions.MVVM.UIToolkit
 {
-    public class ToggleButtonView : AView
+    public class ToggleButtonView
+        : AView
     {
         protected string propertyID;
         
@@ -17,54 +20,44 @@ namespace HereticalSolutions.MVVM.UIToolkit
         public ToggleButtonView(
             IViewModel viewModel,
             string propertyID,
-            Button button)
-            : base(viewModel)
+            Button button,
+            ILogger logger = null)
+            : base(
+                viewModel,
+                logger)
         {
             this.propertyID = propertyID;
 
             this.button = button;
         }
 
-        public override void Initialize()
+        protected override void InitializeInternal(object[] args)
         {
-            if (!viewModel.GetObservable<bool>(propertyID, out boolProperty))
-                //Debug.LogError(
-                throw new Exception($"[ToggleButtonView] Could not obtain property \"{propertyID}\" from ViewModel \"{viewModel.GetType()}\"");
-            
-            /*
-            boolProperty.OnValueChanged += OnBoolChanged;
-
-            OnBoolChanged(boolProperty.Value);
-            */
+            if (!viewModel.GetObservable<bool>(
+                propertyID,
+                out boolProperty))
+                throw new Exception(
+                    logger.FormatException(
+                        $"Could not obtain property \"{propertyID}\" from ViewModel \"{viewModel.GetType()}\""));
             
             button.RegisterCallback<ClickEvent>(OnButtonClicked);
-
-            base.Initialize();
         }
 
-        /*
-        protected virtual void OnBoolChanged(bool newValue)
-        {
-        }
-        */
-        
         protected void OnButtonClicked(ClickEvent @event)
         {
             boolProperty.Value = !boolProperty.Value;
         }
 
-        public override void Cleanup()
+        protected override void CleanupInternal()
         {
-            base.Cleanup();
-
             if (boolProperty != null)
             {
-                //boolProperty.OnValueChanged -= OnBoolChanged;
-
                 boolProperty = null;
             }
             
             button.UnregisterCallback<ClickEvent>(OnButtonClicked);
+
+            base.CleanupInternal();
         }
     }
 }

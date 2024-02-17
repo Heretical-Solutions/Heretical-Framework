@@ -13,16 +13,20 @@ using HereticalSolutions.Pools.Factories;
 using HereticalSolutions.Repositories;
 using HereticalSolutions.Repositories.Factories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Delegates.Factories
 {
     public static partial class DelegatesFactory
     {
         #region Broadcaster multiple args
 
-        public static BroadcasterMultipleArgs BuildBroadcasterMultipleArgs()
+        public static BroadcasterMultipleArgs BuildBroadcasterMultipleArgs(
+            ILoggerResolver loggerResolver = null)
         {
             return new BroadcasterMultipleArgs(
-                BuildBroadcasterGeneric<object[]>());
+                BuildBroadcasterGeneric<object[]>(
+                    loggerResolver));
         }
 
         #endregion
@@ -30,34 +34,57 @@ namespace HereticalSolutions.Delegates.Factories
         #region Broadcaster with repository
 
         public static BroadcasterWithRepository BuildBroadcasterWithRepository(
-            IRepository<Type, object> broadcastersRepository)
+            IRepository<Type, object> broadcastersRepository,
+            ILoggerResolver loggerResolver = null)
         {
-            return BuildBroadcasterWithRepository(RepositoriesFactory.BuildDictionaryObjectRepository(broadcastersRepository));
+            return BuildBroadcasterWithRepository(
+                RepositoriesFactory.BuildDictionaryObjectRepository(
+                    broadcastersRepository),
+                loggerResolver);
         }
         
-        public static BroadcasterWithRepository BuildBroadcasterWithRepository(IReadOnlyObjectRepository repository)
+        public static BroadcasterWithRepository BuildBroadcasterWithRepository(
+            IReadOnlyObjectRepository repository,
+            ILoggerResolver loggerResolver = null)
         {
-            return new BroadcasterWithRepository(repository);
+            ILogger logger =
+                loggerResolver?.GetLogger<BroadcasterWithRepository>()
+                ?? null;
+
+            return new BroadcasterWithRepository(
+                repository,
+                logger);
         }
 
         #endregion
         
         #region Broadcaster generic
 
-        public static BroadcasterGeneric<T> BuildBroadcasterGeneric<T>()
+        /// <summary>
+        /// Builds a generic broadcaster.
+        /// </summary>
+        /// <typeparam name="T">The type of the broadcast argument.</typeparam>
+        /// <returns>The built generic broadcaster.</returns>
+        public static BroadcasterGeneric<T> BuildBroadcasterGeneric<T>(
+            ILoggerResolver loggerResolver = null)
         {
-            return new BroadcasterGeneric<T>();
+            ILogger logger =
+                loggerResolver?.GetLogger<BroadcasterGeneric<T>>()
+                ?? null;
+
+            return new BroadcasterGeneric<T>(logger);
         }
 
         #endregion
         
         #region Non alloc broadcaster multiple args
         
-        public static NonAllocBroadcasterMultipleArgs BuildNonAllocBroadcasterMultipleArgs()
+        public static NonAllocBroadcasterMultipleArgs BuildNonAllocBroadcasterMultipleArgs(
+            ILoggerResolver loggerResolver = null)
         {
-            Func<IInvokableMultipleArgs> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<IInvokableMultipleArgs>;
+            Func<ISubscription> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<ISubscription>;
 
-            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<IInvokableMultipleArgs>(
+            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<ISubscription>(
                 valueAllocationDelegate,
                 new []
                 {
@@ -70,64 +97,106 @@ namespace HereticalSolutions.Delegates.Factories
                 new AllocationCommandDescriptor
                 {
                     Rule = EAllocationAmountRule.DOUBLE_AMOUNT
-                });
+                },
+                loggerResolver);
 
-            return BuildNonAllocBroadcasterMultipleArgs(subscriptionsPool);
+            return BuildNonAllocBroadcasterMultipleArgs(
+                subscriptionsPool,
+                loggerResolver);
         }
 
         public static NonAllocBroadcasterMultipleArgs BuildNonAllocBroadcasterMultipleArgs(
             AllocationCommandDescriptor initial,
-            AllocationCommandDescriptor additional)
+            AllocationCommandDescriptor additional,
+            ILoggerResolver loggerResolver = null)
         {
-            Func<IInvokableMultipleArgs> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<IInvokableMultipleArgs>;
+            Func<ISubscription> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<ISubscription>;
 
-            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<IInvokableMultipleArgs>(
+            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<ISubscription>(
                 valueAllocationDelegate,
                 new []
                 {
                     PoolsFactory.BuildIndexedMetadataDescriptor()
                 },
                 initial,
-                additional);
+                additional,
+                loggerResolver);
 
-            return BuildNonAllocBroadcasterMultipleArgs(subscriptionsPool);
+            return BuildNonAllocBroadcasterMultipleArgs(
+                subscriptionsPool,
+                loggerResolver);
         }
         
         public static NonAllocBroadcasterMultipleArgs BuildNonAllocBroadcasterMultipleArgs(
-            INonAllocDecoratedPool<IInvokableMultipleArgs> subscriptionsPool)
+            INonAllocDecoratedPool<ISubscription> subscriptionsPool,
+            ILoggerResolver loggerResolver = null)
         {
-            var contents = ((IModifiable<INonAllocPool<IInvokableMultipleArgs>>)subscriptionsPool).Contents;
-			
+            var contents = ((IModifiable<INonAllocPool<ISubscription>>)subscriptionsPool).Contents;
+
+            ILogger logger =
+                loggerResolver?.GetLogger<NonAllocBroadcasterMultipleArgs>()
+                ?? null;
+
             return new NonAllocBroadcasterMultipleArgs(
                 subscriptionsPool,
-                contents);
+                contents,
+                logger);
         }
         
         #endregion
         
         #region Non alloc broadcaster with repository
         
+        /// <summary>
+        /// Builds a non-allocating broadcaster with a repository.
+        /// </summary>
+        /// <param name="broadcastersRepository">The repository for the broadcasters.</param>
+        /// <param name="logger">The logger to use for logging.</param>
+        /// <returns>The built non-allocating broadcaster with a repository.</returns>
         public static NonAllocBroadcasterWithRepository BuildNonAllocBroadcasterWithRepository(
-            IRepository<Type, object> broadcastersRepository)
+            IRepository<Type, object> broadcastersRepository,
+            ILoggerResolver loggerResolver = null)
         {
-            return BuildNonAllocBroadcasterWithRepository(RepositoriesFactory.BuildDictionaryObjectRepository(broadcastersRepository));
+            return BuildNonAllocBroadcasterWithRepository(
+                RepositoriesFactory.BuildDictionaryObjectRepository(
+                    broadcastersRepository),
+                loggerResolver);
         }
         
+        /// <summary>
+        /// Builds a non-allocating broadcaster with a repository.
+        /// </summary>
+        /// <param name="repository">The repository for the broadcasters.</param>
+        /// <param name="logger">The logger to use for logging.</param>
+        /// <returns>The built non-allocating broadcaster with a repository.</returns>
         public static NonAllocBroadcasterWithRepository BuildNonAllocBroadcasterWithRepository(
-            IReadOnlyObjectRepository repository)
+            IReadOnlyObjectRepository repository,
+            ILoggerResolver loggerResolver = null)
         {
-            return new NonAllocBroadcasterWithRepository(repository);
+            ILogger logger =
+                loggerResolver?.GetLogger<NonAllocBroadcasterWithRepository>()
+                ?? null;
+
+            return new NonAllocBroadcasterWithRepository(
+                repository,
+                logger);
         }
         
         #endregion
         
         #region Non alloc broadcaster generic
         
-        public static NonAllocBroadcasterGeneric<T> BuildNonAllocBroadcasterGeneric<T>()
+        /// <summary>
+        /// Builds a non-allocating generic broadcaster.
+        /// </summary>
+        /// <typeparam name="T">The type of the broadcast argument.</typeparam>
+        /// <returns>The built non-allocating generic broadcaster.</returns>
+        public static NonAllocBroadcasterGeneric<T> BuildNonAllocBroadcasterGeneric<T>(
+            ILoggerResolver loggerResolver = null)
         {
-            Func<IInvokableSingleArgGeneric<T>> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<IInvokableSingleArgGeneric<T>>;
+            Func<ISubscription> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<ISubscription>;
 
-            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<IInvokableSingleArgGeneric<T>>(
+            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<ISubscription>(
                 valueAllocationDelegate,
                 new []
                 {
@@ -140,37 +209,50 @@ namespace HereticalSolutions.Delegates.Factories
                 new AllocationCommandDescriptor
                 {
                     Rule = EAllocationAmountRule.DOUBLE_AMOUNT
-                });
+                },
+                loggerResolver);
 
-            return BuildNonAllocBroadcasterGeneric(subscriptionsPool);
+            return BuildNonAllocBroadcasterGeneric<T>(
+                subscriptionsPool,
+                loggerResolver);
         }
 
         public static NonAllocBroadcasterGeneric<T> BuildNonAllocBroadcasterGeneric<T>(
             AllocationCommandDescriptor initial,
-            AllocationCommandDescriptor additional)
+            AllocationCommandDescriptor additional,
+            ILoggerResolver loggerResolver = null)
         {
-            Func<IInvokableSingleArgGeneric<T>> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<IInvokableSingleArgGeneric<T>>;
+            Func<ISubscription> valueAllocationDelegate = AllocationsFactory.NullAllocationDelegate<ISubscription>;
 
-            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<IInvokableSingleArgGeneric<T>>(
+            var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<ISubscription>(
                 valueAllocationDelegate,
                 new []
                 {
                     PoolsFactory.BuildIndexedMetadataDescriptor()
                 },
                 initial,
-                additional);
+                additional,
+                loggerResolver);
 
-            return BuildNonAllocBroadcasterGeneric(subscriptionsPool);
+            return BuildNonAllocBroadcasterGeneric<T>(
+                subscriptionsPool,
+                loggerResolver);
         }
         
         public static NonAllocBroadcasterGeneric<T> BuildNonAllocBroadcasterGeneric<T>(
-            INonAllocDecoratedPool<IInvokableSingleArgGeneric<T>> subscriptionsPool)
+            INonAllocDecoratedPool<ISubscription> subscriptionsPool,
+            ILoggerResolver loggerResolver = null)
         {
-            var contents = ((IModifiable<INonAllocPool<IInvokableSingleArgGeneric<T>>>)subscriptionsPool).Contents;
+            var contents = ((IModifiable<INonAllocPool<ISubscription>>)subscriptionsPool).Contents;
 			
+            ILogger logger =
+                loggerResolver?.GetLogger<NonAllocBroadcasterGeneric<T>>()
+                ?? null;
+
             return new NonAllocBroadcasterGeneric<T>(
                 subscriptionsPool,
-                contents);
+                contents,
+                logger);
         }
         
         #endregion

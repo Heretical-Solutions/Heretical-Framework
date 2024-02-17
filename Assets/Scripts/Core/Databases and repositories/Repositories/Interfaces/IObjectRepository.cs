@@ -1,160 +1,126 @@
 using System;
-using System.Collections.Generic;
 
 namespace HereticalSolutions.Repositories
 {
     /// <summary>
-    /// Represents an interface for an object repository.
+    /// Represents an interface for a generic object repository that provides methods for adding, updating, removing, and clearing objects
     /// </summary>
     public interface IObjectRepository
+        : IReadOnlyObjectRepository
     {
         /// <summary>
-        /// Checks if the repository has a value of type <typeparamref name="TValue"/>.
+        /// Adds a value of type <typeparamref name="TValue"/> to the repository
         /// </summary>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
-        /// <returns><c>true</c> if the repository has a value of type <typeparamref name="TValue"/>; otherwise, <c>false</c>.</returns>
-        bool Has<TValue>();
-
-        /// <summary>
-        /// Checks if the repository has a value of the specified <paramref name="valueType"/>.
-        /// </summary>
-        /// <param name="valueType">The type of the value.</param>
-        /// <returns><c>true</c> if the repository has a value of the specified <paramref name="valueType"/>; otherwise, <c>false</c>.</returns>
-        bool Has(Type valueType);
-
-        /// <summary>
-        /// Adds a value of type <typeparamref name="TValue"/> to the repository.
-        /// </summary>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TValue">The type of the value to add.</typeparam>
         /// <param name="value">The value to add.</param>
         void Add<TValue>(TValue value);
 
         /// <summary>
-        /// Adds a value of the specified <paramref name="valueType"/> to the repository.
+        /// Adds an object of the specified <paramref name="valueType"/> to the repository
         /// </summary>
-        /// <param name="valueType">The type of the value.</param>
-        /// <param name="value">The value to add.</param>
-        void Add(Type valueType, object value);
+        /// <param name="valueType">The type of the object to add.</param>
+        /// <param name="value">The object to add.</param>
+        void Add(
+            Type valueType,
+            object value);
 
         /// <summary>
-        /// Tries to add a value of type <typeparamref name="TValue"/> to the repository.
+        /// Tries to add a value of type <typeparamref name="TValue"/> to the repository
         /// </summary>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TValue">The type of the value to add.</typeparam>
         /// <param name="value">The value to add.</param>
-        /// <returns><c>true</c> if the value was successfully added; otherwise, <c>false</c>.</returns>
+        /// <returns><c>true</c> if the value was added successfully; otherwise, <c>false</c>.</returns>
         bool TryAdd<TValue>(TValue value);
 
         /// <summary>
-        /// Tries to add a value of the specified <paramref name="valueType"/> to the repository.
+        /// Tries to add an object of the specified <paramref name="valueType"/> to the repository
         /// </summary>
-        /// <param name="valueType">The type of the value.</param>
-        /// <param name="value">The value to add.</param>
-        /// <returns><c>true</c> if the value was successfully added; otherwise, <c>false</c>.</returns>
-        bool TryAdd(Type valueType, object value);
+        /// <param name="valueType">The type of the object to add.</param>
+        /// <param name="value">The object to add.</param>
+        /// <returns><c>true</c> if the object was added successfully; otherwise, <c>false</c>.</returns>
+        bool TryAdd(
+            Type valueType,
+            object value);
 
         /// <summary>
-        /// Updates a value of type <typeparamref name="TValue"/> in the repository.
+        /// Updates a value of type <typeparamref name="TValue"/> in the repository
         /// </summary>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TValue">The type of the value to update.</typeparam>
         /// <param name="value">The value to update.</param>
         void Update<TValue>(TValue value);
 
         /// <summary>
-        /// Updates a value of the specified <paramref name="valueType"/> in the repository.
+        /// Updates an object of the specified <paramref name="valueType"/> in the repository
         /// </summary>
-        /// <param name="valueType">The type of the value.</param>
-        /// <param name="value">The value to update.</param>
-        void Update(Type valueType, object value);
+        /// <param name="valueType">The type of the object to update.</param>
+        /// <param name="value">The object to update.</param>
+        void Update(
+            Type valueType,
+            object value);
 
         /// <summary>
-        /// Tries to update a value of type <typeparamref name="TValue"/> in the repository.
+        /// Tries to update a value of type <typeparamref name="TValue"/> in the repository
         /// </summary>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TValue">The type of the value to update.</typeparam>
         /// <param name="value">The value to update.</param>
-        /// <returns><c>true</c> if the value was successfully updated; otherwise, <c>false</c>.</returns>
+        /// <returns><c>true</c> if the value was updated successfully; otherwise, <c>false</c>.</returns>
         bool TryUpdate<TValue>(TValue value);
 
         /// <summary>
-        /// Tries to update a value of the specified <paramref name="valueType"/> in the repository.
+        /// Tries to update an object of the specified <paramref name="valueType"/> in the repository
         /// </summary>
-        /// <param name="valueType">The type of the value.</param>
-        /// <param name="value">The value to update.</param>
-        /// <returns><c>true</c> if the value was successfully updated; otherwise, <c>false</c>.</returns>
-        bool TryUpdate(Type valueType, object value);
+        /// <param name="valueType">The type of the object to update.</param>
+        /// <param name="value">The object to update.</param>
+        /// <returns><c>true</c> if the object was updated successfully; otherwise, <c>false</c>.</returns>
+        bool TryUpdate(
+            Type valueType,
+            object value);
 
         /// <summary>
-        /// Adds or updates a value of type <typeparamref name="TValue"/> in the repository.
+        /// Adds a value of type <typeparamref name="TValue"/> to the repository if it does not exist, or updates it if it already exists
         /// </summary>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TValue">The type of the value to add or update.</typeparam>
         /// <param name="value">The value to add or update.</param>
         void AddOrUpdate<TValue>(TValue value);
 
         /// <summary>
-        /// Adds or updates a value of the specified <paramref name="valueType"/> in the repository.
+        /// Adds an object of the specified <paramref name="valueType"/> to the repository if it does not exist, or updates it if it already exists
         /// </summary>
-        /// <param name="valueType">The type of the value.</param>
-        /// <param name="value">The value to add or update.</param>
-        void AddOrUpdate(Type valueType, object value);
+        /// <param name="valueType">The type of the object to add or update.</param>
+        /// <param name="value">The object to add or update.</param>
+        void AddOrUpdate(
+            Type valueType,
+            object value);
 
         /// <summary>
-        /// Gets the value of type <typeparamref name="TValue"/> from the repository.
+        /// Removes all values of type <typeparamref name="TValue"/> from the repository
         /// </summary>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
-        /// <returns>The value of type <typeparamref name="TValue"/> if found; otherwise, the default value.</returns>
-        TValue Get<TValue>();
-
-        /// <summary>
-        /// Gets the value of the specified <paramref name="valueType"/> from the repository.
-        /// </summary>
-        /// <param name="valueType">The type of the value.</param>
-        /// <returns>The value of the specified <paramref name="valueType"/> if found; otherwise, <c>null</c>.</returns>
-        object Get(Type valueType);
-
-        /// <summary>
-        /// Tries to get the value of type <typeparamref name="TValue"/> from the repository.
-        /// </summary>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
-        /// <param name="value">When this method returns, contains the value of type <typeparamref name="TValue"/> if found; otherwise, the default value.</param>
-        /// <returns><c>true</c> if the value was found; otherwise, <c>false</c>.</returns>
-        bool TryGet<TValue>(out TValue value);
-
-        /// <summary>
-        /// Tries to get the value of the specified <paramref name="valueType"/> from the repository.
-        /// </summary>
-        /// <param name="valueType">The type of the value.</param>
-        /// <param name="value">When this method returns, contains the value of the specified <paramref name="valueType"/> if found; otherwise, <c>null</c>.</param>
-        /// <returns><c>true</c> if the value was found; otherwise, <c>false</c>.</returns>
-        bool TryGet(Type valueType, out object value);
-
-        /// <summary>
-        /// Removes the value of type <typeparamref name="TValue"/> from the repository.
-        /// </summary>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <typeparam name="TValue">The type of the values to remove.</typeparam>
         void Remove<TValue>();
 
         /// <summary>
-        /// Removes the value of the specified <paramref name="valueType"/> from the repository.
+        /// Removes all objects of the specified <paramref name="valueType"/> from the repository
         /// </summary>
-        /// <param name="valueType">The type of the value.</param>
+        /// <param name="valueType">The type of the objects to remove.</param>
         void Remove(Type valueType);
 
         /// <summary>
-        /// Tries to remove the value of type <typeparamref name="TValue"/> from the repository.
+        /// Tries to remove all values of type <typeparamref name="TValue"/> from the repository
         /// </summary>
-        /// <typeparam name="TValue">The type of the value.</typeparam>
-        /// <returns><c>true</c> if the value was removed; otherwise, <c>false</c>.</returns>
+        /// <typeparam name="TValue">The type of the values to remove.</typeparam>
+        /// <returns><c>true</c> if the values were removed successfully; otherwise, <c>false</c>.</returns>
         bool TryRemove<TValue>();
 
         /// <summary>
-        /// Tries to remove the value of the specified <paramref name="valueType"/> from the repository.
+        /// Tries to remove all objects of the specified <paramref name="valueType"/> from the repository
         /// </summary>
-        /// <param name="valueType">The type of the value.</param>
-        /// <returns><c>true</c> if the value was removed; otherwise, <c>false</c>.</returns>
+        /// <param name="valueType">The type of the objects to remove.</param>
+        /// <returns><c>true</c> if the objects were removed successfully; otherwise, <c>false</c>.</returns>
         bool TryRemove(Type valueType);
 
         /// <summary>
-        /// Gets the collection of keys in the repository.
+        /// Removes all values and objects from the repository
         /// </summary>
-        IEnumerable<Type> Keys { get; }
+        void Clear();
     }
 }

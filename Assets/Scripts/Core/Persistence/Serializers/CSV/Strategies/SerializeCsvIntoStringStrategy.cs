@@ -1,9 +1,11 @@
 using System;
+using System.IO;
 using System.Collections;
 using System.Globalization;
-using System.IO;
 
 using HereticalSolutions.Persistence.Arguments;
+
+using HereticalSolutions.Logging;
 
 using CsvHelper;
 
@@ -11,7 +13,18 @@ namespace HereticalSolutions.Persistence.Serializers
 {
     public class SerializeCsvIntoStringStrategy : ICsvSerializationStrategy
     {
-        public bool Serialize(ISerializationArgument argument, Type valueType, object value)
+        private readonly ILogger logger;
+
+        public SerializeCsvIntoStringStrategy(
+            ILogger logger = null)
+        {
+            this.logger = logger;
+        }
+
+        public bool Serialize(
+            ISerializationArgument argument,
+            Type valueType,
+            object value)
         {
             using (StringWriter stringWriter = new StringWriter())
             {
@@ -37,7 +50,10 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
 
-        public bool Deserialize(ISerializationArgument argument, Type valueType, out object value)
+        public bool Deserialize(
+            ISerializationArgument argument,
+            Type valueType,
+            out object value)
         {
             using (StringReader stringReader = new StringReader(((StringArgument)argument).Value))
             {
@@ -71,6 +87,7 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
         
+
         public void Erase(ISerializationArgument argument)
         {
             ((StringArgument)argument).Value = string.Empty;

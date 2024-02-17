@@ -1,6 +1,9 @@
 namespace HereticalSolutions.Pools.Arguments
 {
-	public class AppendArgument : IPoolDecoratorArgument
-	{
-	}
+    /// <summary>
+    /// Represents an argument for appending values to the pool decorator.
+    /// </summary>
+    public class AppendArgument : IPoolDecoratorArgument
+    {
+    }
 }

@@ -1,5 +1,7 @@
 using HereticalSolutions.Pools.Decorators;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Pools.Factories
 {
     public static class IDDecoratorsPoolsFactory
@@ -17,11 +19,26 @@ namespace HereticalSolutions.Pools.Factories
 
         #region Non alloc decorator pools
 
+        /// <summary>
+        /// Builds a non-allocating decorator pool with ID.
+        /// </summary>
+        /// <typeparam name="T">The type of objects in the pool.</typeparam>
+        /// <param name="innerPool">The inner non-allocating pool to be decorated.</param>
+        /// <param name="id">The ID of the pool.</param>
+        /// <returns>A new instance of NonAllocPoolWithID&lt;T&gt;.</returns>
         public static NonAllocPoolWithID<T> BuildNonAllocPoolWithID<T>(
             INonAllocDecoratedPool<T> innerPool,
-            string id)
+            string id,
+            ILoggerResolver loggerResolver = null)
         {
-            return new NonAllocPoolWithID<T>(innerPool, id);
+            ILogger logger =
+                loggerResolver?.GetLogger<NonAllocPoolWithID<T>>()
+                ?? null;
+
+            return new NonAllocPoolWithID<T>(
+                innerPool,
+                id,
+                logger);
         }
 
         #endregion

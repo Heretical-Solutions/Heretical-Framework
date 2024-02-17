@@ -2,97 +2,143 @@ using System;
 
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.Logging;
+
 using YamlDotNet.Serialization;
 
 namespace HereticalSolutions.Persistence.Serializers
 {
-	public class YAMLSerializer : ISerializer
-	{
-		private readonly YamlDotNet.Serialization.ISerializer yamlSerializer; //THIS IS WHY NAMESPACES MATTER
-		
-		private readonly YamlDotNet.Serialization.IDeserializer yamlDeserializer; //THIS IS WHY NAMESPACES MATTER
+    public class YAMLSerializer : ISerializer
+    {
+        private readonly YamlDotNet.Serialization.ISerializer yamlSerializer;
 
-		private readonly IReadOnlyObjectRepository strategyRepository;
+        private readonly YamlDotNet.Serialization.IDeserializer yamlDeserializer;
 
-		public YAMLSerializer(IReadOnlyObjectRepository strategyRepository)
-		{
-			yamlSerializer = new SerializerBuilder().Build();
-			
-			yamlDeserializer = new DeserializerBuilder().Build();
+        private readonly IReadOnlyObjectRepository strategyRepository;
 
-			this.strategyRepository = strategyRepository;
-		}
+        private readonly ILogger logger;
 
-		#region ISerializer
-		
-		public bool Serialize<TValue>(ISerializationArgument argument, TValue DTO)
-		{
-			string yaml = yamlSerializer.Serialize(DTO);
-			
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[YAMLSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+        public YAMLSerializer(
+            IReadOnlyObjectRepository strategyRepository,
+            ILogger logger = null)
+        {
+            yamlSerializer = new SerializerBuilder().Build();
 
-			var concreteStrategy = (IYamlSerializationStrategy)strategyObject;
+            yamlDeserializer = new DeserializerBuilder().Build();
 
-			return concreteStrategy.Serialize(argument, yaml);
-		}
+            this.strategyRepository = strategyRepository;
 
-		public bool Serialize(ISerializationArgument argument, Type DTOType, object DTO)
-		{
-			string yaml = yamlSerializer.Serialize(DTO);
-			
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[YAMLSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+            this.logger = logger;
+        }
 
-			var concreteStrategy = (IYamlSerializationStrategy)strategyObject;
+        #region ISerializer
+        
+        public bool Serialize<TValue>(
+            ISerializationArgument argument,
+            TValue DTO)
+        {
+            string yaml = yamlSerializer.Serialize(DTO);
+            
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                throw new Exception(
+                    logger.TryFormat<YAMLSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
-			return concreteStrategy.Serialize(argument, yaml);
-		}
+            var concreteStrategy = (IYamlSerializationStrategy)strategyObject;
 
-		public bool Deserialize<TValue>(ISerializationArgument argument, out TValue DTO)
-		{
-			DTO = (TValue)Activator.CreateInstance(typeof(TValue));
-			
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[YAMLSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+            return concreteStrategy.Serialize(
+                argument,
+                yaml);
+        }
 
-			var concreteStrategy = (IYamlSerializationStrategy)strategyObject;
+        public bool Serialize(
+            ISerializationArgument argument,
+            Type DTOType,
+            object DTO)
+        {
+            string yaml = yamlSerializer.Serialize(DTO);
+            
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                throw new Exception(
+                    logger.TryFormat<YAMLSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
-			if (!concreteStrategy.Deserialize(argument, out var yaml))
-				return false;
+            var concreteStrategy = (IYamlSerializationStrategy)strategyObject;
 
-			DTO = yamlDeserializer.Deserialize<TValue>(yaml);
-			
-			return true;
-		}
+            return concreteStrategy.Serialize(
+                argument,
+                yaml);
+        }
 
-		public bool Deserialize(ISerializationArgument argument, Type DTOType, out object DTO)
-		{
-			DTO = Activator.CreateInstance(DTOType);
-			
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[YAMLSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+        public bool Deserialize<TValue>(
+            ISerializationArgument argument,
+            out TValue DTO)
+        {
+            DTO = (TValue)Activator.CreateInstance(typeof(TValue));
+            
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                throw new Exception(
+                    logger.TryFormat<YAMLSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
-			var concreteStrategy = (IYamlSerializationStrategy)strategyObject;
+            var concreteStrategy = (IYamlSerializationStrategy)strategyObject;
 
-			if (!concreteStrategy.Deserialize(argument, out var yaml))
-				return false;
+            if (!concreteStrategy.Deserialize(
+                argument,
+                out var yaml))
+                return false;
 
-			DTO = yamlDeserializer.Deserialize(yaml, DTOType);
+            DTO = yamlDeserializer.Deserialize<TValue>(yaml);
+            
+            return true;
+        }
 
-			return true;
-		}
+        public bool Deserialize(
+            ISerializationArgument argument,
+            Type DTOType,
+            out object DTO)
+        {
+            DTO = Activator.CreateInstance(DTOType);
+            
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                throw new Exception(
+                    logger.TryFormat<YAMLSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
-		public void Erase(ISerializationArgument argument)
-		{
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[YAMLSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+            var concreteStrategy = (IYamlSerializationStrategy)strategyObject;
 
-			var concreteStrategy = (IYamlSerializationStrategy)strategyObject;
-			
-			concreteStrategy.Erase(argument);
-		}
-		
-		#endregion
-	}
+            if (!concreteStrategy.Deserialize(
+                argument,
+                out var yaml))
+                return false;
+
+            DTO = yamlDeserializer.Deserialize(yaml, DTOType);
+
+            return true;
+        }
+
+        public void Erase(ISerializationArgument argument)
+        {
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                throw new Exception(
+                    logger.TryFormat<YAMLSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
+
+            var concreteStrategy = (IYamlSerializationStrategy)strategyObject;
+            
+            concreteStrategy.Erase(argument);
+        }
+        
+        #endregion
+    }
 }

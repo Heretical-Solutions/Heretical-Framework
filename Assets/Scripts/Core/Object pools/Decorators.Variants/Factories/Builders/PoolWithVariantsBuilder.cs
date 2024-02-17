@@ -1,7 +1,5 @@
 using System;
 
-using HereticalSolutions.Pools.Decorators;
-
 using HereticalSolutions.RandomGeneration;
 using HereticalSolutions.RandomGeneration.Factories;
 
@@ -9,51 +7,68 @@ using HereticalSolutions.Repositories;
 
 using HereticalSolutions.Repositories.Factories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Pools.Factories
 {
     public class PoolWithVariantsBuilder<T>
     {
-	    private IRepository<int, VariantContainer<T>> repository;
+        private readonly ILoggerResolver loggerResolver;
 
-	    private IRandomGenerator random;
+        private readonly ILogger logger;
 
-		public void Initialize()
-		{
-			repository = RepositoriesFactory.BuildDictionaryRepository<int, VariantContainer<T>>();
+        private IRepository<int, VariantContainer<T>> repository;
 
-			random = RandomFactory.BuildSystemRandomGenerator();
-		}
+        private IRandomGenerator random;
 
-		public void AddVariant(
-			int index,
-			float chance,
-			INonAllocDecoratedPool<T> poolByVariant)
-		{
-			repository.Add(
-				index,
-				new VariantContainer<T>
-				{
-					Chance = chance,
+        public PoolWithVariantsBuilder(
+            ILoggerResolver loggerResolver = null,
+            ILogger logger = null)
+        {
+            this.loggerResolver = loggerResolver;
 
-					Pool = poolByVariant
-				});
-		}
+            this.logger = logger;
+        }
 
+        public void Initialize()
+        {
+            repository = RepositoriesFactory.BuildDictionaryRepository<int, VariantContainer<T>>();
 
-		public INonAllocDecoratedPool<T> Build()
-		{
-			if (repository == null)
-				throw new Exception("[PoolWithVariantsBuilder] BUILDER NOT INITIALIZED");
+            random = RandomFactory.BuildSystemRandomGenerator();
+        }
 
-			var result = VariantsDecoratorsPoolsFactory.BuildNonAllocPoolWithVariants<T>(
-				repository,
-				random);
+        public void AddVariant(
+            int index,
+            float chance,
+            INonAllocDecoratedPool<T> poolByVariant)
+        {
+            repository.Add(
+                index,
+                new VariantContainer<T>
+                {
+                    Chance = chance,
 
-			repository = null;
+                    Pool = poolByVariant
+                });
+        }
 
-			random = null;
+        public INonAllocDecoratedPool<T> Build()
+        {
+            if (repository == null)
+                throw new Exception(
+                    logger.TryFormat<PoolWithVariantsBuilder<T>>(
+                        "BUILDER NOT INITIALIZED"));
 
-			return result;
-		}
+            var result = VariantsDecoratorsPoolsFactory.BuildNonAllocPoolWithVariants<T>(
+                repository,
+                random,
+                loggerResolver);
+
+            repository = null;
+
+            random = null;
+
+            return result;
+        }
     }
 }

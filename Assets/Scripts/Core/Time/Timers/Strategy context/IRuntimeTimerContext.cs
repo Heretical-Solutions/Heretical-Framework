@@ -2,7 +2,11 @@ using HereticalSolutions.Delegates;
 
 namespace HereticalSolutions.Time
 {
-    public interface IRuntimeTimerContext : ITimerWithState
+    /// <summary>
+    /// Represents the runtime timer context
+    /// </summary>
+    public interface IRuntimeTimerContext
+        : ITimerWithState
     {
         #region Variables
         
@@ -23,6 +27,8 @@ namespace HereticalSolutions.Time
         bool Accumulate { get; }
 
         bool Repeat { get; }
+
+        bool FlushTimeElapsedOnRepeat { get; }
 
         #endregion
 

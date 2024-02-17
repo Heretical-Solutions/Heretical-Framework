@@ -1,9 +1,19 @@
 namespace HereticalSolutions.Pools
 {
-	public class VariantContainer<T>
-	{
-		public float Chance;
+    /// <summary>
+    /// Represents a container for a variant pool.
+    /// </summary>
+    /// <typeparam name="T">The type of objects stored in the pool.</typeparam>
+    public class VariantContainer<T>
+    {
+        /// <summary>
+        /// The chance of selecting objects from the pool.
+        /// </summary>
+        public float Chance;
 
-		public INonAllocDecoratedPool<T> Pool;
-	}
+        /// <summary>
+        /// The variant pool of objects.
+        /// </summary>
+        public INonAllocDecoratedPool<T> Pool;
+    }
 }

@@ -1,89 +1,76 @@
-using System.Collections.Generic;
-
 namespace HereticalSolutions.Repositories
 {
     /// <summary>
-    /// Represents an interface for a repository.
+    /// Represents a generic repository interface that provides basic CRUD operations for a collection of key-value pairs
     /// </summary>
-    /// <typeparam name="TKey">The type of the repository key.</typeparam>
-    /// <typeparam name="TValue">The type of the repository value.</typeparam>
+    /// <typeparam name="TKey">The type of the keys in the repository.</typeparam>
+    /// <typeparam name="TValue">The type of the values in the repository.</typeparam>
     public interface IRepository<TKey, TValue>
+        : IReadOnlyRepository<TKey, TValue>
     {
         /// <summary>
-        /// Checks if the repository has a value associated with the specified <paramref name="key"/>.
+        /// Adds a new key-value pair to the repository
         /// </summary>
-        /// <param name="key">The key to check.</param>
-        /// <returns><c>true</c> if the repository has a value associated with the specified <paramref name="key"/>; otherwise, <c>false</c>.</returns>
-        bool Has(TKey key);
+        /// <param name="key">The key of the pair to add.</param>
+        /// <param name="value">The value of the pair to add.</param>
+        void Add(
+            TKey key,
+            TValue value);
 
         /// <summary>
-        /// Adds a value associated with the specified <paramref name="key"/> to the repository.
+        /// Tries to add a new key-value pair to the repository
         /// </summary>
-        /// <param name="key">The key to add.</param>
-        /// <param name="value">The value to add.</param>
-        void Add(TKey key, TValue value);
+        /// <param name="key">The key of the pair to add.</param>
+        /// <param name="value">The value of the pair to add.</param>
+        /// <returns><c>true</c> if the pair was added successfully; otherwise, <c>false</c>.</returns>
+        bool TryAdd(
+            TKey key,
+            TValue value);
 
         /// <summary>
-        /// Tries to add a value associated with the specified <paramref name="key"/> to the repository.
+        /// Updates the value of an existing key-value pair in the repository
         /// </summary>
-        /// <param name="key">The key to add.</param>
-        /// <param name="value">The value to add.</param>
-        /// <returns><c>true</c> if the value was added; otherwise, <c>false</c>.</returns>
-        bool TryAdd(TKey key, TValue value);
+        /// <param name="key">The key of the pair to update.</param>
+        /// <param name="value">The new value of the pair.</param>
+        void Update(
+            TKey key,
+            TValue value);
 
         /// <summary>
-        /// Updates the value associated with the specified <paramref name="key"/> in the repository.
+        /// Tries to update the value of an existing key-value pair in the repository
         /// </summary>
-        /// <param name="key">The key to update.</param>
-        /// <param name="value">The value to update.</param>
-        void Update(TKey key, TValue value);
+        /// <param name="key">The key of the pair to update.</param>
+        /// <param name="value">The new value of the pair.</param>
+        /// <returns><c>true</c> if the pair was updated successfully; otherwise, <c>false</c>.</returns>
+        bool TryUpdate(
+            TKey key,
+            TValue value);
 
         /// <summary>
-        /// Tries to update the value associated with the specified <paramref name="key"/> in the repository.
+        /// Adds a new key-value pair to the repository or updates the value of an existing pair
         /// </summary>
-        /// <param name="key">The key to update.</param>
-        /// <param name="value">The value to update.</param>
-        /// <returns><c>true</c> if the value was updated; otherwise, <c>false</c>.</returns>
-        bool TryUpdate(TKey key, TValue value);
+        /// <param name="key">The key of the pair to add or update.</param>
+        /// <param name="value">The value of the pair to add or update.</param>
+        void AddOrUpdate(
+            TKey key,
+            TValue value);
 
         /// <summary>
-        /// Adds or updates a value associated with the specified <paramref name="key"/> in the repository.
+        /// Removes a key-value pair from the repository
         /// </summary>
-        /// <param name="key">The key to add or update.</param>
-        /// <param name="value">The value to add or update.</param>
-        void AddOrUpdate(TKey key, TValue value);       
-
-        /// <summary>
-        /// Gets the value associated with the specified <paramref name="key"/> from the repository.
-        /// </summary>
-        /// <param name="key">The key to retrieve the value for.</param>
-        /// <returns>The value associated with the specified <paramref name="key"/> if found; otherwise, the default value for the value type.</returns>
-        TValue Get(TKey key);
-
-        /// <summary>
-        /// Tries to get the value associated with the specified <paramref name="key"/> from the repository.
-        /// </summary>
-        /// <param name="key">The key to retrieve the value for.</param>
-        /// <param name="value">When this method returns, contains the value associated with the specified <paramref name="key"/> if found; otherwise, the default value for the value type.</param>
-        /// <returns><c>true</c> if the value was found; otherwise, <c>false</c>.</returns>
-        bool TryGet(TKey key, out TValue value);
-
-        /// <summary>
-        /// Removes the value associated with the specified <paramref name="key"/> from the repository.
-        /// </summary>
-        /// <param name="key">The key to remove.</param>
+        /// <param name="key">The key of the pair to remove.</param>
         void Remove(TKey key);
 
         /// <summary>
-        /// Tries to remove the value associated with the specified <paramref name="key"/> from the repository.
+        /// Tries to remove a key-value pair from the repository
         /// </summary>
-        /// <param name="key">The key to remove.</param>
-        /// <returns><c>true</c> if the value was removed; otherwise, <c>false</c>.</returns>
+        /// <param name="key">The key of the pair to remove.</param>
+        /// <returns><c>true</c> if the pair was removed successfully; otherwise, <c>false</c>.</returns>
         bool TryRemove(TKey key);
 
         /// <summary>
-        /// Gets the collection of keys in the repository.
+        /// Removes all key-value pairs from the repository
         /// </summary>
-        IEnumerable<TKey> Keys { get; }
+        void Clear();
     }
 }

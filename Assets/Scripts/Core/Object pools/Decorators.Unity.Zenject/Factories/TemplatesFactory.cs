@@ -4,7 +4,8 @@ using HereticalSolutions.Allocations;
 using HereticalSolutions.Allocations.Factories;
 
 using HereticalSolutions.Pools.AllocationCallbacks;
-using HereticalSolutions.Pools.Allocations;
+
+using HereticalSolutions.Metadata.Allocations;
 
 using UnityEngine;
 
@@ -76,7 +77,7 @@ namespace HereticalSolutions.Pools.Factories
 	        var decoratorChain = new NonAllocDecoratorPoolChain<GameObject>();
 
 	        decoratorChain
-		        .Add(resizablePoolBuilder.Build())
+		        .Add(resizablePoolBuilder.BuildResizablePool())
 		        .Add(UnityDecoratorsPoolsFactory.BuildNonAllocGameObjectPool(decoratorChain.TopWrapper, poolParent))
 		        .Add(UnityDecoratorsPoolsFactory.BuildNonAllocPrefabInstancePool(decoratorChain.TopWrapper, prefab))
 		        .Add(IDDecoratorsPoolsFactory.BuildNonAllocPoolWithID<GameObject>(decoratorChain.TopWrapper, id));

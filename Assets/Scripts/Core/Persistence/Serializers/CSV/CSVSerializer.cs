@@ -2,73 +2,116 @@ using System;
 
 using HereticalSolutions.Repositories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Persistence.Serializers
 {
-	public class CSVSerializer : ISerializer
-	{
-		private readonly IReadOnlyObjectRepository strategyRepository;
+    public class CSVSerializer : ISerializer
+    {
+        private readonly IReadOnlyObjectRepository strategyRepository;
 
-		public CSVSerializer(IReadOnlyObjectRepository strategyRepository)
-		{
-			this.strategyRepository = strategyRepository;
-		}
+        private readonly ILogger logger;
 
-		#region ISerializer
-		
-		public bool Serialize<TValue>(ISerializationArgument argument, TValue DTO)
-		{
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[CSVSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+        public CSVSerializer(
+            IReadOnlyObjectRepository strategyRepository,
+            ILogger logger = null)
+        {
+            this.strategyRepository = strategyRepository;
 
-			var concreteStrategy = (ICsvSerializationStrategy)strategyObject;
+            this.logger = logger;
+        }
 
-			return concreteStrategy.Serialize(argument, typeof(TValue), DTO);
-		}
+        #region ISerializer
 
-		public bool Serialize(ISerializationArgument argument, Type DTOType, object DTO)
-		{
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[CSVSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+        public bool Serialize<TValue>(ISerializationArgument argument, TValue DTO)
+        {
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                throw new Exception(
+                    logger.TryFormat<CSVSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
-			var concreteStrategy = (ICsvSerializationStrategy)strategyObject;
+            var concreteStrategy = (ICsvSerializationStrategy)strategyObject;
 
-			return concreteStrategy.Serialize(argument, DTOType, DTO);
-		}
+            return concreteStrategy.Serialize(
+                argument,
+                typeof(TValue),
+                DTO);
+        }
 
-		public bool Deserialize<TValue>(ISerializationArgument argument, out TValue DTO)
-		{
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[CSVSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+        public bool Serialize(
+            ISerializationArgument argument,
+            Type DTOType,
+            object DTO)
+        {
+            if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
+                throw new Exception(
+                    logger.TryFormat<CSVSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
-			var concreteStrategy = (ICsvSerializationStrategy)strategyObject;
+            var concreteStrategy = (ICsvSerializationStrategy)strategyObject;
 
-			var result = concreteStrategy.Deserialize(argument, typeof(TValue), out object dtoObject);
+            return concreteStrategy.Serialize(
+                argument,
+                DTOType,
+                DTO);
+        }
 
-			DTO = (TValue)dtoObject;
+        public bool Deserialize<TValue>(
+            ISerializationArgument argument,
+            out TValue DTO)
+        {
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                throw new Exception(
+                    logger.TryFormat<CSVSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
-			return result;
-		}
+            var concreteStrategy = (ICsvSerializationStrategy)strategyObject;
 
-		public bool Deserialize(ISerializationArgument argument, Type DTOType, out object DTO)
-		{
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[CSVSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+            var result = concreteStrategy.Deserialize(
+                argument,
+                typeof(TValue),
+                out object dtoObject);
 
-			var concreteStrategy = (ICsvSerializationStrategy)strategyObject;
+            DTO = (TValue)dtoObject;
 
-			return concreteStrategy.Deserialize(argument, DTOType, out DTO);
-		}
+            return result;
+        }
 
-		public void Erase(ISerializationArgument argument)
-		{
-			if (!strategyRepository.TryGet(argument.GetType(), out var strategyObject))
-				throw new Exception($"[CSVSerializer] COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().ToString()}");
+        public bool Deserialize(
+            ISerializationArgument argument,
+            Type DTOType,
+            out object DTO)
+        {
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                throw new Exception(
+                    logger.TryFormat<CSVSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
 
-			var concreteStrategy = (ICsvSerializationStrategy)strategyObject;
-			
-			concreteStrategy.Erase(argument);
-		}
-		
-		#endregion
-	}
+            var concreteStrategy = (ICsvSerializationStrategy)strategyObject;
+
+            return concreteStrategy.Deserialize(argument, DTOType, out DTO);
+        }
+
+        public void Erase(ISerializationArgument argument)
+        {
+            if (!strategyRepository.TryGet(
+                argument.GetType(),
+                out var strategyObject))
+                throw new Exception(
+                    logger.TryFormat<CSVSerializer>(
+                        $"COULD NOT RESOLVE STRATEGY BY ARGUMENT: {argument.GetType().Name}"));
+
+            var concreteStrategy = (ICsvSerializationStrategy)strategyObject;
+
+            concreteStrategy.Erase(argument);
+        }
+
+        #endregion
+    }
 }

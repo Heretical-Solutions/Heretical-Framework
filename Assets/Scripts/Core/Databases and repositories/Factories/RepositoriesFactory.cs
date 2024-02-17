@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace HereticalSolutions.Repositories.Factories
 {
@@ -31,7 +32,7 @@ namespace HereticalSolutions.Repositories.Factories
             return new DictionaryObjectRepository(
                 database);
         }
-        
+
         /// <summary>
         /// Clones an existing <see cref="IRepository{Type, object}"/> and creates a new instance of <see cref="DictionaryObjectRepository"/>.
         /// </summary>
@@ -101,7 +102,69 @@ namespace HereticalSolutions.Repositories.Factories
             return new DictionaryRepository<TKey, TValue>(
                 new Dictionary<TKey, TValue>(contents));
         }
-        
+
+        #endregion
+
+        #region Concurrent dictionary object repository
+
+        public static ConcurrentDictionaryObjectRepository BuildConcurrentDictionaryObjectRepository()
+        {
+            return new ConcurrentDictionaryObjectRepository(
+                new ConcurrentDictionary<Type, object>());
+        }
+
+        public static ConcurrentDictionaryObjectRepository BuildConcurrentDictionaryObjectRepository(
+            ConcurrentDictionary<Type, object> database)
+        {
+            return new ConcurrentDictionaryObjectRepository(
+                database);
+        }
+
+        public static ConcurrentDictionaryObjectRepository BuildConcurrentDictionaryObjectRepository(
+            IEqualityComparer<Type> comparer)
+        {
+            return new ConcurrentDictionaryObjectRepository(
+                new ConcurrentDictionary<Type, object>(comparer));
+        }
+
+        public static ConcurrentDictionaryObjectRepository CloneConcurrentDictionaryObjectRepository(
+            ConcurrentDictionary<Type, object> contents)
+        {
+            return new ConcurrentDictionaryObjectRepository(
+                new ConcurrentDictionary<Type, object>(contents));
+        }
+
+        #endregion
+
+        #region Concurrent dictionary repository
+
+        public static ConcurrentDictionaryRepository<TKey, TValue> BuildConcurrentDictionaryRepository<TKey, TValue>()
+        {
+            return new ConcurrentDictionaryRepository<TKey, TValue>(
+                new ConcurrentDictionary<TKey, TValue>());
+        }
+
+        public static ConcurrentDictionaryRepository<TKey, TValue> BuildConcurrentDictionaryRepository<TKey, TValue>(
+            ConcurrentDictionary<TKey, TValue> database)
+        {
+            return new ConcurrentDictionaryRepository<TKey, TValue>(
+                database);
+        }
+
+        public static ConcurrentDictionaryRepository<TKey, TValue> BuildConcurrentDictionaryRepository<TKey, TValue>(
+            IEqualityComparer<TKey> comparer)
+        {
+            return new ConcurrentDictionaryRepository<TKey, TValue>(
+                new ConcurrentDictionary<TKey, TValue>(comparer));
+        }
+
+        public static ConcurrentDictionaryRepository<TKey, TValue> CloneConcurrentDictionaryRepository<TKey, TValue>(
+            ConcurrentDictionary<TKey, TValue> contents)
+        {
+            return new ConcurrentDictionaryRepository<TKey, TValue>(
+                new ConcurrentDictionary<TKey, TValue>(contents));
+        }
+
         #endregion
     }
 }

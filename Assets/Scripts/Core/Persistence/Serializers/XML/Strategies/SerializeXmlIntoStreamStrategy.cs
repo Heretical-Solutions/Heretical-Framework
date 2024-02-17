@@ -1,18 +1,35 @@
 using System.IO;
+
 using System.Xml.Serialization;
 
 using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.IO;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Persistence.Serializers
 {
     public class SerializeXmlIntoStreamStrategy : IXmlSerializationStrategy
     {
-        public bool Serialize(ISerializationArgument argument, XmlSerializer serializer, object value)
+        private readonly ILogger logger;
+
+        public SerializeXmlIntoStreamStrategy(
+            ILogger logger = null)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            this.logger = logger;
+        }
+
+        public bool Serialize(
+            ISerializationArgument argument,
+            XmlSerializer serializer,
+            object value)
+        {
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            if (!StreamIO.OpenWriteStream(fileSystemSettings, out StreamWriter streamWriter))
+            if (!StreamIO.OpenWriteStream(
+                filePathSettings,
+                out StreamWriter streamWriter,
+                logger))
                 return false;
             
             serializer.Serialize(streamWriter, value);
@@ -22,13 +39,19 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
 
-        public bool Deserialize(ISerializationArgument argument, XmlSerializer serializer, out object value)
+        public bool Deserialize(
+            ISerializationArgument argument,
+            XmlSerializer serializer,
+            out object value)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
 
-            if (!StreamIO.OpenReadStream(fileSystemSettings, out StreamReader streamReader))
+            if (!StreamIO.OpenReadStream(
+                filePathSettings,
+                out StreamReader streamReader,
+                logger))
             {
-                value = default(object);
+                value = default;
                 
                 return false;
             }
@@ -42,9 +65,9 @@ namespace HereticalSolutions.Persistence.Serializers
 
         public void Erase(ISerializationArgument argument)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            StreamIO.Erase(fileSystemSettings);
+            StreamIO.Erase(filePathSettings);
         }
     }
 }

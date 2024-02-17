@@ -2,6 +2,8 @@ using System;
 
 using HereticalSolutions.MVVM.View;
 
+using ILogger = HereticalSolutions.Logging.ILogger;
+
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -18,25 +20,29 @@ namespace HereticalSolutions.MVVM.UIToolkit
         public BackgroundColorView(
             IViewModel viewModel,
             string propertyID,
-            VisualElement visualElement)
-            : base(viewModel)
+            VisualElement visualElement,
+            ILogger logger = null)
+            : base(
+                viewModel,
+                logger)
         {
             this.propertyID = propertyID;
 
             this.visualElement = visualElement;
         }
-        
-        public override void Initialize()
+
+        protected override void InitializeInternal(object[] args)
         {
-            if (!viewModel.GetObservable<Color>(propertyID, out colorProperty))
-                //Debug.LogError(
-                throw new Exception($"[BackgroundColorView] Could not obtain property \"{propertyID}\" from ViewModel \"{viewModel.GetType()}\"");
+            if (!viewModel.GetObservable<Color>(
+                propertyID,
+                out colorProperty))
+                throw new Exception(
+                    logger.FormatException(
+                        $"Could not obtain property \"{propertyID}\" from ViewModel \"{viewModel.GetType()}\""));
             
             colorProperty.OnValueChanged += OnColorChanged;
 
             OnColorChanged(colorProperty.Value);
-
-            base.Initialize();
         }
         
         protected void OnColorChanged(Color newValue)
@@ -44,16 +50,16 @@ namespace HereticalSolutions.MVVM.UIToolkit
             visualElement.style.backgroundColor = newValue;
         }
 
-        public override void Cleanup()
+        protected override void CleanupInternal()
         {
-            base.Cleanup();
-
             if (colorProperty != null)
             {
                 colorProperty.OnValueChanged -= OnColorChanged;
 
                 colorProperty = null;
             }
+
+            base.CleanupInternal();
         }
     }
 }

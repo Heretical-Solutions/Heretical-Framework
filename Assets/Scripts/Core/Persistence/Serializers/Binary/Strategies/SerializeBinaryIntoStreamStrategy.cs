@@ -1,18 +1,39 @@
 using System.IO;
+
 using System.Runtime.Serialization.Formatters.Binary;
 
 using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.IO;
 
+using HereticalSolutions.Logging;
+
+//BinaryFormatter.Serialize(Stream, object)' is obsolete: 'BinaryFormatter serialization is obsolete and should not be used. See https://aka.ms/binaryformatter for more information
+// Disable the warning
+#pragma warning disable SYSLIB0011
+
 namespace HereticalSolutions.Persistence.Serializers
 {
     public class SerializeBinaryIntoStreamStrategy : IBinarySerializationStrategy
     {
-        public bool Serialize(ISerializationArgument argument, BinaryFormatter formatter, object value)
+        private readonly ILogger logger;
+
+        public SerializeBinaryIntoStreamStrategy(
+            ILogger logger = null)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            this.logger = logger;
+        }
+
+        public bool Serialize(
+            ISerializationArgument argument,
+            BinaryFormatter formatter,
+            object value)
+        {
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            if (!StreamIO.OpenWriteStream(fileSystemSettings, out FileStream fileStream))
+            if (!StreamIO.OpenWriteStream(
+                filePathSettings,
+                out FileStream fileStream,
+                logger))
                 return false;
             
             formatter.Serialize(fileStream, value);
@@ -22,13 +43,19 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
 
-        public bool Deserialize(ISerializationArgument argument, BinaryFormatter formatter, out object value)
+        public bool Deserialize(
+            ISerializationArgument argument,
+            BinaryFormatter formatter,
+            out object value)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            if (!StreamIO.OpenReadStream(fileSystemSettings, out FileStream fileStream))
+            if (!StreamIO.OpenReadStream(
+                filePathSettings,
+                out FileStream fileStream,
+                logger))
             {
-                value = default(object);
+                value = default;
                 
                 return false;
             }
@@ -42,9 +69,9 @@ namespace HereticalSolutions.Persistence.Serializers
 
         public void Erase(ISerializationArgument argument)
         {
-            FileSystemSettings fileSystemSettings = ((StreamArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((StreamArgument)argument).Settings;
             
-            StreamIO.Erase(fileSystemSettings);
+            StreamIO.Erase(filePathSettings);
         }
     }
 }

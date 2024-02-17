@@ -1,147 +1,153 @@
 using System;
 using System.Collections.Generic;
 
+using HereticalSolutions.Repositories;
+
+using HereticalSolutions.LifetimeManagement;
+
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.MVVM.ViewModel
 {
-    /// <summary>
-    /// Base class for view models containing boilerplate logic
-    /// </summary>
-    
-    public abstract class AViewModel : IViewModel
+    public abstract class AViewModel
+        : ALifetimeable,
+          IViewModel
     {
-        #region ILifetimable
-        
-        public bool IsSetUp { get; protected set; } = false;
-        
-        public bool IsInitialized { get; protected set; } = false;
-        
-        /// <summary>
-        /// Initialization callback
-        /// </summary>
-        public Action OnInitialized { get; set; }
+        protected readonly IRepository<string, CommandDelegate> commands;
 
-        /// <summary>
-        /// Cleanup callback
-        /// </summary>
-        public Action OnCleanedUp { get; set; }
+        protected readonly IRepository<string, CommandWithArgsDelegate> commandsWithArguments;
 
-        /// <summary>
-        /// Destruction callback
-        /// </summary>
-        public Action OnTornDown { get; set; }
+        protected readonly IRepository<string, object> observables;
 
-        /// <summary>
-        /// Self initialization
-        /// </summary>
-        public virtual void SetUp()
+        public AViewModel(
+            IRepository<string, CommandDelegate> commands,
+            IRepository<string, CommandWithArgsDelegate> commandsWithArguments,
+            IRepository<string, object> observables,
+            ILogger logger = null)
+            : base (logger)
         {
-            IsSetUp = true;
+            this.commands = commands;
+
+            this.commandsWithArguments = commandsWithArguments;
+
+            this.observables = observables;
         }
 
-        /// <summary>
-        /// Initialize view model
-        /// </summary>
-        public virtual void Initialize()
+        //VMs should not be implementing a default IInitializable because they should be called Initialize(..) with their specific arguments
+        //by other VMs or bootstrappers that DO know which VMs they're initializing and what arguments they need
+        //
+        //Views on the other side are not required to have specific arguments to be initialized, so they can implement a default IInitializable
+        /*
+        #region IIinitializable
+
+        public virtual void Initialize(object[] args)
         {
+            if (!IsSetUp)
+            {
+                throw new Exception(
+                    logger.TryFormat(
+                        GetType(),
+                        "VIEWMODEL SHOULD BE SET UP BEFORE BEING INITIALIZED"));
+            }
+
             if (IsInitialized)
             {
-                throw new Exception($"[AViewModel] Initializing a view model that is already initialized: {this.GetType().ToBeautifulString()}");
+                throw new Exception(
+                    logger.TryFormat(
+                        GetType(),
+                        $"INITIALIZING VIEWMODEL THAT IS ALREADY INITIALIZED"));
             }
+
+            InitializeInternal(args);
 
             IsInitialized = true;
 
             OnInitialized?.Invoke();
         }
 
-        /// <summary>
-        /// Clean up view model
-        /// </summary>
-        public virtual void Cleanup()
-        {
-            IsInitialized = false;
-
-            OnCleanedUp?.Invoke();
-
-            UnpublishObservables();
-            
-            UnpublishCommands();
-        }
-
-        /// <summary>
-        /// Tear down view model
-        /// </summary>
-        public virtual void TearDown()
-        {
-            IsSetUp = false;
-            
-            Cleanup();
-
-            OnTornDown?.Invoke();
-            
-            
-            OnInitialized = null;
-            
-            OnCleanedUp = null;
-            
-            OnTornDown = null;
-        }
-
         #endregion
+        */
 
-        #region Observables
-
-        /// <summary>
-        /// Exposed observables list
-        /// </summary>
-        protected Dictionary<string, object> observables = new Dictionary<string, object>();
+        #region IViewModel
 
         /// <summary>
-        /// Add the observable to list of exposed observables
+        /// Tries to get an observable by its identifier
         /// </summary>
-        /// <param name="key">Identifier</param>
-        /// <param name="observable">Observable</param>
-        protected void PublishObservable(string key, object observable)
-        {
-            if (observables.ContainsKey(key))
-            {
-                //Debug.LogError(
-                throw new Exception($"[AViewModel] Exposed observables list already has a key \"{key}\": {this.GetType().ToBeautifulString()}");
-            }
-
-            observables.Add(key, observable);
-        }
-
-        /// <summary>
-        /// Try get the observable by identifier
-        /// </summary>
-        /// <typeparam name="T">Observable generic type</typeparam>
-        /// <param name="key">Identifier</param>
-        /// <param name="observable">Observable</param>
+        /// <typeparam name="T">Generic type of the observable</typeparam>
+        /// <param name="key">Identifier of the observable</param>
+        /// <param name="observable">Observable object</param>
         /// <returns>Whether the observable is present in the exposed observables list</returns>
-        public bool GetObservable<T>(string key, out IObservableProperty<T> observable)
+        public bool GetObservable<T>(
+            string key,
+            out IObservableProperty<T> observable)
         {
-            object output;
+            bool result = observables.TryGet(
+                key,
+                out object output);
 
-            bool result = observables.TryGetValue(key, out output);
-
-            /*
-            if (!result)
-            {
-                //Debug.LogError(
-                throw new Exception($"[AViewModel] Exposed observables list does not have a key \"{key}\": {this.GetType().ToBeautifulString()}");
-            }
-            */
-
-            observable = result ? (IObservableProperty<T>)output : null;
+            observable = result
+                ? (IObservableProperty<T>)output
+                : null;
 
             return result;
         }
         
         /// <summary>
-        /// Try to poll observable property's value with active poll delegate
+        /// Tries to get a command by its identifier
+        /// </summary>
+        /// <param name="key">Identifier of the command</param>
+        /// <returns>Command delegate</returns>
+        public CommandDelegate GetCommand(string key)
+        {
+            if (!commands.TryGet(
+                key,
+                out CommandDelegate result))
+            {
+                throw new Exception(
+                    logger.TryFormat(
+                        GetType(),
+                        $"EXPOSED COMMANDS LIST DOES NOT HAVE A KEY \"{key}\""));
+            }
+
+            return result;
+        }
+        
+        /// <summary>
+        /// Tries to get a command with arguments by its identifier
+        /// </summary>
+        /// <param name="key">Identifier of the command</param>
+        /// <returns>Command delegate</returns>
+        public CommandWithArgsDelegate GetCommandWithArguments(string key)
+        {
+            if (!commandsWithArguments.TryGet(
+                key,
+                out CommandWithArgsDelegate result))
+            {
+                throw new Exception(
+                    logger.TryFormat(
+                        GetType(),
+                        $"EXPOSED COMMANDS WITH ARGUMENTS LIST DOES NOT HAVE A KEY \"{key}\""));
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        protected override void CleanupInternal()
+        {
+            UnpublishObservables();
+
+            UnpublishCommands();
+
+            base.CleanupInternal();
+        }
+
+        /// <summary>
+        /// Tries to poll the value of an observable property using the active poll delegate
         /// </summary>
         /// <param name="observableProperty">Observable property</param>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T">Value type of the observable property</typeparam>
         protected void TryPollObservable<T>(IObservableProperty<T> observableProperty)
         {
             if (observableProperty != null)
@@ -149,10 +155,10 @@ namespace HereticalSolutions.MVVM.ViewModel
         }
 
         /// <summary>
-        /// Tear down the observable and clean it up
+        /// Tears down the observable and cleans it up
         /// </summary>
         /// <param name="observableProperty">Observable property</param>
-        /// <typeparam name="T">Observable value type</typeparam>
+        /// <typeparam name="T">Value type of the observable property</typeparam>
         protected void TearDownObservable<T>(ref IObservableProperty<T> observableProperty)
         {
             if (observableProperty != null)
@@ -164,109 +170,85 @@ namespace HereticalSolutions.MVVM.ViewModel
         }
 
         /// <summary>
-        /// Cleanup the exposed observables list
+        /// Adds an observable to the list of exposed observables
+        /// </summary>
+        /// <param name="key">Identifier for the observable</param>
+        /// <param name="observable">Observable object</param>
+        protected void PublishObservable(
+            string key,
+            object observable)
+        {
+            if (observables.Has(key))
+            {
+                throw new Exception(
+                    logger.TryFormat(
+                        GetType(),
+                        $"EXPOSED OBSERVABLES LIST ALREADY HAS A KEY \"{key}\""));
+            }
+
+            observables.TryAdd(
+                key,
+                observable);
+        }
+
+        /// <summary>
+        /// Cleans up the exposed observables list
         /// </summary>
         protected void UnpublishObservables()
         {
             observables.Clear();
         }
-        
-        #endregion
-        
-        #region Commands
-        
-        /// <summary>
-        /// List of delegates that views can fire as callbacks to user actions
-        /// </summary>
-        /// <typeparam name="string">Key</typeparam>
-        /// <typeparam name="CommandDelegate">Value</typeparam>
-        protected Dictionary<string, CommandDelegate> commands = new Dictionary<string, CommandDelegate>();
 
         /// <summary>
-        /// List of delegates that views can fire as callbacks to user actions (with arguments)
+        /// Adds a delegate to the list of exposed commands
         /// </summary>
-        /// <typeparam name="string">Key</typeparam>
-        /// <typeparam name="CommandWithArgsDelegate">Value</typeparam>
-        protected Dictionary<string, CommandWithArgsDelegate> commandsWithArguments = new Dictionary<string, CommandWithArgsDelegate>();
-        
-        /// <summary>
-        /// Add the delegate to list of exposed commands
-        /// </summary>
-        /// <param name="key">Identifier</param>
-        /// <param name="delegate">Delegate</param>
+        /// <param name="key">Identifier for the command</param>
+        /// <param name="delegate">Delegate object</param>
         protected void PublishCommand(string key, CommandDelegate @delegate)
         {
-            if (commands.ContainsKey(key))
+            if (commands.Has(key))
             {
-                //Debug.LogError(
-                throw new Exception($"[AViewModel] Exposed commands list already has a key \"{key}\": {this.GetType().ToBeautifulString()}");
+                throw new Exception(
+                    logger.TryFormat(
+                        GetType(),
+                        $"EXPOSED COMMANDS LIST ALREADY HAS A KEY \"{key}\""));
             }
 
-            commands.Add(key, @delegate);
+            commands.TryAdd(
+                key,
+                @delegate);
         }
-        
+
         /// <summary>
-        /// Add the delegate to list of exposed commands with arguments
+        /// Adds a delegate to the list of exposed commands with arguments
         /// </summary>
-        /// <param name="key">Identifier</param>
-        /// <param name="delegate">Delegate</param>
-        protected void PublishCommandWithArguments(string key, CommandWithArgsDelegate @delegate)
+        /// <param name="key">Identifier for the command</param>
+        /// <param name="delegate">Delegate object</param>
+        protected void PublishCommandWithArguments(
+            string key,
+            CommandWithArgsDelegate @delegate)
         {
-            if (commandsWithArguments.ContainsKey(key))
+            if (commandsWithArguments.Has(key))
             {
-                //Debug.LogError(
-                throw new Exception($"[AViewModel] Exposed commands with arguments list already has a key \"{key}\": {this.GetType().ToBeautifulString()}");
+                throw new Exception(
+                    logger.TryFormat(
+                        GetType(),
+                        $"EXPOSED COMMANDS WITH ARGUMENTS LIST ALREADY HAS A KEY \"{key}\""));
             }
 
-            commandsWithArguments.Add(key, @delegate);
+            commandsWithArguments.TryAdd(
+                key,
+                @delegate);
         }
 
         /// <summary>
-        /// Try get the command by identifier
-        /// </summary>
-        /// <param name="key">Identifier</param>
-        /// <returns>Command</returns>
-        public CommandDelegate GetCommand(string key)
-        {
-            CommandDelegate result = null;
-
-            if (!commands.TryGetValue(key, out result))
-            {
-                //Debug.LogError(
-                throw new Exception($"[AViewModel] Exposed commands list does not have a key \"{key}\": {this.GetType().ToBeautifulString()}");
-            }
-
-            return result;
-        }
-        
-        /// <summary>
-        /// Try get the command with arguments by identifier
-        /// </summary>
-        /// <param name="key">Identifier</param>
-        /// <returns>Command</returns>
-        public CommandWithArgsDelegate GetCommandWithArguments(string key)
-        {
-            CommandWithArgsDelegate result = null;
-
-            if (!commandsWithArguments.TryGetValue(key, out result))
-            {
-                //Debug.LogError(
-                throw new Exception($"[AViewModel] Exposed commands with arguments list does not have a key \"{key}\": {this.GetType().ToBeautifulString()}");
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Cleanup the exposed commands list
+        /// Cleans up the exposed commands list
         /// </summary>
         protected void UnpublishCommands()
         {
             commands.Clear();
-            
+
             commandsWithArguments.Clear();
         }
-
-        #endregion
     }
 }

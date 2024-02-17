@@ -1,17 +1,22 @@
 using System;
 using System.IO;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Persistence.IO
 {
     public static class TextFileIO
     {
         public static bool Write(
-            FileSystemSettings settings,
-            string contents)
+            FilePathSettings settings,
+            string contents,
+            ILogger logger = null)
         {
             string savePath = settings.FullPath;
 
-            EnsureDirectoryExists(savePath);
+            EnsureDirectoryExists(
+                savePath,
+                logger);
 
             File.WriteAllText(savePath, contents);
 
@@ -19,12 +24,15 @@ namespace HereticalSolutions.Persistence.IO
         }
         
         public static bool Write(
-            FileSystemSettings settings,
-            byte[] contents)
+            FilePathSettings settings,
+            byte[] contents,
+            ILogger logger = null)
         {
             string savePath = settings.FullPath;
 
-            EnsureDirectoryExists(savePath);
+            EnsureDirectoryExists(
+                savePath,
+                logger);
 
             File.WriteAllBytes(savePath, contents);
 
@@ -32,14 +40,17 @@ namespace HereticalSolutions.Persistence.IO
         }
 
         public static bool Read(
-            FileSystemSettings settings,
-            out string contents)
+            FilePathSettings settings,
+            out string contents,
+            ILogger logger = null)
         {
             string savePath = settings.FullPath;
 
             contents = string.Empty;
 			
-            if (!FileExists(savePath))
+            if (!FileExists(
+                savePath,
+                logger))
                 return false;
 			
             contents = File.ReadAllText(savePath);
@@ -48,14 +59,17 @@ namespace HereticalSolutions.Persistence.IO
         }
         
         public static bool Read(
-            FileSystemSettings settings,
-            out byte[] contents)
+            FilePathSettings settings,
+            out byte[] contents,
+            ILogger logger = null)
         {
             string savePath = settings.FullPath;
 
             contents = null;
 			
-            if (!FileExists(savePath))
+            if (!FileExists(
+                savePath,
+                logger))
                 return false;
 			
             contents = File.ReadAllBytes(savePath);
@@ -63,7 +77,11 @@ namespace HereticalSolutions.Persistence.IO
             return true;
         }
 
-        public static void Erase(FileSystemSettings settings)
+        /// <summary>
+        /// Deletes the file specified by the given <see cref="FilePathSettings"/>, if it exists
+        /// </summary>
+        /// <param name="settings">The file system settings.</param>
+        public static void Erase(FilePathSettings settings)
         {
             string savePath = settings.FullPath;
 
@@ -71,21 +89,19 @@ namespace HereticalSolutions.Persistence.IO
                 File.Delete(savePath);
         }
 
-        /// <summary>
-        /// Checks whether the file at the specified path exists
-        /// - Also makes sure the folder directory specified in the path actually exists anyway
-        /// </summary>
-        /// <param name="path">Path to the file</param>
-        /// <returns>Does the file exist</returns>
-        private static bool FileExists(string path)
+        private static bool FileExists(
+            string path,
+            ILogger logger = null)
         {
             if (string.IsNullOrEmpty(path))
-                throw new Exception("[TextFileIO] INVALID PATH");
+                throw new Exception(
+                    logger.TryFormat("INVALID PATH"));
 			
             string directoryPath = Path.GetDirectoryName(path);
 
             if (string.IsNullOrEmpty(directoryPath))
-                throw new Exception("[TextFileIO] INVALID DIRECTORY PATH");
+                throw new Exception(
+                    logger.TryFormat("INVALID DIRECTORY PATH"));
 			
             if (!Directory.Exists(directoryPath))
             {
@@ -95,15 +111,19 @@ namespace HereticalSolutions.Persistence.IO
             return File.Exists(path);
         }
 
-        private static void EnsureDirectoryExists(string path)
+        private static void EnsureDirectoryExists(
+            string path,
+            ILogger logger = null)
         {
             if (string.IsNullOrEmpty(path))
-                throw new Exception("[TextFileIO] INVALID PATH");
+                throw new Exception(
+                    logger.TryFormat($"INVALID PATH"));
 			
             string directoryPath = Path.GetDirectoryName(path);
 
             if (string.IsNullOrEmpty(directoryPath))
-                throw new Exception("[TextFileIO] INVALID DIRECTORY PATH");
+                throw new Exception(
+                    logger.TryFormat("INVALID DIRECTORY PATH"));
 			
             if (!Directory.Exists(directoryPath))
             {

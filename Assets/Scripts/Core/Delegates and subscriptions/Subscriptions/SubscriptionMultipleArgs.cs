@@ -4,23 +4,37 @@ using HereticalSolutions.Delegates.Factories;
 
 using HereticalSolutions.Pools;
 
+using HereticalSolutions.LifetimeManagement;
+
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Delegates.Subscriptions
 {
+    /// <summary>
+    /// Represents a subscription with multiple arguments.
+    /// </summary>
     public class SubscriptionMultipleArgs
         : ISubscription,
           ISubscriptionState<IInvokableMultipleArgs>,
-          ISubscriptionHandler<INonAllocSubscribableMultipleArgs, IInvokableMultipleArgs>
+          ISubscriptionHandler<INonAllocSubscribableMultipleArgs, IInvokableMultipleArgs>,
+          ICleanUppable,
+          IDisposable
     {
         private readonly IInvokableMultipleArgs invokable;
-        
+
+        private readonly ILogger logger;
+
         private INonAllocSubscribableMultipleArgs publisher;
 
-        private IPoolElement<IInvokableMultipleArgs> poolElement;
+        private IPoolElement<ISubscription> poolElement;
         
         public SubscriptionMultipleArgs(
-            Action<object[]> @delegate)
+            Action<object[]> @delegate,
+            ILogger logger = null)
         {
             invokable = DelegatesFactory.BuildDelegateWrapperMultipleArgs(@delegate);
+
+            this.logger = logger;
 
             Active = false;
 
@@ -31,36 +45,27 @@ namespace HereticalSolutions.Delegates.Subscriptions
 
         #region ISubscription
         
+        /// <summary>
+        /// Gets or sets the active state of the subscription.
+        /// </summary>
         public bool Active { get; private set;  }
 
         #endregion
         
-        /*
-        public void Subscribe(INonAllocSubscribableMultipleArgs publisher)
-        {
-            if (Active)
-                return;
-            
-            publisher.Subscribe(this);
-        }
-
-        public void Unsubscribe()
-        {
-            if (!Active)
-                return;
-
-            publisher.Unsubscribe(this);
-        }
-        */
-        
         #region ISubscriptionState
 
+        /// <summary>
+        /// Gets the delegate that the subscription can invoke.
+        /// </summary>
         public IInvokableMultipleArgs Invokable
         {
             get => invokable;
         }
 
-        public IPoolElement<IInvokableMultipleArgs> PoolElement
+        /// <summary>
+        /// Gets the pool element associated with the subscription.
+        /// </summary>
+        public IPoolElement<ISubscription> PoolElement
         {
             get => poolElement;
         }
@@ -69,48 +74,83 @@ namespace HereticalSolutions.Delegates.Subscriptions
 
         #region ISubscriptionHandler
         
+        /// <summary>
+        /// Validates whether the subscription can be activated.
+        /// </summary>
+        /// <param name="publisher">The publisher to subscribe to.</param>
+        /// <returns>True if the subscription can be activated, false otherwise.</returns>
         public bool ValidateActivation(INonAllocSubscribableMultipleArgs publisher)
         {
             if (Active)
-                throw new Exception("[SubscriptionMultipleArgs] ATTEMPT TO ACTIVATE A SUBSCRIPTION THAT IS ALREADY ACTIVE");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionMultipleArgs>(
+                        "ATTEMPT TO ACTIVATE A SUBSCRIPTION THAT IS ALREADY ACTIVE"));
 			
             if (this.publisher != null)
-                throw new Exception("[SubscriptionMultipleArgs] SUBSCRIPTION ALREADY HAS A PUBLISHER");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionMultipleArgs>(
+                        "SUBSCRIPTION ALREADY HAS A PUBLISHER"));
 			
             if (poolElement != null)
-                throw new Exception("[SubscriptionMultipleArgs] SUBSCRIPTION ALREADY HAS A POOL ELEMENT");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionMultipleArgs>(
+                        "SUBSCRIPTION ALREADY HAS A POOL ELEMENT"));
 			
             if (invokable == null)
-                throw new Exception("[SubscriptionMultipleArgs] INVALID DELEGATE");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionMultipleArgs>(
+                        "INVALID DELEGATE"));
 
             return true;
         }
         
+        /// <summary>
+        /// Activates the subscription.
+        /// </summary>
+        /// <param name="publisher">The publisher to subscribe to.</param>
+        /// <param name="poolElement">The pool element associated with the subscription.</param>
         public void Activate(
             INonAllocSubscribableMultipleArgs publisher,
-            IPoolElement<IInvokableMultipleArgs> poolElement)
+            IPoolElement<ISubscription> poolElement)
         {
             this.poolElement = poolElement;
 
             this.publisher = publisher;
             
             Active = true;
+
+            logger?.Log<SubscriptionMultipleArgs>(
+                $"SUBSCRIPTION ACTIVATED: {this.GetHashCode()}");
         }
         
+        /// <summary>
+        /// Validates whether the subscription can be terminated.
+        /// </summary>
+        /// <param name="publisher">The publisher to unsubscribe from.</param>
+        /// <returns>True if the subscription can be terminated, false otherwise.</returns>
         public bool ValidateTermination(INonAllocSubscribableMultipleArgs publisher)
         {
             if (!Active)
-                throw new Exception("[SubscriptionMultipleArgs] ATTEMPT TO TERMINATE A SUBSCRIPTION THAT IS ALREADY ACTIVE");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionMultipleArgs>(
+                        "ATTEMPT TO TERMINATE A SUBSCRIPTION THAT IS ALREADY ACTIVE"));
 			
             if (this.publisher != publisher)
-                throw new Exception("[SubscriptionMultipleArgs] INVALID PUBLISHER");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionMultipleArgs>(
+                        "INVALID PUBLISHER"));
 			
             if (poolElement == null)
-                throw new Exception("[SubscriptionMultipleArgs] INVALID POOL ELEMENT");
+                throw new Exception(
+                    logger.TryFormat<SubscriptionMultipleArgs>(
+                        "INVALID POOL ELEMENT"));
 
             return true;
         }
         
+        /// <summary>
+        /// Terminates the subscription.
+        /// </summary>
         public void Terminate()
         {
             poolElement = null;
@@ -118,6 +158,39 @@ namespace HereticalSolutions.Delegates.Subscriptions
             publisher = null;
             
             Active = false;
+
+            logger?.Log<SubscriptionMultipleArgs>(
+                $"SUBSCRIPTION TERMINATED: {this.GetHashCode()}");
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            //if (Active)
+            //    publisher.Unsubscribe(this);
+
+            Terminate();
+
+            if (invokable is ICleanUppable)
+                (invokable as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            //if (Active)
+            //    publisher.Unsubscribe(this);
+
+            Terminate();
+
+            if (invokable is IDisposable)
+                (invokable as IDisposable).Dispose();
         }
 
         #endregion

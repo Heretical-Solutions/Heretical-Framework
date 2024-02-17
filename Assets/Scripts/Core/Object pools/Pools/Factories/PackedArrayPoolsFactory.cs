@@ -1,286 +1,296 @@
 using System;
 
 using HereticalSolutions.Collections;
+
 using HereticalSolutions.Allocations;
 
 using HereticalSolutions.Pools.GenericNonAlloc;
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools.Factories
 {
-	public static partial class PoolsFactory
-	{
-		#region Packed array pool
+    public static partial class PoolsFactory
+    {
+        #region Packed array pool
 
-		#region Build
-		
-		public static PackedArrayPool<T> BuildPackedArrayPool<T>(
-			AllocationCommand<IPoolElement<T>> allocationCommand)
-		{
-			int initialAmount = CountInitialAllocationAmount<T>(allocationCommand);
+        #region Build
 
-			IPoolElement<T>[] contents = new IPoolElement<T>[initialAmount];
+        public static PackedArrayPool<T> BuildPackedArrayPool<T>(
+            AllocationCommand<IPoolElement<T>> allocationCommand,
+            ILoggerResolver loggerResolver = null)
+        {
+            ILogger logger =
+                loggerResolver?.GetLogger<PackedArrayPool<T>>()
+                ?? null;
 
-			PerformAllocation(initialAmount, contents, allocationCommand);
+            int initialAmount = CountInitialAllocationAmount<T>(allocationCommand);
 
-			return new PackedArrayPool<T>(contents);
-		}
+            IPoolElement<T>[] contents = new IPoolElement<T>[initialAmount];
 
-		private static int CountInitialAllocationAmount<T>(AllocationCommand<IPoolElement<T>> allocationCommand)
-		{
-			int initialAmount = -1;
+            PerformAllocation(initialAmount, contents, allocationCommand);
 
-			switch (allocationCommand.Descriptor.Rule)
-			{
-				case EAllocationAmountRule.ZERO:
-					initialAmount = 0;
-					break;
+            return new PackedArrayPool<T>(
+                contents,
+                logger);
+        }
 
-				case EAllocationAmountRule.ADD_ONE:
-					initialAmount = 1;
-					break;
+        private static int CountInitialAllocationAmount<T>(AllocationCommand<IPoolElement<T>> allocationCommand)
+        {
+            int initialAmount = -1;
 
-				case EAllocationAmountRule.ADD_PREDEFINED_AMOUNT:
-					initialAmount = allocationCommand.Descriptor.Amount;
-					break;
+            switch (allocationCommand.Descriptor.Rule)
+            {
+                case EAllocationAmountRule.ZERO:
+                    initialAmount = 0;
+                    break;
 
-				default:
-					throw new Exception($"[PoolsFactory] INVALID ALLOCATION COMMAND RULE: {allocationCommand.Descriptor.Rule.ToString()}");
-			}
+                case EAllocationAmountRule.ADD_ONE:
+                    initialAmount = 1;
+                    break;
 
-			return initialAmount;
-		}
+                case EAllocationAmountRule.ADD_PREDEFINED_AMOUNT:
+                    initialAmount = allocationCommand.Descriptor.Amount;
+                    break;
 
-		private static void PerformAllocation<T>(
-			int initialAmount,
-			IPoolElement<T>[] contents,
-			AllocationCommand<IPoolElement<T>> allocationCommand)
-		{
-			for (int i = 0; i < initialAmount; i++)
-				contents[i] = allocationCommand.AllocationDelegate();
-		}
-		
-		#endregion
+                default:
+                    throw new Exception($"[PoolsFactory] INVALID ALLOCATION COMMAND RULE: {allocationCommand.Descriptor.Rule.ToString()}");
+            }
 
-		#region Resize
-		
-		public static void ResizePackedArrayPool<T>(
-			PackedArrayPool<T> arrayPool,
-			AllocationCommand<IPoolElement<T>> allocationCommand)
-		{
-			int newCapacity = CountResizeAllocationAmount(arrayPool, allocationCommand);
+            return initialAmount;
+        }
 
-			IPoolElement<T>[] oldContents = ((IModifiable<IPoolElement<T>[]>)arrayPool).Contents;
+        private static void PerformAllocation<T>(
+            int initialAmount,
+            IPoolElement<T>[] contents,
+            AllocationCommand<IPoolElement<T>> allocationCommand)
+        {
+            for (int i = 0; i < initialAmount; i++)
+                contents[i] = allocationCommand.AllocationDelegate();
+        }
 
-			IPoolElement<T>[] newContents = new IPoolElement<T>[newCapacity];
+        #endregion
 
-			FillNewArrayWithContents(newCapacity, arrayPool, oldContents, newContents, allocationCommand);
+        #region Resize
 
-			((IModifiable<IPoolElement<T>[]>)arrayPool).UpdateContents(newContents);
-		}
+        /// <summary>
+        /// Resizes a packed array pool.
+        /// </summary>
+        /// <typeparam name="T">Type of elements in the pool.</typeparam>
+        /// <param name="arrayPool">The packed array pool to resize.</param>
+        /// <param name="allocationCommand">Allocation command specifying how to allocate additional elements in the pool.</param>
+        public static void ResizePackedArrayPool<T>(
+            PackedArrayPool<T> arrayPool,
+            AllocationCommand<IPoolElement<T>> allocationCommand)
+        {
+            int newCapacity = CountResizeAllocationAmount(arrayPool, allocationCommand);
 
-		private static int CountResizeAllocationAmount<T>(
-			PackedArrayPool<T> arrayPool,
-			AllocationCommand<IPoolElement<T>> allocationCommand)
-		{
-			int newCapacity = -1;
+            IPoolElement<T>[] oldContents = ((IModifiable<IPoolElement<T>[]>)arrayPool).Contents;
 
-			switch (allocationCommand.Descriptor.Rule)
-			{
-				case EAllocationAmountRule.ADD_ONE:
-					newCapacity = arrayPool.Capacity + 1;
-					break;
+            IPoolElement<T>[] newContents = new IPoolElement<T>[newCapacity];
 
-				case EAllocationAmountRule.DOUBLE_AMOUNT:
-					newCapacity = Math.Max(arrayPool.Capacity, 1) * 2;
-					break;
+            FillNewArrayWithContents(newCapacity, arrayPool, oldContents, newContents, allocationCommand);
 
-				case EAllocationAmountRule.ADD_PREDEFINED_AMOUNT:
-					newCapacity = arrayPool.Capacity + allocationCommand.Descriptor.Amount;
-					break;
+            ((IModifiable<IPoolElement<T>[]>)arrayPool).UpdateContents(newContents);
+        }
 
-				default:
-					throw new Exception($"[PoolsFactory] INVALID ALLOCATION COMMAND RULE FOR INDEXED PACKED ARRAY: {allocationCommand.Descriptor.Rule.ToString()}");
-			}
+        private static int CountResizeAllocationAmount<T>(
+            PackedArrayPool<T> arrayPool,
+            AllocationCommand<IPoolElement<T>> allocationCommand)
+        {
+            int newCapacity = -1;
 
-			return newCapacity;
-		}
+            switch (allocationCommand.Descriptor.Rule)
+            {
+                case EAllocationAmountRule.ADD_ONE:
+                    newCapacity = arrayPool.Capacity + 1;
+                    break;
 
-		private static void FillNewArrayWithContents<T>(
-			int newCapacity,
-			PackedArrayPool<T> arrayPool,
-			IPoolElement<T>[] oldContents,
-			IPoolElement<T>[] newContents,
-			AllocationCommand<IPoolElement<T>> allocationCommand)
-		{
-			if (newCapacity <= arrayPool.Capacity)
-			{
-				for (int i = 0; i < newCapacity; i++)
-					newContents[i] = oldContents[i];
-			}
-			else
-			{
-				for (int i = 0; i < arrayPool.Capacity; i++)
-					newContents[i] = oldContents[i];
+                case EAllocationAmountRule.DOUBLE_AMOUNT:
+                    newCapacity = Math.Max(arrayPool.Capacity, 1) * 2;
+                    break;
 
-				for (int i = arrayPool.Capacity; i < newCapacity; i++)
-					newContents[i] = allocationCommand.AllocationDelegate();
-			}
-		}
+                case EAllocationAmountRule.ADD_PREDEFINED_AMOUNT:
+                    newCapacity = arrayPool.Capacity + allocationCommand.Descriptor.Amount;
+                    break;
 
-		#endregion
+                default:
+                    throw new Exception($"[PoolsFactory] INVALID ALLOCATION COMMAND RULE FOR INDEXED PACKED ARRAY: {allocationCommand.Descriptor.Rule.ToString()}");
+            }
 
-		#region Merge
-		
-		public static void MergePackedArrayPools<T>(
-			PackedArrayPool<T> receiverArrayPool,
-			PackedArrayPool<T> donorArrayPool,
-			AllocationCommand<IPoolElement<T>> donorAllocationCommand)
-		{
-			UpdateReceiverContents(receiverArrayPool, donorArrayPool);
+            return newCapacity;
+        }
 
-			UpdateDonorContents(donorArrayPool, donorAllocationCommand);
-		}
+        private static void FillNewArrayWithContents<T>(
+            int newCapacity,
+            PackedArrayPool<T> arrayPool,
+            IPoolElement<T>[] oldContents,
+            IPoolElement<T>[] newContents,
+            AllocationCommand<IPoolElement<T>> allocationCommand)
+        {
+            if (newCapacity <= arrayPool.Capacity)
+            {
+                for (int i = 0; i < newCapacity; i++)
+                    newContents[i] = oldContents[i];
+            }
+            else
+            {
+                for (int i = 0; i < arrayPool.Capacity; i++)
+                    newContents[i] = oldContents[i];
 
-		#region Update receiver contents
+                for (int i = arrayPool.Capacity; i < newCapacity; i++)
+                    newContents[i] = allocationCommand.AllocationDelegate();
+            }
+        }
 
-		private static void UpdateReceiverContents<T>(
-			PackedArrayPool<T> receiverArrayPool,
-			PackedArrayPool<T> donorArrayPool)
-		{
-			IPoolElement<T>[] oldReceiverContents = ((IModifiable<IPoolElement<T>[]>)receiverArrayPool).Contents;
+        #endregion
 
-			IPoolElement<T>[] oldDonorContents = ((IModifiable<IPoolElement<T>[]>)donorArrayPool).Contents;
-			
-			
-			int newReceiverCapacity = receiverArrayPool.Capacity + donorArrayPool.Capacity;
+        #region Merge
 
-			IPoolElement<T>[] newReceiverContents = new IPoolElement<T>[newReceiverCapacity];
+        /// <summary>
+        /// Merges two packed array pools.
+        /// </summary>
+        /// <typeparam name="T">Type of elements in the pools.</typeparam>
+        /// <param name="receiverArrayPool">The receiving packed array pool.</param>
+        /// <param name="donorArrayPool">The donor packed array pool.</param>
+        /// <param name="donorAllocationCommand">Allocation command specifying how to allocate additional elements in the donor pool.</param>
+        public static void MergePackedArrayPools<T>(
+            PackedArrayPool<T> receiverArrayPool,
+            PackedArrayPool<T> donorArrayPool,
+            AllocationCommand<IPoolElement<T>> donorAllocationCommand)
+        {
+            UpdateReceiverContents(receiverArrayPool, donorArrayPool);
 
-			
-			CopyOldReceiverContents(receiverArrayPool, oldReceiverContents, newReceiverContents);
+            UpdateDonorContents(donorArrayPool, donorAllocationCommand);
+        }
 
-			AppendOldDonorContents(receiverArrayPool, donorArrayPool, oldDonorContents, newReceiverContents);
+        #region Update receiver contents
 
-			
-			if (receiverArrayPool.Capacity == receiverArrayPool.Count)
-			{
-				UpdateIndexesOnElementsFromDonorArray(receiverArrayPool, donorArrayPool, newReceiverContents);
-			}
-			else
-			{
-				PackElementsFromDonorArray(receiverArrayPool, donorArrayPool, newReceiverContents);
-			}
+        private static void UpdateReceiverContents<T>(
+            PackedArrayPool<T> receiverArrayPool,
+            PackedArrayPool<T> donorArrayPool)
+        {
+            IPoolElement<T>[] oldReceiverContents = ((IModifiable<IPoolElement<T>[]>)receiverArrayPool).Contents;
 
-			
-			((IModifiable<IPoolElement<T>[]>)receiverArrayPool).UpdateContents(newReceiverContents);
+            IPoolElement<T>[] oldDonorContents = ((IModifiable<IPoolElement<T>[]>)donorArrayPool).Contents;
 
-			((ICountUpdateable)receiverArrayPool).UpdateCount(receiverArrayPool.Count + donorArrayPool.Count);
-		}
+            int newReceiverCapacity = receiverArrayPool.Capacity + donorArrayPool.Capacity;
 
-		private static void CopyOldReceiverContents<T>(
-			PackedArrayPool<T> receiverArrayPool,
-			IPoolElement<T>[] oldReceiverContents,
-			IPoolElement<T>[] newReceiverContents)
-		{
-			for (int i = 0; i < receiverArrayPool.Capacity; i++)
-				newReceiverContents[i] = oldReceiverContents[i];
-		}
+            IPoolElement<T>[] newReceiverContents = new IPoolElement<T>[newReceiverCapacity];
 
-		private static void AppendOldDonorContents<T>(
-			PackedArrayPool<T> receiverArrayPool,
-			PackedArrayPool<T> donorArrayPool,
-			IPoolElement<T>[] oldDonorContents,
-			IPoolElement<T>[] newReceiverContents)
-		{
-			for (int i = 0; i < donorArrayPool.Capacity; i++)
-			{
-				int newIndex = i + receiverArrayPool.Capacity;
+            CopyOldReceiverContents(receiverArrayPool, oldReceiverContents, newReceiverContents);
 
-				newReceiverContents[newIndex] = oldDonorContents[i];
-			}
-		}
+            AppendOldDonorContents(receiverArrayPool, donorArrayPool, oldDonorContents, newReceiverContents);
 
-		private static void UpdateIndexesOnElementsFromDonorArray<T>(
-			PackedArrayPool<T> receiverArrayPool,
-			PackedArrayPool<T> donorArrayPool,
-			IPoolElement<T>[] newReceiverContents)
-		{
-			for (int i = 0; i < donorArrayPool.Count; i++)
-			{
-				int newIndex = i + receiverArrayPool.Capacity;
+            if (receiverArrayPool.Capacity == receiverArrayPool.Count)
+            {
+                UpdateIndexesOnElementsFromDonorArray(receiverArrayPool, donorArrayPool, newReceiverContents);
+            }
+            else
+            {
+                PackElementsFromDonorArray(receiverArrayPool, donorArrayPool, newReceiverContents);
+            }
 
-				newReceiverContents[newIndex].Metadata.Get<IIndexed>().Index = newIndex;
-			}
-		}
+            ((IModifiable<IPoolElement<T>[]>)receiverArrayPool).UpdateContents(newReceiverContents);
 
-		private static void PackElementsFromDonorArray<T>(
-			PackedArrayPool<T> receiverArrayPool,
-			PackedArrayPool<T> donorArrayPool,
-			IPoolElement<T>[] newReceiverContents)
-		{
-			int lastReceiverFreeItemIndex = receiverArrayPool.Count;
+            ((ICountUpdateable)receiverArrayPool).UpdateCount(receiverArrayPool.Count + donorArrayPool.Count);
+        }
+        
+        private static void CopyOldReceiverContents<T>(
+            PackedArrayPool<T> receiverArrayPool,
+            IPoolElement<T>[] oldReceiverContents,
+            IPoolElement<T>[] newReceiverContents)
+        {
+            for (int i = 0; i < receiverArrayPool.Capacity; i++)
+                newReceiverContents[i] = oldReceiverContents[i];
+        }
 
-			for (int i = 0; i < donorArrayPool.Count; i++)
-			{
-				int newIndex = i + receiverArrayPool.Capacity;
+        private static void AppendOldDonorContents<T>(
+            PackedArrayPool<T> receiverArrayPool,
+            PackedArrayPool<T> donorArrayPool,
+            IPoolElement<T>[] oldDonorContents,
+            IPoolElement<T>[] newReceiverContents)
+        {
+            for (int i = 0; i < donorArrayPool.Capacity; i++)
+            {
+                int newIndex = i + receiverArrayPool.Capacity;
 
-				
-				newReceiverContents[lastReceiverFreeItemIndex].Metadata.Get<IIndexed>().Index = -1;
+                newReceiverContents[newIndex] = oldDonorContents[i];
+            }
+        }
 
-				newReceiverContents[newIndex].Metadata.Get<IIndexed>().Index = lastReceiverFreeItemIndex;
+        private static void UpdateIndexesOnElementsFromDonorArray<T>(
+            PackedArrayPool<T> receiverArrayPool,
+            PackedArrayPool<T> donorArrayPool,
+            IPoolElement<T>[] newReceiverContents)
+        {
+            for (int i = 0; i < donorArrayPool.Count; i++)
+            {
+                int newIndex = i + receiverArrayPool.Capacity;
 
+                newReceiverContents[newIndex].Metadata.Get<IIndexed>().Index = newIndex;
+            }
+        }
 
-				var swap = newReceiverContents[newIndex];
+        private static void PackElementsFromDonorArray<T>(
+            PackedArrayPool<T> receiverArrayPool,
+            PackedArrayPool<T> donorArrayPool,
+            IPoolElement<T>[] newReceiverContents)
+        {
+            int lastReceiverFreeItemIndex = receiverArrayPool.Count;
 
-				newReceiverContents[newIndex] = newReceiverContents[lastReceiverFreeItemIndex];
+            for (int i = 0; i < donorArrayPool.Count; i++)
+            {
+                int newIndex = i + receiverArrayPool.Capacity;
 
-				newReceiverContents[lastReceiverFreeItemIndex] = swap;
+                newReceiverContents[lastReceiverFreeItemIndex].Metadata.Get<IIndexed>().Index = -1;
+                newReceiverContents[newIndex].Metadata.Get<IIndexed>().Index = lastReceiverFreeItemIndex;
 
+                var swap = newReceiverContents[newIndex];
+                newReceiverContents[newIndex] = newReceiverContents[lastReceiverFreeItemIndex];
+                newReceiverContents[lastReceiverFreeItemIndex] = swap;
 
-				lastReceiverFreeItemIndex++;
-			}
-		}
+                lastReceiverFreeItemIndex++;
+            }
+        }
 
-		#endregion
+        #endregion
 
-		#region Update donor contents
-		
-		private static void UpdateDonorContents<T>(
-			PackedArrayPool<T> donorArrayPool,
-			AllocationCommand<IPoolElement<T>> donorAllocationCommand)
-		{
-			int newDonorCapacity = -1;
+        #region Update donor contents
 
-			switch (donorAllocationCommand.Descriptor.Rule)
-			{
-				case EAllocationAmountRule.ADD_ONE:
-					newDonorCapacity = 1;
-					break;
+        private static void UpdateDonorContents<T>(
+            PackedArrayPool<T> donorArrayPool,
+            AllocationCommand<IPoolElement<T>> donorAllocationCommand)
+        {
+            int newDonorCapacity = -1;
 
-				case EAllocationAmountRule.ADD_PREDEFINED_AMOUNT:
-					newDonorCapacity = donorAllocationCommand.Descriptor.Amount;
-					break;
+            switch (donorAllocationCommand.Descriptor.Rule)
+            {
+                case EAllocationAmountRule.ADD_ONE:
+                    newDonorCapacity = 1;
+                    break;
 
-				default:
-					throw new Exception($"[PoolsFactory] INVALID DONOR ALLOCATION COMMAND RULE: {donorAllocationCommand.Descriptor.Rule.ToString()}");
-			}
+                case EAllocationAmountRule.ADD_PREDEFINED_AMOUNT:
+                    newDonorCapacity = donorAllocationCommand.Descriptor.Amount;
+                    break;
 
-			
-			IPoolElement<T>[] newDonorContents = new IPoolElement<T>[newDonorCapacity];
+                default:
+                    throw new Exception($"[PoolsFactory] INVALID DONOR ALLOCATION COMMAND RULE: {donorAllocationCommand.Descriptor.Rule.ToString()}");
+            }
 
-			for (int i = 0; i < newDonorCapacity; i++)
-				newDonorContents[i] = donorAllocationCommand.AllocationDelegate();
+            IPoolElement<T>[] newDonorContents = new IPoolElement<T>[newDonorCapacity];
 
-			
-			((IModifiable<IPoolElement<T>[]>)donorArrayPool).UpdateContents(newDonorContents);
+            for (int i = 0; i < newDonorCapacity; i++)
+                newDonorContents[i] = donorAllocationCommand.AllocationDelegate();
 
-			((ICountUpdateable)donorArrayPool).UpdateCount(0);
-		}
+            ((IModifiable<IPoolElement<T>[]>)donorArrayPool).UpdateContents(newDonorContents);
 
-		#endregion
-		
-		#endregion
+            ((ICountUpdateable)donorArrayPool).UpdateCount(0);
+        }
 
-		#endregion
-	}
+        #endregion
+
+        #endregion
+
+        #endregion
+    }
 }

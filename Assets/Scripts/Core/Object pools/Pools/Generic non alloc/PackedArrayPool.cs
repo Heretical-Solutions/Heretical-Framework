@@ -1,34 +1,39 @@
 using System;
 
 using HereticalSolutions.Collections;
+
 using HereticalSolutions.Pools.Behaviours;
+
+using HereticalSolutions.LifetimeManagement;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools.GenericNonAlloc
 {
-    /// <summary>
-    /// The container that combines the functions of a memory pool and a list with an increased performance
-    /// Basic concept is:
-    /// 1. The contents are pre-allocated
-    /// 2. Popping a new item is actually retrieving the first unused item and increasing the last used item index
-    /// 3. Pushing an item is taking the last used item, swapping it with the removed item and decreasing the last used item index
-    /// </summary>
-    /// <typeparam name="T">Type of the objects stored in the container</typeparam>
     public class PackedArrayPool<T>
         : IFixedSizeCollection<IPoolElement<T>>,
-	      INonAllocPool<T>,
+          INonAllocPool<T>,
           IIndexable<IPoolElement<T>>,
           IModifiable<IPoolElement<T>[]>,
-	      ICountUpdateable
+          ICountUpdateable,
+          ICleanUppable,
+          IDisposable
     {
+        private readonly ILogger logger;
+
         private IPoolElement<T>[] contents;
         
         private int count;
 
         private readonly IPushBehaviourHandler<T> pushBehaviourHandler;
 
-        public PackedArrayPool(IPoolElement<T>[] contents)
+        public PackedArrayPool(
+            IPoolElement<T>[] contents,
+            ILogger logger = null)
         {
             this.contents = contents;
+
+            this.logger = logger;
             
             count = 0;
 
@@ -36,9 +41,17 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
         }
         
         #region IFixedSizeCollection
-
+        
+        /// <summary>
+        /// Gets the capacity of the pool.
+        /// </summary>
         public int Capacity { get { return contents.Length; } }
         
+        /// <summary>
+        /// Gets the element at the specified index in the pool.
+        /// </summary>
+        /// <param name="index">The index of the element.</param>
+        /// <returns>The element at the specified index.</returns>
         public IPoolElement<T> ElementAt(int index)
         {
 	        return contents[index];
@@ -48,13 +61,24 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
 
 		#region IModifiable
 
+		/// <summary>
+		/// Gets or sets the contents of the pool.
+		/// </summary>
 		public IPoolElement<T>[] Contents { get { return contents; } }
 		
+		/// <summary>
+		/// Updates the contents of the pool.
+		/// </summary>
+		/// <param name="newContents">The updated contents of the pool.</param>
 		public void UpdateContents(IPoolElement<T>[] newContents)
         {
             contents = newContents;
         }
 		
+		/// <summary>
+		/// Updates the count of the pool.
+		/// </summary>
+		/// <param name="newCount">The updated count of the pool.</param>
 		public void UpdateCount(int newCount)
 		{
 			count = newCount;
@@ -64,6 +88,9 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
 
 		#region IIndexable
 
+		/// <summary>
+		/// Gets the count of the pool.
+		/// </summary>
 		public int Count { get { return count; } }
 		
 		public IPoolElement<T> this[int index]
@@ -72,12 +99,8 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
 			{
                 if (index >= count || index < 0)
 					throw new Exception(
-                        string.Format(
-							"[PackedArrayPool<{0}>] INVALID INDEX: {1} COUNT:{2} CAPACITY:{3}",
-                            typeof(T).ToString(),
-                            index,
-                            Count,
-                            Capacity));
+                        logger.TryFormat<PackedArrayPool<T>>(
+						    $"INVALID INDEX: {index} COUNT: {Count} CAPACITY: {Capacity}"));
 
 				return contents[index];
 			}
@@ -87,12 +110,8 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
 		{
 			if (index >= count || index < 0)
 				throw new Exception(
-					string.Format(
-						"[PackedArrayPool<{0}>] INVALID INDEX: {1} COUNT:{2} CAPACITY:{3}",
-						typeof(T).ToString(),
-						index,
-						Count,
-						Capacity));
+                    logger.TryFormat<PackedArrayPool<T>>(
+					    $"INVALID INDEX: {index} COUNT: {count} CAPACITY: {Capacity}"));
 
 			return contents[index];
 		}
@@ -101,7 +120,11 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
 
         #region INonAllocPool
 
-		public IPoolElement<T> Pop()
+		/// <summary>
+		/// Pops an item from the pool.
+		/// </summary>
+		/// <returns>The popped item.</returns>
+        public IPoolElement<T> Pop()
         {
             var result = contents[count];
 
@@ -109,12 +132,13 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
             //Update index
             result.Metadata.Get<IIndexed>().Index = count;
 
-            
+            //TODO: perform if (IPushable) checks BEFORE doing the following
             //Update element data
             var elementAsPushable = (IPushable<T>)result; 
             
             elementAsPushable.Status = EPoolElementStatus.POPPED;
             
+            //TODO: maybe not all of them have/need UpdatePushBehaviour. Refactor this
             elementAsPushable.UpdatePushBehaviour(pushBehaviourHandler);
             
             
@@ -129,7 +153,9 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
 		{
             if (index < count)
             {
-                throw new Exception($"[PackedArrayPool] ELEMENT AT INDEX {index} IS ALREADY POPPED");
+                throw new Exception(
+                    logger.TryFormat<PackedArrayPool<T>>(
+                        $"ELEMENT AT INDEX {index} IS ALREADY POPPED"));
 			}
 
 
@@ -180,11 +206,20 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
 			return result;
 		}
 
+        /// <summary>
+        /// Pushes an item back into the pool.
+        /// </summary>
+        /// <param name="item">The item to be pushed.</param>
         public void Push(IPoolElement<T> item)
         {
             Push(item.Metadata.Get<IIndexed>().Index);
         }
 
+        //TODO: extract to an interface
+        /// <summary>
+        /// Pushes an item back into the pool at the specified index.
+        /// </summary>
+        /// <param name="index">The index of the item.</param>
         public void Push(int index)
         {
             if (index >= count)
@@ -235,8 +270,47 @@ namespace HereticalSolutions.Pools.GenericNonAlloc
             count--;
         }
 
+        /// <summary>
+        /// Checks if the pool has free space for more items.
+        /// </summary>
         public bool HasFreeSpace { get { return count < contents.Length; } }
-        
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            foreach (var item in contents)
+                if (item is ICleanUppable)
+                    (item as ICleanUppable).Cleanup();
+
+            for (int i = 0; i < contents.Length; i++)
+            {
+                contents[i] = null;
+            }
+
+            count = 0;
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            foreach (var item in contents)
+                if (item is IDisposable)
+                    (item as IDisposable).Dispose();
+
+            for (int i = 0; i < contents.Length; i++)
+            {
+                contents[i] = null;
+            }
+
+            count = 0;
+        }
+
         #endregion
     }
 }

@@ -1,102 +1,63 @@
 using System;
 
+using HereticalSolutions.LifetimeManagement;
+
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.MVVM.View
 {
-    public abstract class AView : ILifetimeable
+    /// <summary>
+    /// Represents a base class for views in the MVVM architecture.
+    /// </summary>
+    public abstract class AView
+        : ALifetimeable,
+          IInitializable
     {
-        /*
-        [SerializeField]
-        protected AViewModelBase baseViewModel;
-        */
+        protected readonly IViewModel viewModel;
 
-        protected IViewModel viewModel;
-
-        public AView(IViewModel viewModel)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AView"/> class.
+        /// </summary>
+        /// <param name="viewModel">The view model associated with this view.</param>
+        /// <param name="logger">The logger to be used for logging.</param>
+        public AView(
+            IViewModel viewModel,
+            ILogger logger = null)
+            : base(logger)
         {
             this.viewModel = viewModel;
         }
 
-        #region ILifetimable
-        
-        public bool IsSetUp { get; protected set; } = false;
-        
-        public bool IsInitialized { get; protected set; } = false;
+        #region IInitializable
 
-        /// <summary>
-        /// Initialization callback
-        /// </summary>
-        public Action OnInitialized { get; set; }
-
-        /// <summary>
-        /// Cleanup callback
-        /// </summary>
-        public Action OnCleanedUp { get; set; }
-
-        /// <summary>
-        /// Destruction callback
-        /// </summary>
-        public Action OnTornDown { get; set; }
-
-        /// <summary>
-        /// Self initialization
-        /// </summary>
-        public virtual void SetUp()
+        public virtual void Initialize(object[] args)
         {
-        }
+            if (!IsSetUp)
+            {
+                throw new Exception(
+                    logger.TryFormat(
+                        GetType(),
+                        "VIEW SHOULD BE SET UP BEFORE BEING INITIALIZED"));
+            }
 
-        /// <summary>
-        /// Initialize view
-        /// </summary>
-        public virtual void Initialize()
-        {
             if (IsInitialized)
             {
-                throw new Exception($"[AView] Initializing a view that is already initialized: {this.GetType().ToBeautifulString()}");
+                throw new Exception(
+                    logger.TryFormat(
+                        GetType(),
+                        "INITIALIZING VIEW THAT IS ALREADY INITIALIZED"));
             }
+
+            InitializeInternal(args);
 
             IsInitialized = true;
 
             OnInitialized?.Invoke();
         }
 
-        /// <summary>
-        /// Cleanup view
-        /// </summary>
-        public virtual void Cleanup()
-        {
-            IsInitialized = false;
-
-            OnCleanedUp?.Invoke();
-        }
-
-        /// <summary>
-        /// Tear down view
-        /// </summary>
-        public virtual void TearDown()
-        {
-            IsSetUp = false;
-            
-            Cleanup();
-
-            OnTornDown?.Invoke();
-        }
-
-        /*
-        /// <summary>
-        /// Assert variable to ensure there are no excessive subscriptions
-        /// </summary>
-        protected int subscriptionsCounter = 0;
-
-        protected virtual void Start() //Awake()
-        {
-            Startup();
-
-            if (baseViewModel.Initialized)
-                OnInitialized();
-        }
-        */
-
         #endregion
+
+        protected abstract void InitializeInternal(object[] args);
 
         protected void TryObtainProperty<T>(string propertyID, out IObservableProperty<T> property)
         {
@@ -104,21 +65,11 @@ namespace HereticalSolutions.MVVM.View
 
             if (!propertyObtained)
             {
-                //Debug.LogError(
-                throw new Exception($"[AView] Could not obtain property {propertyID} from viewmodel {viewModel.GetType()}");
+                throw new Exception(
+                    logger.TryFormat(
+                        GetType(),
+                        $"COULD NOT OBTAIN PROPERTY {propertyID} FROM VIEWMODEL {viewModel.GetType().Name}"));
             }
         }
-
-        /*
-        /// <summary>
-        /// Perform deinitialization logic upon gameobject destruction
-        /// </summary>
-        protected virtual void OnDestroy()
-        {
-            DesyncLifetimeWithVM();
-            
-            OnTornDown();
-        }
-        */
     }
 }

@@ -1,4 +1,5 @@
 using System;
+
 using HereticalSolutions.Delegates.Factories;
 
 using HereticalSolutions.Repositories;
@@ -6,6 +7,8 @@ using HereticalSolutions.Repositories.Factories;
 
 using HereticalSolutions.Time.Strategies;
 using HereticalSolutions.Time.Timers;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Time.Factories
 {
@@ -15,12 +18,17 @@ namespace HereticalSolutions.Time.Factories
 
         public static PersistentTimer BuildPersistentTimer(
             string id,
-            TimeSpan defaultDurationSpan)
+            TimeSpan defaultDurationSpan,
+            ILoggerResolver loggerResolver = null)
         {
-            var onStart = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IPersistentTimer>();
+            var onStart = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IPersistentTimer>(loggerResolver);
             
-            var onFinish = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IPersistentTimer>();
+            var onFinish = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IPersistentTimer>(loggerResolver);
             
+            ILogger logger =
+                loggerResolver?.GetLogger<PersistentTimer>()
+                ?? null;
+
             return new PersistentTimer(
                 id,
                 defaultDurationSpan,
@@ -31,9 +39,15 @@ namespace HereticalSolutions.Time.Factories
                 onFinish,
                 onFinish,
                 
-                BuildPersistentStrategyRepository());
+                BuildPersistentStrategyRepository(),
+                
+                logger);
         }
 
+        /// <summary>
+        /// Builds the repository of timer strategies for a persistent timer
+        /// </summary>
+        /// <returns>The built repository of timer strategies.</returns>
         private static IReadOnlyRepository<ETimerState, ITimerStrategy<IPersistentTimerContext, TimeSpan>>
             BuildPersistentStrategyRepository()
         {
@@ -57,12 +71,17 @@ namespace HereticalSolutions.Time.Factories
         
         public static RuntimeTimer BuildRuntimeTimer(
             string id,
-            float defaultDuration)
+            float defaultDuration,
+            ILoggerResolver loggerResolver = null)
         {
-            var onStart = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IRuntimeTimer>();
+            var onStart = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IRuntimeTimer>(loggerResolver);
             
-            var onFinish = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IRuntimeTimer>();
+            var onFinish = DelegatesFactory.BuildNonAllocBroadcasterGeneric<IRuntimeTimer>(loggerResolver);
             
+            ILogger logger =
+                loggerResolver?.GetLogger<RuntimeTimer>()
+                ?? null;
+
             return new RuntimeTimer(
                 id,
                 defaultDuration,
@@ -73,9 +92,15 @@ namespace HereticalSolutions.Time.Factories
                 onFinish,
                 onFinish,
                 
-                BuildRuntimeStrategyRepository());
+                BuildRuntimeStrategyRepository(),
+                
+                logger);
         }
 
+        /// <summary>
+        /// Builds the repository of timer strategies for a runtime timer
+        /// </summary>
+        /// <returns>The built repository of timer strategies.</returns>
         private static IReadOnlyRepository<ETimerState, ITimerStrategy<IRuntimeTimerContext, float>>
             BuildRuntimeStrategyRepository()
         {

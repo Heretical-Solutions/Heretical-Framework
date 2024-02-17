@@ -3,11 +3,24 @@ using System.Xml.Serialization;
 
 using HereticalSolutions.Persistence.Arguments;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Persistence.Serializers
 {
     public class SerializeXmlIntoStringStrategy : IXmlSerializationStrategy
     {
-        public bool Serialize(ISerializationArgument argument, XmlSerializer serializer, object value)
+        private readonly ILogger logger;
+
+        public SerializeXmlIntoStringStrategy(
+            ILogger logger = null)
+        {
+            this.logger = logger;
+        }
+
+        public bool Serialize(
+            ISerializationArgument argument,
+            XmlSerializer serializer,
+            object value)
         {
             using (StringWriter stringWriter = new StringWriter())
             {
@@ -19,7 +32,10 @@ namespace HereticalSolutions.Persistence.Serializers
             return true;
         }
 
-        public bool Deserialize(ISerializationArgument argument, XmlSerializer serializer, out object value)
+        public bool Deserialize(
+            ISerializationArgument argument,
+            XmlSerializer serializer,
+            out object value)
         {
             using (StringReader stringReader = new StringReader(((StringArgument)argument).Value))
             {

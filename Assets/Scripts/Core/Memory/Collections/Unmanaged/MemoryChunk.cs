@@ -24,7 +24,7 @@ namespace HereticalSolutions.Collections.Unmanaged
         #endregion
 
         /// <summary>
-        /// Create the chunk. Its contents are initially undefined.
+        /// Create the chunk with the specified memory pointer and size.
         /// </summary>
         /// <param name="memoryPointer">Pointer to the unmanaged heap memory the array is stored in</param>
         /// <param name="memorySize">Unmanaged memory size in bytes</param>

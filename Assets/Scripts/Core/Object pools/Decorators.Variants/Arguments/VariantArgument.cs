@@ -1,7 +1,13 @@
 namespace HereticalSolutions.Pools.Arguments
 {
-	public class VariantArgument : IPoolDecoratorArgument
-	{
-		public int Variant;
-	}
+    /// <summary>
+    /// Represents a variant argument for the pool decorator.
+    /// </summary>
+    public class VariantArgument : IPoolDecoratorArgument
+    {
+        /// <summary>
+        /// Gets or sets the variant value.
+        /// </summary>
+        public int Variant;
+    }
 }

@@ -2,11 +2,14 @@ using System;
 
 using HereticalSolutions.MVVM.View;
 
+using HereticalSolutions.Logging;
+
 using UnityEngine.UIElements;
 
 namespace HereticalSolutions.MVVM.UIToolkit
 {
-    public class ToggleView : AView
+    public class ToggleView
+        : AView
     {
         protected string propertyID;
         
@@ -19,27 +22,31 @@ namespace HereticalSolutions.MVVM.UIToolkit
         public ToggleView(
             IViewModel viewModel,
             string propertyID,
-            Toggle toggle)
-            : base(viewModel)
+            Toggle toggle,
+            ILogger logger = null)
+            : base(
+                viewModel,
+                logger)
         {
             this.propertyID = propertyID;
 
             this.toggle = toggle;
         }
 
-        public override void Initialize()
+        protected override void InitializeInternal(object[] args)
         {
-            if (!viewModel.GetObservable<bool>(propertyID, out boolProperty))
-                //Debug.LogError(
-                throw new Exception($"[ToggleView] Could not obtain property \"{propertyID}\" from ViewModel \"{viewModel.GetType()}\"");
+            if (!viewModel.GetObservable<bool>(
+                propertyID,
+                out boolProperty))
+                throw new Exception(
+                    logger.FormatException(
+                        $"Could not obtain property \"{propertyID}\" from ViewModel \"{viewModel.GetType()}\""));
 
             boolProperty.OnValueChanged += OnBoolChanged;
 
             OnBoolChanged(boolProperty.Value);
             
             toggle.RegisterValueChangedCallback(OnToggleValueChanged);
-
-            base.Initialize();
         }
         
         protected virtual void OnBoolChanged(bool newValue)
@@ -59,10 +66,8 @@ namespace HereticalSolutions.MVVM.UIToolkit
             togglePressed = false;
         }
 
-        public override void Cleanup()
+        protected override void CleanupInternal()
         {
-            base.Cleanup();
-
             togglePressed = false;
             
             if (boolProperty != null)
@@ -73,6 +78,8 @@ namespace HereticalSolutions.MVVM.UIToolkit
             }
             
             toggle.UnregisterValueChangedCallback(OnToggleValueChanged);
+
+            base.CleanupInternal();
         }
     }
 }

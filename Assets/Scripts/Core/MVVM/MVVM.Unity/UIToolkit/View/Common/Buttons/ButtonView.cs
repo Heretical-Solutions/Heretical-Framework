@@ -2,6 +2,8 @@ using System;
 
 using HereticalSolutions.MVVM.View;
 
+using HereticalSolutions.Logging;
+
 using UnityEngine.UIElements;
 
 namespace HereticalSolutions.MVVM.UIToolkit
@@ -17,24 +19,27 @@ namespace HereticalSolutions.MVVM.UIToolkit
         public ButtonView(
             IViewModel viewModel,
             string commandID,
-            Button button)
-            : base(viewModel)
+            Button button,
+            ILogger logger = null)
+            : base(
+                viewModel,
+                logger)
         {
             this.commandID = commandID;
 
             this.button = button;
         }
 
-        public override void Initialize()
+        protected override void InitializeInternal(object[] args)
         {
             onClickCommand = viewModel.GetCommand(commandID);
 
             if (onClickCommand == null)
-                throw new Exception($"[ButtonView] Could not obtain command \"{commandID}\" from ViewModel \"{viewModel.GetType()}\"");
+                throw new Exception(
+                    logger.FormatException(
+                        $"Could not obtain command \"{commandID}\" from ViewModel \"{viewModel.GetType()}\""));
             
             button.RegisterCallback<ClickEvent>(OnButtonClicked);
-
-            base.Initialize();
         }
 
         protected void OnButtonClicked(ClickEvent @event)
@@ -42,11 +47,11 @@ namespace HereticalSolutions.MVVM.UIToolkit
             onClickCommand();
         }
 
-        public override void Cleanup()
+        protected override void CleanupInternal()
         {
-            base.Cleanup();
-
             button.UnregisterCallback<ClickEvent>(OnButtonClicked);
+
+            base.CleanupInternal();
         }
     }
 }

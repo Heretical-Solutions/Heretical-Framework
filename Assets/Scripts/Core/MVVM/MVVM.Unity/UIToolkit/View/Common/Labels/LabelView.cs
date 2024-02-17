@@ -2,6 +2,8 @@ using System;
 
 using HereticalSolutions.MVVM.View;
 
+using HereticalSolutions.Logging;
+
 using UnityEngine.UIElements;
 
 namespace HereticalSolutions.MVVM.UIToolkit
@@ -17,25 +19,27 @@ namespace HereticalSolutions.MVVM.UIToolkit
         public LabelView(
             IViewModel viewModel,
             string propertyID,
-            Label label)
-            : base(viewModel)
+            Label label,
+            ILogger logger = null)
+            : base(
+                viewModel,
+                logger)
         {
             this.propertyID = propertyID;
 
             this.label = label;
         }
-        
-        public override void Initialize()
+
+        protected override void InitializeInternal(object[] args)
         {
             if (!viewModel.GetObservable<string>(propertyID, out textProperty))
-                //Debug.LogError(
-                throw new Exception($"[LabelView] Could not obtain property \"{propertyID}\" from ViewModel \"{viewModel.GetType()}\"");
+                throw new Exception(
+                    logger.FormatException(
+                        $"Could not obtain property \"{propertyID}\" from ViewModel \"{viewModel.GetType()}\""));
 
             textProperty.OnValueChanged += OnTextChanged;
 
             OnTextChanged(textProperty.Value);
-
-            base.Initialize();
         }
         
         protected void OnTextChanged(string newValue)
@@ -44,17 +48,17 @@ namespace HereticalSolutions.MVVM.UIToolkit
                 ? string.Empty
                 : newValue;
         }
-        
-        public override void Cleanup()
-        {
-            base.Cleanup();
 
+        protected override void CleanupInternal()
+        {
             if (textProperty != null)
             {
                 textProperty.OnValueChanged -= OnTextChanged;
 
                 textProperty = null;
             }
+
+            base.CleanupInternal();
         }
     }
 }

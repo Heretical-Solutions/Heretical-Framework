@@ -7,108 +7,150 @@ using HereticalSolutions.Pools.Behaviours;
 
 using HereticalSolutions.RandomGeneration;
 
+using HereticalSolutions.LifetimeManagement;
+
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Pools.Decorators
 {
-	public class NonAllocPoolWithVariants<T>
-		: INonAllocDecoratedPool<T>
-	{
-		private readonly IRepository<int, VariantContainer<T>> innerPoolsRepository;
+    public class NonAllocPoolWithVariants<T>
+        : INonAllocDecoratedPool<T>,
+          ICleanUppable,
+          IDisposable
+    {
+        private readonly IReadOnlyRepository<int, VariantContainer<T>> innerPoolsRepository;
 
-		private readonly IRandomGenerator randomGenerator;
-		
-		private readonly IPushBehaviourHandler<T> pushBehaviourHandler;
+        private readonly IRandomGenerator randomGenerator;
 
-		public NonAllocPoolWithVariants(
-			IRepository<int, VariantContainer<T>> innerPoolsRepository,
-			IRandomGenerator randomGenerator)
-		{
-			this.innerPoolsRepository = innerPoolsRepository;
+        private readonly IPushBehaviourHandler<T> pushBehaviourHandler;
 
-			this.randomGenerator = randomGenerator;
+        private readonly ILogger logger;
 
-			pushBehaviourHandler = new PushToDecoratedPoolBehaviour<T>(this);
-		}
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NonAllocPoolWithVariants{T}"/> class.
+        /// </summary>
+        /// <param name="innerPoolsRepository">The repository containing the inner pools.</param>
+        /// <param name="randomGenerator">The random number generator.</param>
+        public NonAllocPoolWithVariants(
+            IReadOnlyRepository<int, VariantContainer<T>> innerPoolsRepository,
+            IRandomGenerator randomGenerator,
+            ILogger logger = null)
+        {
+            this.innerPoolsRepository = innerPoolsRepository;
 
-		#region Pop
+            this.randomGenerator = randomGenerator;
 
-		public IPoolElement<T> Pop(IPoolDecoratorArgument[] args)
-		{
-			#region Variant from argument
-			
-			if (args.TryGetArgument<VariantArgument>(out var arg))
-			{
-				if (!innerPoolsRepository.TryGet(arg.Variant, out var variant))
-					throw new Exception($"[NonAllocPoolWithVariants] INVALID VARIANT {{ {arg.Variant} }}");
+            this.logger = logger;
 
-				var concreteResult = variant.Pool.Pop(args);
+            pushBehaviourHandler = new PushToDecoratedPoolBehaviour<T>(this);
+        }
 
-				
-				//Update element data
-				var variantElementAsPushable = (IPushable<T>)concreteResult; 
-            
-				variantElementAsPushable.UpdatePushBehaviour(pushBehaviourHandler);
-				
-				
-				return concreteResult;
-			}
+        #region Pop
 
-			#endregion
+        public IPoolElement<T> Pop(IPoolDecoratorArgument[] args)
+        {
+            #region Variant from argument
 
-			#region Validation
-			
-			if (!innerPoolsRepository.TryGet(0, out var currentVariant))
-				throw new Exception("[NonAllocPoolWithVariants] NO VARIANTS PRESENT");
+            if (args.TryGetArgument<VariantArgument>(out var arg))
+            {
+                if (!innerPoolsRepository.TryGet(arg.Variant, out var variant))
+                    throw new Exception(
+                        logger.TryFormat<NonAllocPoolWithVariants<T>>(
+                            $"INVALID VARIANT {{ {arg.Variant} }}"));
 
-			#endregion
-			
-			#region Random variant
-			
-			var hitDice = randomGenerator.Random(0, 1f);
+                var concreteResult = variant.Pool.Pop(args);
 
-			int index = 0;
+                // Update element data
+                var variantElementAsPushable = (IPushable<T>)concreteResult;
 
-			while (currentVariant.Chance < hitDice)
-			{
-				hitDice -= currentVariant.Chance;
+                variantElementAsPushable.UpdatePushBehaviour(pushBehaviourHandler);
 
-				index++;
+                return concreteResult;
+            }
 
-				if (!innerPoolsRepository.TryGet(index, out currentVariant))
-					throw new Exception("[NonAllocPoolWithVariants] INVALID VARIANT CHANCES");
-			}
+            #endregion
 
-			var result = currentVariant.Pool.Pop(args);
+            #region Validation
 
-			
-			//Update element data
-			var elementAsPushable = (IPushable<T>)result; 
-            
-			elementAsPushable.UpdatePushBehaviour(pushBehaviourHandler);
-			
-			
-			return result;
-			
-			#endregion
-		}
+            if (!innerPoolsRepository.TryGet(0, out var currentVariant))
+                throw new Exception(
+                    logger.TryFormat<NonAllocPoolWithVariants<T>>(
+                        "NO VARIANTS PRESENT"));
 
-		#endregion
+            #endregion
 
-		#region Push
+            #region Random variant
 
-		public void Push(
-			IPoolElement<T> instance,
-			bool decoratorsOnly = false)
-		{
-			int variant = instance.Metadata.Get<IContainsVariant>().Variant;
-			
-			if (!innerPoolsRepository.TryGet(variant, out var poolByVariant))
-				throw new Exception($"[NonAllocPoolWithVariants] INVALID VARIANT {{variant}}");
+            var hitDice = randomGenerator.Random(0, 1f);
+            int index = 0;
 
-			poolByVariant.Pool.Push(
-				instance,
-				decoratorsOnly);
-		}
-		
-		#endregion
-	}
+            while (currentVariant.Chance < hitDice)
+            {
+                hitDice -= currentVariant.Chance;
+                index++;
+
+                if (!innerPoolsRepository.TryGet(index, out currentVariant))
+                    throw new Exception(
+                        logger.TryFormat<NonAllocPoolWithVariants<T>>(
+                            "INVALID VARIANT CHANCES"));
+            }
+
+            var result = currentVariant.Pool.Pop(args);
+
+            // Update element data
+            var elementAsPushable = (IPushable<T>)result;
+
+            elementAsPushable.UpdatePushBehaviour(pushBehaviourHandler);
+
+            return result;
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Push
+
+        public void Push(
+            IPoolElement<T> instance,
+            bool decoratorsOnly = false)
+        {
+            int variant = instance.Metadata.Get<IContainsVariant>().Variant;
+
+            if (!innerPoolsRepository.TryGet(variant, out var poolByVariant))
+                throw new Exception(
+                    logger.TryFormat<NonAllocPoolWithVariants<T>>(
+                        $"INVALID VARIANT {{variant}}"));
+
+            poolByVariant.Pool.Push(instance, decoratorsOnly);
+        }
+
+        #endregion
+
+        #region ICleanUppable
+
+        public void Cleanup()
+        {
+            if (innerPoolsRepository is ICleanUppable)
+                (innerPoolsRepository as ICleanUppable).Cleanup();
+
+            if (pushBehaviourHandler is ICleanUppable)
+                (pushBehaviourHandler as ICleanUppable).Cleanup();
+        }
+
+        #endregion
+
+        #region IDisposable
+
+        public void Dispose()
+        {
+            if (innerPoolsRepository is IDisposable)
+                (innerPoolsRepository as IDisposable).Dispose();
+
+            if (pushBehaviourHandler is IDisposable)
+                (pushBehaviourHandler as IDisposable).Dispose();
+        }
+
+        #endregion
+    }
 }

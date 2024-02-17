@@ -3,12 +3,12 @@ using System.Runtime.InteropServices;
 
 namespace HereticalSolutions.Collections.Unmanaged
 {
-	/// <summary>
-	/// A generic array stored in the unmanaged heap
-	/// Courtesy of http://JacksonDunstan.com/articles/3740
-	/// Courtesy of https://github.com/bepu/bepuphysics2/blob/master/BepuUtilities/Memory/Buffer.cs
-	/// </summary>
-	[StructLayout(LayoutKind.Sequential)]
+    /// <summary>
+    /// A generic array stored in the unmanaged heap
+    /// Courtesy of http://JacksonDunstan.com/articles/3740
+    /// Courtesy of https://github.com/bepu/bepuphysics2/blob/master/BepuUtilities/Memory/Buffer.cs
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
     public unsafe struct UnmanagedGenericArray<TValue> where TValue : unmanaged
     {
         #region Variables
@@ -79,6 +79,7 @@ namespace HereticalSolutions.Collections.Unmanaged
         /// Get a pointer to an element in the array
         /// </summary>
         /// <param name="index">Index of the element to get a pointer to</param>
+        /// <returns>Reference to element at the specified index</returns>
         public ref TValue this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -92,6 +93,7 @@ namespace HereticalSolutions.Collections.Unmanaged
         /// Get a pointer to an element in the array
         /// </summary>
         /// <param name="index">Index of the element to get a pointer to</param>
+        /// <returns>Reference to element at the specified index</returns>
         public ref TValue this[uint index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -109,7 +111,7 @@ namespace HereticalSolutions.Collections.Unmanaged
         /// Get a pointer to an element in the array
         /// </summary>
         /// <param name="index">Index of the element to get a pointer to</param>
-        /// <returns>Element in the array at specified index</returns>
+        /// <returns>Pointer to the element at the specified index</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TValue* GetPointer(int index)
         {
@@ -120,7 +122,7 @@ namespace HereticalSolutions.Collections.Unmanaged
         /// Get a pointer to an element in the array
         /// </summary>
         /// <param name="index">Index of the element to get a pointer to</param>
-        /// <returns>Element in the array at specified index</returns>
+        /// <returns>Pointer to the element at the specified index</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TValue* GetPointer(uint index)
         {

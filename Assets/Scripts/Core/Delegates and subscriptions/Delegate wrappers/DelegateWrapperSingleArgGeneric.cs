@@ -1,5 +1,7 @@
 using System;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Delegates.Wrappers
 {
     public class DelegateWrapperSingleArgGeneric<TValue>
@@ -7,10 +9,16 @@ namespace HereticalSolutions.Delegates.Wrappers
           IInvokableSingleArg
     {
         private readonly Action<TValue> @delegate;
+        
+        private readonly ILogger logger;
 
-        public DelegateWrapperSingleArgGeneric(Action<TValue> @delegate)
+        public DelegateWrapperSingleArgGeneric(
+            Action<TValue> @delegate,
+            ILogger logger = null)
         {
             this.@delegate = @delegate;
+
+            this.logger = logger;
         }
 
         #region IInvokableSingleArgGeneric
@@ -31,18 +39,40 @@ namespace HereticalSolutions.Delegates.Wrappers
         
         public void Invoke<TArgument>(TArgument value)
         {
-            if (!(typeof(TArgument).Equals(typeof(TValue))))
-                throw new Exception($"[DelegateWrapperSingleArgGeneric] INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).ToString()}\" RECEIVED: \"{typeof(TArgument).ToString()}\"");
-			
-            Invoke((object)value); //It doesn't want to convert TArgument into TValue. Bastard
+            //LOL, pattern matching to the rescue of converting TArgument to TValue
+            switch (value)
+            {
+                case TValue tValue:
+
+                    @delegate.Invoke(tValue);
+
+                    break;
+
+                default:
+
+                    throw new Exception(
+                        logger.TryFormat<DelegateWrapperSingleArgGeneric<TValue>>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{typeof(TArgument).Name}\""));
+            }
         }
 
         public void Invoke(Type valueType, object value)
         {
-            if (!(valueType.Equals(typeof(TValue))))
-                throw new Exception($"[DelegateWrapperSingleArgGeneric] INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).ToString()}\" RECEIVED: \"{valueType.ToString()}\"");
-			
-            Invoke(value); //It doesn't want to convert TArgument into TValue. Bastard
+            //LOL, pattern matching to the rescue of converting TArgument to TValue
+            switch (value)
+            {
+                case TValue tValue:
+
+                    @delegate.Invoke(tValue);
+
+                    break;
+
+                default:
+
+                    throw new Exception(
+                        logger.TryFormat<DelegateWrapperSingleArgGeneric<TValue>>(
+                            $"INVALID ARGUMENT TYPE. EXPECTED: \"{typeof(TValue).Name}\" RECEIVED: \"{valueType.Name}\""));
+            }
         }
         
         #endregion

@@ -1,16 +1,30 @@
 using System.IO;
+
 using System.Xml.Serialization;
 
 using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.IO;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Persistence.Serializers
 {
     public class SerializeXmlIntoTextFileStrategy : IXmlSerializationStrategy
     {
-        public bool Serialize(ISerializationArgument argument, XmlSerializer serializer, object value)
+        private readonly ILogger logger;
+
+        public SerializeXmlIntoTextFileStrategy(
+            ILogger logger = null)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            this.logger = logger;
+        }
+
+        public bool Serialize(
+            ISerializationArgument argument,
+            XmlSerializer serializer,
+            object value)
+        {
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
 
             string xml;
             
@@ -21,18 +35,27 @@ namespace HereticalSolutions.Persistence.Serializers
                 xml = stringWriter.ToString();
             }
             
-            return TextFileIO.Write(fileSystemSettings, xml);
+            return TextFileIO.Write(
+                filePathSettings,
+                xml,
+                logger);
         }
 
-        public bool Deserialize(ISerializationArgument argument, XmlSerializer serializer, out object value)
+        public bool Deserialize(
+            ISerializationArgument argument,
+            XmlSerializer serializer,
+            out object value)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
 
-            bool result = TextFileIO.Read(fileSystemSettings, out string xml);
+            bool result = TextFileIO.Read(
+                filePathSettings,
+                out string xml,
+                logger);
 
             if (!result)
             {
-                value = default(object);
+                value = default;
                 
                 return false;
             }
@@ -47,9 +70,9 @@ namespace HereticalSolutions.Persistence.Serializers
         
         public void Erase(ISerializationArgument argument)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
             
-            TextFileIO.Erase(fileSystemSettings);
+            TextFileIO.Erase(filePathSettings);
         }
     }
 }

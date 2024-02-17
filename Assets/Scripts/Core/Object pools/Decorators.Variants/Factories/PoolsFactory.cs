@@ -1,12 +1,21 @@
 using HereticalSolutions.Pools.Decorators;
+
 using HereticalSolutions.RandomGeneration;
+
 using HereticalSolutions.Repositories;
+
+using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Pools.Factories
 {
+    /// <summary>
+    /// Factory class for creating pools with decorators.
+    /// </summary>
     public static partial class VariantsDecoratorsPoolsFactory
     {
         #region Decorator pools
+
+        // No decorator pools for now
 
         #endregion
 
@@ -14,9 +23,17 @@ namespace HereticalSolutions.Pools.Factories
 
         public static NonAllocPoolWithVariants<T> BuildNonAllocPoolWithVariants<T>(
             IRepository<int, VariantContainer<T>> repository,
-            IRandomGenerator generator)
+            IRandomGenerator generator,
+            ILoggerResolver loggerResolver = null)
         {
-            return new NonAllocPoolWithVariants<T>(repository, generator);
+            ILogger logger =
+                loggerResolver?.GetLogger<NonAllocPoolWithVariants<T>>()
+                ?? null;
+
+            return new NonAllocPoolWithVariants<T>(
+                repository,
+                generator,
+                logger);
         }
 
         #endregion

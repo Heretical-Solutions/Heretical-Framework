@@ -1,10 +1,12 @@
 using System;
+using System.IO;
 using System.Collections;
 using System.Globalization;
-using System.IO;
 
 using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.IO;
+
+using HereticalSolutions.Logging;
 
 using CsvHelper;
 
@@ -12,9 +14,20 @@ namespace HereticalSolutions.Persistence.Serializers
 {
     public class SerializeCsvIntoTextFileStrategy : ICsvSerializationStrategy
     {
-        public bool Serialize(ISerializationArgument argument, Type valueType, object value)
+        private readonly ILogger logger;
+
+        public SerializeCsvIntoTextFileStrategy(
+            ILogger logger = null)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            this.logger = logger;
+        }
+
+        public bool Serialize(
+            ISerializationArgument argument,
+            Type valueType,
+            object value)
+        {
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
 
             string csv;
             
@@ -39,18 +52,27 @@ namespace HereticalSolutions.Persistence.Serializers
                 csv = stringWriter.ToString();
             }
             
-            return TextFileIO.Write(fileSystemSettings, csv);
+            return TextFileIO.Write(
+                filePathSettings,
+                csv,
+                logger);
         }
 
-        public bool Deserialize(ISerializationArgument argument, Type valueType, out object value)
+        public bool Deserialize(
+            ISerializationArgument argument,
+            Type valueType,
+            out object value)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
 
-            bool result = TextFileIO.Read(fileSystemSettings, out string csv);
+            bool result = TextFileIO.Read(
+                filePathSettings,
+                out string csv,
+                logger);
 
             if (!result)
             {
-                value = default(object);
+                value = default;
                 
                 return false;
             }
@@ -89,9 +111,9 @@ namespace HereticalSolutions.Persistence.Serializers
         
         public void Erase(ISerializationArgument argument)
         {
-            FileSystemSettings fileSystemSettings = ((TextFileArgument)argument).Settings;
+            FilePathSettings filePathSettings = ((TextFileArgument)argument).Settings;
             
-            TextFileIO.Erase(fileSystemSettings);
+            TextFileIO.Erase(filePathSettings);
         }
     }
 }

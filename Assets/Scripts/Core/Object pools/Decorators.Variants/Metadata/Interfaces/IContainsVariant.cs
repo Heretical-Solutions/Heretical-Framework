@@ -1,7 +1,13 @@
 namespace HereticalSolutions.Pools
 {
-	public interface IContainsVariant
-	{
-		int Variant { get; }
-	}
+    /// <summary>
+    /// Interface for objects that contain a variant.
+    /// </summary>
+    public interface IContainsVariant
+    {
+        /// <summary>
+        /// Gets the variant value.
+        /// </summary>
+        int Variant { get; }
+    }
 }
