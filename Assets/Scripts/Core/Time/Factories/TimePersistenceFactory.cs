@@ -1,16 +1,16 @@
 using System;
 
 using HereticalSolutions.Persistence.Visitors;
+using HereticalSolutions.Persistence.Factories;
 
 using HereticalSolutions.Repositories;
 using HereticalSolutions.Repositories.Factories;
 
-using HereticalSolutions.Time;
 using HereticalSolutions.Time.Visitors;
 
 using HereticalSolutions.Logging;
 
-namespace HereticalSolutions.Persistence.Factories
+namespace HereticalSolutions.Time.Factories
 {
     public static partial class TimeFactory
     {

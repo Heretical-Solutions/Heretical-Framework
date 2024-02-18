@@ -8,7 +8,7 @@ namespace HereticalSolutions.Persistence.IO
     public static class UnityTextFileIO
     {
         public static bool Write(
-            UnityFileSystemSettings settings,
+            UnityPersistentFilePathSettings settings,
             string contents)
         {
             string savePath = settings.FullPath;
@@ -21,7 +21,7 @@ namespace HereticalSolutions.Persistence.IO
         }
 
         public static bool Write(
-            UnityFileSystemSettings settings,
+            UnityPersistentFilePathSettings settings,
             byte[] contents)
         {
             string savePath = settings.FullPath;
@@ -34,7 +34,7 @@ namespace HereticalSolutions.Persistence.IO
         }
         
         public static bool Read(
-            UnityFileSystemSettings settings,
+            UnityPersistentFilePathSettings settings,
             out string contents)
         {
             string savePath = settings.FullPath;
@@ -52,7 +52,7 @@ namespace HereticalSolutions.Persistence.IO
         }
         
         public static bool Read(
-            UnityFileSystemSettings settings,
+            UnityPersistentFilePathSettings settings,
             out byte[] contents)
         {
             string savePath = settings.FullPath;
@@ -78,7 +78,7 @@ namespace HereticalSolutions.Persistence.IO
             return true;
         }
         
-        public static void Erase(UnityFileSystemSettings settings)
+        public static void Erase(UnityPersistentFilePathSettings settings)
         {
             string savePath = settings.FullPath;
 

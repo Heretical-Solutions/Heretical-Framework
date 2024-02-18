@@ -10,7 +10,7 @@ namespace HereticalSolutions.Persistence.Serializers
     {
         public bool Serialize(ISerializationArgument argument, XmlSerializer serializer, object value)
         {
-            UnityFileSystemSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
+            UnityPersistentFilePathSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
 
             string xml;
             
@@ -26,7 +26,7 @@ namespace HereticalSolutions.Persistence.Serializers
 
         public bool Deserialize(ISerializationArgument argument, XmlSerializer serializer, out object value)
         {
-            UnityFileSystemSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
+            UnityPersistentFilePathSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
             
             bool result = UnityTextFileIO.Read(fileSystemSettings, out string xml);
 
@@ -47,7 +47,7 @@ namespace HereticalSolutions.Persistence.Serializers
         
         public void Erase(ISerializationArgument argument)
         {
-            UnityFileSystemSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
+            UnityPersistentFilePathSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
             
             UnityTextFileIO.Erase(fileSystemSettings);
         }

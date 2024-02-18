@@ -7,7 +7,7 @@ namespace HereticalSolutions.Persistence.IO
     public static class UnityStreamIO
     {
         public static bool  OpenReadStream(
-            UnityFileSystemSettings settings,
+            UnityPersistentFilePathSettings settings,
             out FileStream dataStream)
         {
             string savePath = settings.FullPath;
@@ -23,7 +23,7 @@ namespace HereticalSolutions.Persistence.IO
         }
         
         public static bool  OpenReadStream(
-            UnityFileSystemSettings settings,
+            UnityPersistentFilePathSettings settings,
             out StreamReader streamReader)
         {
             string savePath = settings.FullPath;
@@ -39,7 +39,7 @@ namespace HereticalSolutions.Persistence.IO
         }
         
         public static bool OpenWriteStream(
-            UnityFileSystemSettings settings,
+            UnityPersistentFilePathSettings settings,
             out FileStream dataStream)
         {
             string savePath = settings.FullPath;
@@ -52,7 +52,7 @@ namespace HereticalSolutions.Persistence.IO
         }
 
         public static bool OpenWriteStream(
-            UnityFileSystemSettings settings,
+            UnityPersistentFilePathSettings settings,
             out StreamWriter streamWriter)
         {
             string savePath = settings.FullPath;
@@ -79,7 +79,7 @@ namespace HereticalSolutions.Persistence.IO
             streamWriter.Close();
         }
         
-        public static void Erase(UnityFileSystemSettings settings)
+        public static void Erase(UnityPersistentFilePathSettings settings)
         {
             string savePath = settings.FullPath;
 

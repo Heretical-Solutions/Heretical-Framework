@@ -14,7 +14,7 @@ namespace HereticalSolutions.Persistence.Serializers
     {
         public bool Serialize(ISerializationArgument argument, Type valueType, object value)
         {
-            UnityFileSystemSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
+            UnityPersistentFilePathSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
 
             string csv;
             
@@ -44,7 +44,7 @@ namespace HereticalSolutions.Persistence.Serializers
 
         public bool Deserialize(ISerializationArgument argument, Type valueType, out object value)
         {
-            UnityFileSystemSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
+            UnityPersistentFilePathSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
             
             bool result = UnityTextFileIO.Read(fileSystemSettings, out string csv);
 
@@ -89,7 +89,7 @@ namespace HereticalSolutions.Persistence.Serializers
         
         public void Erase(ISerializationArgument argument)
         {
-            UnityFileSystemSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
+            UnityPersistentFilePathSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
             
             UnityTextFileIO.Erase(fileSystemSettings);
         }

@@ -9,7 +9,7 @@ namespace HereticalSolutions.Persistence.Serializers
     {
         public bool Serialize(ISerializationArgument argument, string json)
         {
-            UnityFileSystemSettings fileSystemSettings = ((UnityStreamArgument)argument).Settings;
+            UnityPersistentFilePathSettings fileSystemSettings = ((UnityStreamArgument)argument).Settings;
             
             if (!UnityStreamIO.OpenWriteStream(fileSystemSettings, out StreamWriter streamWriter))
                 return false;
@@ -23,7 +23,7 @@ namespace HereticalSolutions.Persistence.Serializers
 
         public bool Deserialize(ISerializationArgument argument, out string json)
         {
-            UnityFileSystemSettings fileSystemSettings = ((UnityStreamArgument)argument).Settings;
+            UnityPersistentFilePathSettings fileSystemSettings = ((UnityStreamArgument)argument).Settings;
             
             json = string.Empty;
             
@@ -39,7 +39,7 @@ namespace HereticalSolutions.Persistence.Serializers
 
         public void Erase(ISerializationArgument argument)
         {
-            UnityFileSystemSettings fileSystemSettings = ((UnityStreamArgument)argument).Settings;
+            UnityPersistentFilePathSettings fileSystemSettings = ((UnityStreamArgument)argument).Settings;
             
             UnityStreamIO.Erase(fileSystemSettings);
         }

@@ -4,6 +4,6 @@ namespace HereticalSolutions.Persistence.Arguments
 {
     public class UnityTextFileArgument : ISerializationArgument
     {
-        public UnityFileSystemSettings Settings { get; set; }
+        public UnityPersistentFilePathSettings Settings { get; set; }
     }
 }

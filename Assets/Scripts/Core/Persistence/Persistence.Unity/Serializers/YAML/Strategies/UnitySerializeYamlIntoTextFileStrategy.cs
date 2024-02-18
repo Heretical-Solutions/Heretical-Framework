@@ -7,21 +7,21 @@ namespace HereticalSolutions.Persistence.Serializers
     {
         public bool Serialize(ISerializationArgument argument, string yaml)
         {
-            UnityFileSystemSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
+            UnityPersistentFilePathSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
             
             return UnityTextFileIO.Write(fileSystemSettings, yaml);
         }
 
         public bool Deserialize(ISerializationArgument argument, out string yaml)
         {
-            UnityFileSystemSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
+            UnityPersistentFilePathSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
             
             return UnityTextFileIO.Read(fileSystemSettings, out yaml);
         }
         
         public void Erase(ISerializationArgument argument)
         {
-            UnityFileSystemSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
+            UnityPersistentFilePathSettings fileSystemSettings = ((UnityTextFileArgument)argument).Settings;
             
             UnityTextFileIO.Erase(fileSystemSettings);
         }
