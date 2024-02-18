@@ -1,14 +1,18 @@
-﻿using DefaultEcs;
+﻿using System;
+
+using DefaultEcs;
 using DefaultEcs.System;
 
 namespace HereticalSolutions.GameEntities
 {
-    public class InitializeViewModelComponentSystem : ISystem<Entity>
+    public class InitializeViewModelComponentSystem<TEntityID, TEntityIDComponent> : ISystem<Entity>
     {
-        private readonly IEntityManager<World, Entity> entityManager;
+        private readonly Func<TEntityIDComponent, TEntityID> getEntityIDFromIDComponentDelegate;
+
+        private readonly IEntityManager<World, TEntityID, Entity> entityManager;
         
         public InitializeViewModelComponentSystem(
-            IEntityManager<World, Entity> entityManager)
+            IEntityManager<World, TEntityID, Entity> entityManager)
         {
             this.entityManager = entityManager;
         }
@@ -26,9 +30,11 @@ namespace HereticalSolutions.GameEntities
             ref ViewModelComponent viewModelComponent = ref entity.Get<ViewModelComponent>();
 
 
-            var guid = entity.Get<GUIDComponent>().GUID;
-
-            var registryEntity = entityManager.GetRegistryEntity(guid);
+            //var guid = entity.Get<GUIDComponent>().GUID;
+            var entityID = getEntityIDFromIDComponentDelegate.Invoke(
+                entity.Get<TEntityIDComponent>());
+            
+            var registryEntity = entityManager.GetRegistryEntity(entityID);
 
 
             //TODO: add world ID to component type repository and add preferred world ID to component to ensure we can pick any entity as a model for a VM

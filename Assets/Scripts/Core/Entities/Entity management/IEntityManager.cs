@@ -2,17 +2,17 @@ using System;
 
 namespace HereticalSolutions.GameEntities
 {
-    public interface IEntityManager<TWorld, TEntity>
-        : IReadOnlyEntityRepository<TEntity>
+    public interface IEntityManager<TWorld, TEntityID, TEntity>
+        : IReadOnlyEntityRepository<TEntityID, TEntity>
     {
         #region Spawn entity
 
-        Guid SpawnEntity(
+        TEntityID SpawnEntity(
             string prototypeID,
             EEntityAuthoringPresets authoringPreset = EEntityAuthoringPresets.DEFAULT);
 
         bool SpawnEntity(
-            Guid guid,
+            TEntityID entityID,
             string prototypeID,
             EEntityAuthoringPresets authoringPreset = EEntityAuthoringPresets.DEFAULT);
 
@@ -28,13 +28,13 @@ namespace HereticalSolutions.GameEntities
 
         #region Resolve entity
 
-        Guid ResolveEntity(
+        TEntityID ResolveEntity(
             object source,
             string prototypeID,
             EEntityAuthoringPresets authoringPreset = EEntityAuthoringPresets.DEFAULT);
 
         bool ResolveEntity(
-            Guid guid,
+            TEntityID entityID,
             object source,
             string prototypeID,
             EEntityAuthoringPresets authoringPreset = EEntityAuthoringPresets.DEFAULT);
@@ -53,7 +53,7 @@ namespace HereticalSolutions.GameEntities
 
         #region Despawn entity
 
-        void DespawnEntity(Guid guid);
+        void DespawnEntity(TEntityID entityID);
 
         void DespawnWorldLocalEntity(TEntity entity);
 

@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 namespace HereticalSolutions.GameEntities
 {
-    public interface IReadOnlyEntityRepository<TEntity>
+    public interface IReadOnlyEntityRepository<TEntityID, TEntity>
     {
-        bool HasEntity(Guid guid);
+        bool HasEntity(TEntityID entityID);
         
-        TEntity GetRegistryEntity(Guid guid);
+        TEntity GetRegistryEntity(TEntityID entityID);
 
-        GuidPrototypeIDPair[] AllRegistryEntities { get; }
+        EntityDescriptor<TEntityID>[] AllRegistryEntities { get; }
         
-        IEnumerable<Guid> AllAllocatedGUIDs { get; }
+        IEnumerable<TEntityID> AllAllocatedIDs { get; }
     }
 }
