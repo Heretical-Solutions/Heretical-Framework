@@ -14,10 +14,11 @@ using Entity = DefaultEcs.Entity;
 
 using DefaultEcs.System;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     public class DefaultECSEntityManager<TEntityID>
-        : IEntityManager<World, TEntityID, Entity>
+        : IEntityManager<World, TEntityID, Entity>,
+          IContainsEntityWorlds<World, ISystem<Entity>, Entity>
     {
         private readonly Func<TEntityID> allocateIDDelegate;
 
@@ -280,6 +281,12 @@ namespace HereticalSolutions.GameEntities
         }
 
         #endregion
+
+        #endregion
+
+        #region IContainsEntityWorlds
+
+        public IReadOnlyEntityWorldsRepository<World, ISystem<Entity>, Entity> EntityWorldsRepository { get => entityWorldsRepository; }
 
         #endregion
 

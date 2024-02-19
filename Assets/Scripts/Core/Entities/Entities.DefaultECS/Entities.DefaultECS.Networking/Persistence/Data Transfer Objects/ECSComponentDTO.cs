@@ -1,6 +1,6 @@
 using System;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     /// <summary>
     /// Represents a data transfer object for an ECS component.

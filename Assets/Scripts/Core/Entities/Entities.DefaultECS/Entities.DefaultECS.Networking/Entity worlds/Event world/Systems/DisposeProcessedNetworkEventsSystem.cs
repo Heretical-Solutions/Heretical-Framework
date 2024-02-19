@@ -1,7 +1,7 @@
 using DefaultEcs;
 using DefaultEcs.System;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
 	public class DisposeProcessedNetworkEventsSystem : AEntitySetSystem<float>
 	{

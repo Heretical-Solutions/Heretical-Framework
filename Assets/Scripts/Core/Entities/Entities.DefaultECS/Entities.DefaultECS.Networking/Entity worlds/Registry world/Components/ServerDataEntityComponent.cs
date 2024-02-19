@@ -1,6 +1,6 @@
 using DefaultEcs;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     [Component("Registry world")]
     [IdentityComponent]

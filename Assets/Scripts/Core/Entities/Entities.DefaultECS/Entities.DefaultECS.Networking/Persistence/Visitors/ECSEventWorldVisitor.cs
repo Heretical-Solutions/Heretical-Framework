@@ -9,7 +9,7 @@ using HereticalSolutions.Repositories;
 
 using DefaultEcs;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     public class ECSEventWorldVisitor :
         ASaveLoadVisitor<World, ECSEventsBufferDTO>
@@ -20,9 +20,9 @@ namespace HereticalSolutions.GameEntities
         
         private readonly IReadOnlyRepository<Type, int> typeToHash;
         
-        private readonly VisitorReadComponentDelegate[] componentReaders;
+        private readonly ReadComponentToDTOsListDelegate[] componentReaders;
         
-        private readonly IReadOnlyRepository<Type, VisitorWriteComponentDelegate> componentWriters;
+        private readonly IReadOnlyRepository<Type, WriteComponentFromDTODelegate> componentWriters;
         
         private readonly List<ECSEventEntityDTO> entityDTOsCache;
         
@@ -39,8 +39,8 @@ namespace HereticalSolutions.GameEntities
             IEventEntityBuilder<Entity> eventEntityBuilder,
             IReadOnlyRepository<int, Type> hashToType,
             IReadOnlyRepository<Type, int> typeToHash,
-            VisitorReadComponentDelegate[] componentReaders,
-            IReadOnlyRepository<Type, VisitorWriteComponentDelegate> componentWriters,
+            ReadComponentToDTOsListDelegate[] componentReaders,
+            IReadOnlyRepository<Type, WriteComponentFromDTODelegate> componentWriters,
             bool host,
             ILogger logger = null)
             : base (logger)

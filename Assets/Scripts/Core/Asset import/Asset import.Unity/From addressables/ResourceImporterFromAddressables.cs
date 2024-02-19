@@ -17,15 +17,17 @@ namespace HereticalSolutions.AssetImport
             ILoggerResolver loggerResolver = null,
             ILogger logger = null)
             : base(
-                runtimeResourceManager,
                 loggerResolver,
                 logger)
         {
         }
 
         public void Initialize(
+            IRuntimeResourceManager runtimeResourceManager,
             AddressableResourcesSettings settings)
         {
+            InitializeInternal(runtimeResourceManager);
+
             this.settings = settings;
         }
 

@@ -1,6 +1,6 @@
 using System;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     /// <summary>
     /// Represents a component that identifies the source entity for a network event.

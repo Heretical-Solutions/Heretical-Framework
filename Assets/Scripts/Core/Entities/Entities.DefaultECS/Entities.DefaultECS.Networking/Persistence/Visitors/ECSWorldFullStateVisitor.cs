@@ -10,7 +10,7 @@ using HereticalSolutions.Logging;
 
 using DefaultEcs;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     /// <summary>
     /// A visitor class used to load and save the full state of an ECS world.

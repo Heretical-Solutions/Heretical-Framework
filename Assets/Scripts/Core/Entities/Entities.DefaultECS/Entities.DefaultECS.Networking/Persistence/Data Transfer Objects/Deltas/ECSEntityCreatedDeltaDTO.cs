@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     [Serializable]
     public struct ECSEntityCreatedDeltaDTO

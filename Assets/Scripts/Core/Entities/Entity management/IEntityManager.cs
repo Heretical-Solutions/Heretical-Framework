@@ -1,9 +1,9 @@
 using System;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     public interface IEntityManager<TWorld, TEntityID, TEntity>
-        : IReadOnlyEntityRepository<TEntityID, TEntity>
+        : IReadOnlyEntityManager<TEntityID, TEntity>
     {
         #region Spawn entity
 

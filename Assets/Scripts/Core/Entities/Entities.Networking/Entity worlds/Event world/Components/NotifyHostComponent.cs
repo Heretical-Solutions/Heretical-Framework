@@ -1,4 +1,4 @@
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     /// <summary>
     /// Represents a component that notifies the host.

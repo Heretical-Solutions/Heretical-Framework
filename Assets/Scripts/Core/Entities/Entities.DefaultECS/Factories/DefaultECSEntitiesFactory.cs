@@ -12,7 +12,7 @@ using DefaultEcs;
 
 using IEntityWorldsRepository =
     HereticalSolutions
-    .GameEntities
+    .Entities
     .IEntityWorldsRepository<
         DefaultEcs.World,
         DefaultEcs.System.ISystem<DefaultEcs.Entity>,
@@ -20,23 +20,25 @@ using IEntityWorldsRepository =
 
 using IWorldController =
     HereticalSolutions
-    .GameEntities
+    .Entities
     .IWorldController<
         DefaultEcs.World,
         DefaultEcs.System.ISystem<DefaultEcs.Entity>,
         DefaultEcs.Entity>;
 
-namespace HereticalSolutions.GameEntities.Factories
+namespace HereticalSolutions.Entities.Factories
 {
     /// <summary>
     /// Class containing methods to build entities and their components.
     /// </summary>
     public static partial class DefaultECSEntitiesFactory
     {
+        /*
         public delegate void ComponentReaderDelegate<TComponent>(
             Entity entity,
             IReadOnlyRepository<Type, int> typeToHash,
             List<ECSComponentDTO> componentDTOs);
+        */
 
         #region Entity manager
 
@@ -264,7 +266,7 @@ namespace HereticalSolutions.GameEntities.Factories
 
         #endregion
 
-        #region Persistence
+        #region Component types with attribute lists
 
         /// <summary>
         /// Builds a list of component types with the specified attribute.
@@ -334,20 +336,24 @@ namespace HereticalSolutions.GameEntities.Factories
 
             componentTypes = result.ToArray();
         }
-        
-        public static VisitorReadComponentDelegate[] BuildComponentReaders(
+
+        #endregion
+
+        #region Component readers and writers
+
+        public static ReadComponentToDTOsListDelegate[] BuildComponentReaders(
             MethodInfo readComponentMethodInfo,
             Type[] componentTypes)
         {
-            var result = new VisitorReadComponentDelegate[componentTypes.Length];
+            var result = new ReadComponentToDTOsListDelegate[componentTypes.Length];
 
             for (int i = 0; i < result.Length; i++)
             {
                 MethodInfo readComponentGeneric = readComponentMethodInfo.MakeGenericMethod(componentTypes[i]);
                 
-                VisitorReadComponentDelegate readComponentGenericDelegate =
-                    (VisitorReadComponentDelegate)readComponentGeneric.CreateDelegate(
-                        typeof(VisitorReadComponentDelegate),
+                ReadComponentToDTOsListDelegate readComponentGenericDelegate =
+                    (ReadComponentToDTOsListDelegate)readComponentGeneric.CreateDelegate(
+                        typeof(ReadComponentToDTOsListDelegate),
                         null);
 
                 result[i] = readComponentGenericDelegate;
@@ -356,22 +362,22 @@ namespace HereticalSolutions.GameEntities.Factories
             return result;
         }
         
-        public static IReadOnlyRepository<Type, VisitorWriteComponentDelegate> BuildComponentWriters(
+        public static IReadOnlyRepository<Type, WriteComponentFromDTODelegate> BuildComponentWriters(
             MethodInfo writeComponentMethodInfo,
             Type[] componentTypes)
         {
-            IReadOnlyRepository<Type, VisitorWriteComponentDelegate> result = RepositoriesFactory.BuildDictionaryRepository<Type, VisitorWriteComponentDelegate>();
+            IReadOnlyRepository<Type, WriteComponentFromDTODelegate> result = RepositoriesFactory.BuildDictionaryRepository<Type, WriteComponentFromDTODelegate>();
 
             for (int i = 0; i < componentTypes.Length; i++)
             {
                 MethodInfo writeComponentGeneric = writeComponentMethodInfo.MakeGenericMethod(componentTypes[i]);
                 
-                VisitorWriteComponentDelegate writeComponentGenericDelegate =
-                    (VisitorWriteComponentDelegate)writeComponentGeneric.CreateDelegate(
-                        typeof(VisitorWriteComponentDelegate),
+                WriteComponentFromDTODelegate writeComponentGenericDelegate =
+                    (WriteComponentFromDTODelegate)writeComponentGeneric.CreateDelegate(
+                        typeof(WriteComponentFromDTODelegate),
                         null);
 
-                ((IRepository<Type, VisitorWriteComponentDelegate>)result).Add(
+                ((IRepository<Type, WriteComponentFromDTODelegate>)result).Add(
                     componentTypes[i],
                     writeComponentGenericDelegate);
             }
@@ -379,14 +385,7 @@ namespace HereticalSolutions.GameEntities.Factories
             return result;
         }
         
-        /// <summary>
-        /// Reads a component of type <typeparamref name="TComponent"/> from the provided entity and adds it to the component deltas list.
-        /// </summary>
-        /// <typeparam name="TComponent">The type of the component to read.</typeparam>
-        /// <param name="entity">The entity to read the component from.</param>
-        /// <param name="typeToHash">The repository that maps types to type hash codes.</param>
-        /// <param name="componentDTOs">The list to store the component DTOs.</param>
-        public static void ReadComponent<TComponent>(
+        public static void ReadComponentToDTOsList<TComponent>(
             Entity entity,
             IReadOnlyRepository<Type, int> typeToHash,
             List<ECSComponentDTO> componentDTOs)
@@ -409,13 +408,7 @@ namespace HereticalSolutions.GameEntities.Factories
             componentDTOs.Add(dto);
         }
         
-        /// <summary>
-        /// Writes a component of type <typeparamref name="TComponent"/> to the provided entity using the component delta data.
-        /// </summary>
-        /// <typeparam name="TComponent">The type of the component to write.</typeparam>
-        /// <param name="entity">The entity to write the component to.</param>
-        /// <param name="componentDTO">The component delta data.</param>
-        public static void WriteComponent<TComponent>(
+        public static void WriteComponentFromDTO<TComponent>(
             Entity entity,
             ECSComponentDTO componentDTO)
         {

@@ -16,20 +16,21 @@ namespace HereticalSolutions.AssetImport
 		private TAsset readWriteAsset;
 
 		public DefaultReadWriteAssetImporter(
-			IRuntimeResourceManager runtimeResourceManager,
 			ILoggerResolver loggerResolver = null,
 			ILogger logger = null)
 			: base(
-				runtimeResourceManager,
 				loggerResolver,
 				logger)
 		{
 		}
 
 		public void Initialize(
+			IRuntimeResourceManager runtimeResourceManager,
 			string resourcePath,
 			TAsset readWriteAsset)
 		{
+			InitializeInternal(runtimeResourceManager);
+
 			this.resourcePath = resourcePath;
 
 			this.readWriteAsset = readWriteAsset;

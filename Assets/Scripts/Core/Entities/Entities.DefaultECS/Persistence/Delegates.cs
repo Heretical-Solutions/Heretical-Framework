@@ -1,12 +1,12 @@
 using DefaultEcs;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
-	public delegate void EntityFactoryWriteComponentDelegate(
+	public delegate void WriteComponentToObjectDelegate(
 		Entity entity,
 		object componentValue);
 
-	public delegate void EntityFactoryAddComponentDelegate(
+	public delegate void AddObjectComponentToEntityDelegate(
 		Entity entity,
 		object component);
 }

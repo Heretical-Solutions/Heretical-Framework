@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     public interface IPrototypesRepository<TWorld, TEntity>
     {

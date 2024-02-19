@@ -3,7 +3,7 @@ using DefaultEcs.System;
 
 using HereticalSolutions.Logging;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
 	public class DefaultECSEventWorldController
 		: IWorldController<World, ISystem<Entity>, Entity>

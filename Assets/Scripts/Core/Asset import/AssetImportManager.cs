@@ -154,7 +154,6 @@ namespace HereticalSolutions.AssetImport
 					loggerResolver,
 					new object[]
 					{
-						this,
 						loggerResolver,
 						(loggerResolver?.GetLogger<TImporter>() ?? null)
 					});

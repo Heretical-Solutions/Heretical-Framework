@@ -2,7 +2,7 @@ using System;
 
 using System.Numerics;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     public interface IEventEntityBuilder<TEntity>
     {

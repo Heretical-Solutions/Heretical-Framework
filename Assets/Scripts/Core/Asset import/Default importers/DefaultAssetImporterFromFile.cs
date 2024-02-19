@@ -23,22 +23,23 @@ namespace HereticalSolutions.AssetImport
 		protected ILoadVisitorGeneric<TAsset, TDTO> visitor;
 
 		public DefaultAssetImporterFromFile(
-			IRuntimeResourceManager runtimeResourceManager,
 			ILoggerResolver loggerResolver = null,
 			ILogger logger = null)
 			: base(
-				runtimeResourceManager,
 				loggerResolver,
 				logger)
 		{
 		}
 
 		public void Initialize(
+			IRuntimeResourceManager runtimeResourceManager,
 			string resourcePath,
 			ISerializer serializer,
 			ISerializationArgument serializationArgument,
 			ILoadVisitorGeneric<TAsset, TDTO> visitor)
 		{
+			InitializeInternal(runtimeResourceManager);
+
 			this.resourcePath = resourcePath;
 
 			this.serializer = serializer;

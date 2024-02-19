@@ -1,6 +1,6 @@
 using DefaultEcs;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     /// <summary>
     /// Represents a component that stores the view entity and prototype ID for an entity.

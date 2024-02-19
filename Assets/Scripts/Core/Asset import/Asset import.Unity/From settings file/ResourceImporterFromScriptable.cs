@@ -8,24 +8,25 @@ using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.AssetImport
 {
-    public class AssetImporterFromScriptable : AAssetImporter
+    public class ResourceImporterFromScriptable : AAssetImporter
     {
         private ResourcesSettings settings;
 
-        public AssetImporterFromScriptable(
-            IRuntimeResourceManager runtimeResourceManager,
+        public ResourceImporterFromScriptable(
             ILoggerResolver loggerResolver = null,
             ILogger logger = null)
             : base(
-                runtimeResourceManager,
                 loggerResolver,
                 logger)
         {
         }
 
         public void Initialize(
+            IRuntimeResourceManager runtimeResourceManager,
             ResourcesSettings settings)
         {
+            InitializeInternal(runtimeResourceManager);
+
             this.settings = settings;
         }
 
@@ -49,7 +50,7 @@ namespace HereticalSolutions.AssetImport
                 {
                     string variantID = resourceVariantDataSettings.VariantID;
 
-                    logger?.Log<AssetImporterFromScriptable>(
+                    logger?.Log<ResourceImporterFromScriptable>(
                         $"IMPORTING {resourceID} INITIATED");
 
                     IProgress<float> localProgress = progress.CreateLocalProgress(
@@ -61,7 +62,7 @@ namespace HereticalSolutions.AssetImport
                     var localResult = await AddAssetAsResourceVariant(
                         await GetOrCreateResourceData(
                             resourceID)
-                            .ThrowExceptions<IResourceData, AssetImporterFromScriptable>(logger),
+                            .ThrowExceptions<IResourceData, ResourceImporterFromScriptable>(logger),
                         new ResourceVariantDescriptor()
                         {
                             VariantID = variantID,
@@ -84,9 +85,9 @@ namespace HereticalSolutions.AssetImport
 #endif
                         true,
                         localProgress)
-                        .ThrowExceptions<IResourceVariantData, AssetImporterFromScriptable>(logger);
+                        .ThrowExceptions<IResourceVariantData, ResourceImporterFromScriptable>(logger);
 
-                    logger?.Log<AssetImporterFromScriptable>(
+                    logger?.Log<ResourceImporterFromScriptable>(
                         $"IMPORTING {resourceID} FINISHED");
 
                     resourcesLoaded++;

@@ -1,6 +1,6 @@
 using System;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
 	public interface IEntityIDCompliantWorldController<TEntityID, TEntity>
 	{

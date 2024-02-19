@@ -1,6 +1,6 @@
 using System;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
 	/// <summary>
 	/// Interface for managing game entities.

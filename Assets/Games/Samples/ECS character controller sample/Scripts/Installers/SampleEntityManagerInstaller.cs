@@ -2,8 +2,8 @@ using System;
 
 using HereticalSolutions.Allocations.Factories;
 
-using HereticalSolutions.GameEntities;
-using HereticalSolutions.GameEntities.Factories;
+using HereticalSolutions.Entities;
+using HereticalSolutions.Entities.Factories;
 
 using HereticalSolutions.Logging;
 

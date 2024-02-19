@@ -5,7 +5,7 @@ using DefaultEcs.System;
 
 using HereticalSolutions.Logging;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     public class DefaultECSRegistryWorldController<TEntityID, TEntityIDComponent>
         : IWorldController<World, ISystem<Entity>, Entity>,

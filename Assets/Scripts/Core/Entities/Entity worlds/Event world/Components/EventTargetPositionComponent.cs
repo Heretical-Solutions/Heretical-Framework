@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     /// <summary>
     /// Network event component for storing target position data.

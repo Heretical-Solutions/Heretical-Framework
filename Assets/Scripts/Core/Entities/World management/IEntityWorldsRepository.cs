@@ -1,4 +1,4 @@
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     public interface IEntityWorldsRepository<TWorld, TSystem, TEntity>
         : IReadOnlyEntityWorldsRepository<TWorld, TSystem, TEntity>

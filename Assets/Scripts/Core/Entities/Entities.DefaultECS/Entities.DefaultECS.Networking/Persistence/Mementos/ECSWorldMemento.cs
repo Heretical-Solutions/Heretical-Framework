@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 using HereticalSolutions.Repositories;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     public class ECSWorldMemento
     {

@@ -12,7 +12,7 @@ using HereticalSolutions.Logging;
 
 using DefaultEcs;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     public class ECSWorldMementoVisitor :
         ASaveVisitor<World, ECSWorldMemento>

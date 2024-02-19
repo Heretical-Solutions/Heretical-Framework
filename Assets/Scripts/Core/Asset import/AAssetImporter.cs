@@ -10,19 +10,16 @@ namespace HereticalSolutions.AssetImport
 {
 	public abstract class AAssetImporter
 	{
-		protected readonly IRuntimeResourceManager runtimeResourceManager;
-
 		protected readonly ILoggerResolver loggerResolver;
 
 		protected readonly ILogger logger;
 
+		protected IRuntimeResourceManager runtimeResourceManager;
+
 		public AAssetImporter(
-			IRuntimeResourceManager runtimeResourceManager,
 			ILoggerResolver loggerResolver = null,
 			ILogger logger = null)
 		{
-			this.runtimeResourceManager = runtimeResourceManager;
-
 			this.loggerResolver = loggerResolver;
 
 			this.logger = logger;
@@ -34,13 +31,26 @@ namespace HereticalSolutions.AssetImport
 			throw new NotImplementedException();
 		}
 
+		protected void InitializeInternal(IRuntimeResourceManager runtimeResourceManager)
+		{
+			this.runtimeResourceManager = runtimeResourceManager;
+		}
+
 		public virtual void Cleanup()
 		{
+			runtimeResourceManager = null;
 		}
 
 		protected virtual async Task<IResourceData> GetOrCreateResourceData(
 			string fullResourcePath)
 		{
+			if (runtimeResourceManager == null)
+			{
+				throw new Exception(
+					logger.FormatException(
+						"RUNTIME RESOURCE MANAGER IS NOT INITIALIZED"));
+			}
+
 			string[] resourcePathParts = fullResourcePath.SplitAddressBySeparator();
 
 			IReadOnlyResourceData currentData = null;
@@ -196,6 +206,13 @@ namespace HereticalSolutions.AssetImport
 			string variantID = null,
 			IProgress<float> progress = null)
 		{
+			if (runtimeResourceManager == null)
+			{
+				throw new Exception(
+					logger.FormatException(
+						"RUNTIME RESOURCE MANAGER IS NOT INITIALIZED"));
+			}
+
 			return await ((IContainsDependencyResources)runtimeResourceManager)
 				.LoadDependency(
 					path,

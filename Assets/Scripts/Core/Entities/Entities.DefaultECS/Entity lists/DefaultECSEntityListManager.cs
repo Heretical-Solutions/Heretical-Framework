@@ -4,7 +4,7 @@ using HereticalSolutions.Repositories;
 
 using DefaultEcs;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
 	public class DefaultECSEntityListManager
 		: IEntityListManager<int, List<Entity>>

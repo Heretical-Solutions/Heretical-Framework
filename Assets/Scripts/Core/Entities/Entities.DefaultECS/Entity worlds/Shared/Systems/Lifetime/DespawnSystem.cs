@@ -1,7 +1,7 @@
 using DefaultEcs;
 using DefaultEcs.System;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     /// <summary>
     /// Represents a system responsible for despawning entities.

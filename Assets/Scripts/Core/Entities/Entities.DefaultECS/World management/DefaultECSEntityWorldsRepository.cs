@@ -6,7 +6,7 @@ using DefaultEcs;
 
 using IEntityWorldsRepository =
 	HereticalSolutions
-	.GameEntities
+	.Entities
 	.IEntityWorldsRepository<
 		DefaultEcs.World,
 		DefaultEcs.System.ISystem<DefaultEcs.Entity>,
@@ -14,7 +14,7 @@ using IEntityWorldsRepository =
 
 using IWorldController =
 	HereticalSolutions
-	.GameEntities
+	.Entities
 	.IWorldController<
 		DefaultEcs.World,
 		DefaultEcs.System.ISystem<DefaultEcs.Entity>,
@@ -22,7 +22,7 @@ using IWorldController =
 
 using HereticalSolutions.Logging;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
 	public class DefaultECSEntityWorldsRepository
 		: IEntityWorldsRepository

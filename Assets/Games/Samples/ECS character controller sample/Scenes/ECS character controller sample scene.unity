@@ -354,6 +354,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 293782535}
+  - component: {fileID: 293782536}
   m_Layer: 0
   m_Name: Asset import manager
   m_TagString: Untagged
@@ -376,6 +377,18 @@ Transform:
   m_Father: {fileID: 764863711}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &293782536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 293782534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aae3de66fd6cd16338691c34940e4550, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &315408018
 GameObject:
   m_ObjectHideFlags: 0
@@ -1034,7 +1047,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _scriptableObjectInstallers: []
-  _monoInstallers: []
+  _monoInstallers:
+  - {fileID: 76758682}
+  - {fileID: 197219444}
+  - {fileID: 1279942278}
+  - {fileID: 293782536}
+  - {fileID: 1597942997}
+  - {fileID: 1308102696}
+  - {fileID: 1449525183}
   _installerPrefabs: []
   _autoRun: 1
   OnPreInstall:
@@ -1650,6 +1670,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1279942277}
+  - component: {fileID: 1279942278}
   m_Layer: 0
   m_Name: Resource manager
   m_TagString: Untagged
@@ -1672,6 +1693,18 @@ Transform:
   m_Father: {fileID: 764863711}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1279942278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1279942276}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e710b91be4ba2204fab203fea0ee400c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1308102694
 GameObject:
   m_ObjectHideFlags: 0
@@ -1758,6 +1791,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1449525182}
+  - component: {fileID: 1449525183}
   m_Layer: 0
   m_Name: Entity prototype import
   m_TagString: Untagged
@@ -1780,6 +1814,19 @@ Transform:
   m_Father: {fileID: 764863711}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1449525183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1449525181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1b6840fd275c3ea7e8df5150562f478c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  settings: {fileID: 11400000, guid: 9102ef6f91adba5f0a64da301f5b7f26, type: 2}
 --- !u!1 &1597942995
 GameObject:
   m_ObjectHideFlags: 0

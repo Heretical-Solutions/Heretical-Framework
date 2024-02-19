@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Collections.Generic;
 
-using HereticalSolutions.GameEntities;
+using HereticalSolutions.Entities;
 
 using UnityEditor.Experimental.GraphView;
 

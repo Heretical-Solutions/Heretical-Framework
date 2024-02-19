@@ -1,6 +1,6 @@
 using DefaultEcs;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
 	/// <summary>
 	/// Represents a class for building event entities.

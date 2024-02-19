@@ -1,4 +1,4 @@
-﻿namespace HereticalSolutions.GameEntities
+﻿namespace HereticalSolutions.Entities
 {
     public interface IWorldController<TWorld, TSystem, TEntity>
     {

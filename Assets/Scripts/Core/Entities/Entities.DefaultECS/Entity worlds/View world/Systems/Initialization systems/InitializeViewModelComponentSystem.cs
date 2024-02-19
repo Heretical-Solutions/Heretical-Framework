@@ -3,7 +3,7 @@
 using DefaultEcs;
 using DefaultEcs.System;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     public class InitializeViewModelComponentSystem<TEntityID, TEntityIDComponent> : ISystem<Entity>
     {

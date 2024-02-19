@@ -8,14 +8,14 @@ using HereticalSolutions.Repositories.Factories;
 
 using HereticalSolutions.Persistence;
 
-using HereticalSolutions.GameEntities.Factories;
+using HereticalSolutions.Entities.Factories;
 
 using HereticalSolutions.Logging;
 
 using DefaultEcs;
 using DefaultEcs.Serialization;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
 	public class DefaultECSEntityPrototypeVisitor
 		: ASaveLoadVisitor<Entity, EntityPrototypeDTO>
@@ -26,13 +26,13 @@ namespace HereticalSolutions.GameEntities
 
 		private static MethodInfo writeComponentMethodInfo;
 
-		private static IReadOnlyRepository<Type, EntityFactoryWriteComponentDelegate> componentWriters;
+		private static IReadOnlyRepository<Type, WriteComponentToObjectDelegate> componentWriters;
 
 		//private static Type[] viewComponentTypes;
 
 		//private static MethodInfo addComponentMethodInfo;
 
-		//private static IReadOnlyRepository<Type, EntityFactoryAddComponentDelegate> componentAdders;
+		//private static IReadOnlyRepository<Type, AddObjectComponentToEntityDelegate> componentAdders;
 
 		#endregion
 
@@ -157,23 +157,23 @@ namespace HereticalSolutions.GameEntities
 			}
 		}
 
-		private static IReadOnlyRepository<Type, EntityFactoryAddComponentDelegate> BuildComponentAdders(
+		private static IReadOnlyRepository<Type, AddObjectComponentToEntityDelegate> BuildComponentAdders(
 			MethodInfo addComponentMethodInfo,
 			Type[] viewComponentTypes)
 		{
-			IReadOnlyRepository<Type, EntityFactoryAddComponentDelegate> result =
-				RepositoriesFactory.BuildDictionaryRepository<Type, EntityFactoryAddComponentDelegate>();
+			IReadOnlyRepository<Type, AddObjectComponentToEntityDelegate> result =
+				RepositoriesFactory.BuildDictionaryRepository<Type, AddObjectComponentToEntityDelegate>();
 
 			for (int i = 0; i < viewComponentTypes.Length; i++)
 			{
 				MethodInfo addComponentGeneric = addComponentMethodInfo.MakeGenericMethod(viewComponentTypes[i]);
 
-				EntityFactoryAddComponentDelegate addComponentGenericDelegate =
-					(EntityFactoryAddComponentDelegate)addComponentGeneric.CreateDelegate(
-						typeof(EntityFactoryAddComponentDelegate),
+				AddObjectComponentToEntityDelegate addComponentGenericDelegate =
+					(AddObjectComponentToEntityDelegate)addComponentGeneric.CreateDelegate(
+						typeof(AddObjectComponentToEntityDelegate),
 						null);
 
-				((IRepository<Type, EntityFactoryAddComponentDelegate>)result).Add(
+				((IRepository<Type, AddObjectComponentToEntityDelegate>)result).Add(
 					viewComponentTypes[i],
 					addComponentGenericDelegate);
 			}
@@ -192,23 +192,23 @@ namespace HereticalSolutions.GameEntities
 			entity.Set<TComponent>((TComponent)component);
 		}
 
-		private static IReadOnlyRepository<Type, EntityFactoryWriteComponentDelegate> BuildComponentWriters(
+		private static IReadOnlyRepository<Type, WriteComponentToObjectDelegate> BuildComponentWriters(
 			MethodInfo writeComponentMethodInfo,
 			Type[] componentTypes)
 		{
-			IReadOnlyRepository<Type, EntityFactoryWriteComponentDelegate> result =
-				RepositoriesFactory.BuildDictionaryRepository<Type, EntityFactoryWriteComponentDelegate>();
+			IReadOnlyRepository<Type, WriteComponentToObjectDelegate> result =
+				RepositoriesFactory.BuildDictionaryRepository<Type, WriteComponentToObjectDelegate>();
 
 			for (int i = 0; i < componentTypes.Length; i++)
 			{
 				MethodInfo writeComponentGeneric = writeComponentMethodInfo.MakeGenericMethod(componentTypes[i]);
 
-				EntityFactoryWriteComponentDelegate writeComponentGenericDelegate =
-					(EntityFactoryWriteComponentDelegate)writeComponentGeneric.CreateDelegate(
-						typeof(EntityFactoryWriteComponentDelegate),
+				WriteComponentToObjectDelegate writeComponentGenericDelegate =
+					(WriteComponentToObjectDelegate)writeComponentGeneric.CreateDelegate(
+						typeof(WriteComponentToObjectDelegate),
 						null);
 
-				((IRepository<Type, EntityFactoryWriteComponentDelegate>)result).Add(
+				((IRepository<Type, WriteComponentToObjectDelegate>)result).Add(
 					componentTypes[i],
 					writeComponentGenericDelegate);
 			}

@@ -6,7 +6,7 @@ using World = DefaultEcs.World;
 
 using Entity = DefaultEcs.Entity;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
 	public class DefaultECSPrototypesRepository
 		: IPrototypesRepository<World, Entity>

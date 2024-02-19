@@ -1,4 +1,4 @@
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     [System.AttributeUsage(
         System.AttributeTargets.Class

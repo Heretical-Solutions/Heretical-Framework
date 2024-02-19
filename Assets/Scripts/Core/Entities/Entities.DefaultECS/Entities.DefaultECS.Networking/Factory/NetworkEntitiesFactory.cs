@@ -8,7 +8,7 @@ using HereticalSolutions.Logging;
 
 using HereticalSolutions.Repositories.Factories;
 
-namespace HereticalSolutions.GameEntities.Factories
+namespace HereticalSolutions.Entities.Factories
 {
 	/// <summary>
 	/// Class containing methods to build entities and their components.

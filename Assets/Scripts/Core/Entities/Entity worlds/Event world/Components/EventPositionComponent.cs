@@ -1,6 +1,6 @@
 using System.Numerics;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     /// <summary>
     /// Represents a network event position component.

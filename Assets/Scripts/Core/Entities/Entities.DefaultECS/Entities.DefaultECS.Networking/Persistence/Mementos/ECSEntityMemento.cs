@@ -1,6 +1,6 @@
 ﻿using HereticalSolutions.Repositories;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     public class ECSEntityMemento
     {

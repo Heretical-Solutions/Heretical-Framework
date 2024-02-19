@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
-    public interface IReadOnlyEntityRepository<TEntityID, TEntity>
+    public interface IReadOnlyEntityManager<TEntityID, TEntity>
     {
         bool HasEntity(TEntityID entityID);
         

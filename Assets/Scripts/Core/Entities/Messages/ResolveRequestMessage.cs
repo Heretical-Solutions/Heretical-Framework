@@ -1,6 +1,6 @@
 using HereticalSolutions.Messaging;
 
-namespace HereticalSolutions.GameEntities
+namespace HereticalSolutions.Entities
 {
     /// <summary>
     /// Represents a request to resolve a game entity.

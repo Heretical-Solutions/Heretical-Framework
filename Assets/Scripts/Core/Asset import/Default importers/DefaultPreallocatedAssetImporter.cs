@@ -15,20 +15,21 @@ namespace HereticalSolutions.AssetImport
 		private TAsset preallocatedAsset;
 
 		public DefaultPreallocatedAssetImporter(
-			IRuntimeResourceManager runtimeResourceManager,
 			ILoggerResolver loggerResolver = null,
 			ILogger logger = null)
 			: base(
-				runtimeResourceManager,
 				loggerResolver,
 				logger)
 		{
 		}
 
 		public void Initialize(
+			IRuntimeResourceManager runtimeResourceManager,
 			string resourcePath,
 			TAsset preallocatedAsset)
 		{
+			InitializeInternal(runtimeResourceManager);
+
 			this.resourcePath = resourcePath;
 
 			this.preallocatedAsset = preallocatedAsset;
