@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 using System.Reflection;
 
@@ -13,7 +12,6 @@ using HereticalSolutions.Entities.Factories;
 using HereticalSolutions.Logging;
 
 using DefaultEcs;
-using DefaultEcs.Serialization;
 
 namespace HereticalSolutions.Entities
 {
@@ -27,12 +25,6 @@ namespace HereticalSolutions.Entities
 		private static MethodInfo writeComponentMethodInfo;
 
 		private static IReadOnlyRepository<Type, WriteComponentToObjectDelegate> componentWriters;
-
-		//private static Type[] viewComponentTypes;
-
-		//private static MethodInfo addComponentMethodInfo;
-
-		//private static IReadOnlyRepository<Type, AddObjectComponentToEntityDelegate> componentAdders;
 
 		#endregion
 
@@ -157,41 +149,6 @@ namespace HereticalSolutions.Entities
 			}
 		}
 
-		private static IReadOnlyRepository<Type, AddObjectComponentToEntityDelegate> BuildComponentAdders(
-			MethodInfo addComponentMethodInfo,
-			Type[] viewComponentTypes)
-		{
-			IReadOnlyRepository<Type, AddObjectComponentToEntityDelegate> result =
-				RepositoriesFactory.BuildDictionaryRepository<Type, AddObjectComponentToEntityDelegate>();
-
-			for (int i = 0; i < viewComponentTypes.Length; i++)
-			{
-				MethodInfo addComponentGeneric = addComponentMethodInfo.MakeGenericMethod(viewComponentTypes[i]);
-
-				AddObjectComponentToEntityDelegate addComponentGenericDelegate =
-					(AddObjectComponentToEntityDelegate)addComponentGeneric.CreateDelegate(
-						typeof(AddObjectComponentToEntityDelegate),
-						null);
-
-				((IRepository<Type, AddObjectComponentToEntityDelegate>)result).Add(
-					viewComponentTypes[i],
-					addComponentGenericDelegate);
-			}
-
-			return result;
-		}
-
-		public static void AddComponent<TComponent>(
-			Entity entity,
-			object component)
-		{
-			// Early return for AoT compilation calls
-			if (component == null)
-				return;
-
-			entity.Set<TComponent>((TComponent)component);
-		}
-
 		private static IReadOnlyRepository<Type, WriteComponentToObjectDelegate> BuildComponentWriters(
 			MethodInfo writeComponentMethodInfo,
 			Type[] componentTypes)
@@ -225,71 +182,6 @@ namespace HereticalSolutions.Entities
 				return;
 
 			entity.Set<TComponent>((TComponent)componentValue);
-		}
-
-		interface IComponentWrapper
-		{
-			Type Type { get; }
-
-			object ObjectValue { get; }
-		}
-
-		private class EntitySerializationWrapper
-		{
-			private class ComponentWrapper<T> : IComponentWrapper
-			{
-				public bool IsEnabled { get; }
-
-				public T Value { get; }
-
-				public object ObjectValue
-				{
-					get => Value;
-				}
-
-				public Type Type => typeof(T);
-
-				public ComponentWrapper(bool isEnabled, T value)
-				{
-					Value = value;
-
-					IsEnabled = isEnabled;
-				}
-			}
-
-			private sealed class ComponentSerializationReader : IComponentReader
-			{
-				private readonly Entity _entity;
-
-				private readonly List<IComponentWrapper> _components;
-
-				public ComponentSerializationReader(in Entity entity, List<IComponentWrapper> components)
-				{
-					_components = components;
-					_entity = entity;
-				}
-
-				public void OnRead<T>(in T component, in Entity componentOwner) => _components.Add(new ComponentWrapper<T>(_entity.IsEnabled<T>(), component));
-			}
-
-			private readonly Entity _entity;
-			private readonly List<IComponentWrapper> _components;
-
-			public World World => _entity.World;
-			public bool IsAlive => _entity.IsAlive;
-			public bool IsEnabled => _entity.IsEnabled();
-			public IComponentWrapper[] Components => _components.ToArray();
-
-			public EntitySerializationWrapper(Entity entity)
-			{
-				_entity = entity;
-
-				_components = new List<IComponentWrapper>();
-
-				entity.ReadAllComponents(new ComponentSerializationReader(_entity, _components));
-
-				_components.Sort((o1, o2) => string.Compare(o1.Type.FullName, o2.Type.FullName));
-			}
 		}
 	}
 }

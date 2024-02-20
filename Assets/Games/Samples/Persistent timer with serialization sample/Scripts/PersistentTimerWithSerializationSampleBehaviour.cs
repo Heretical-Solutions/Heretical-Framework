@@ -241,7 +241,7 @@ namespace HereticalSolutions.Samples.PersistentTimerWithSerializationSample
 			//Debug
 			var timeProgress = ((IPersistentTimerContext)persistentTimer).SavedProgress;
 
-			logger.Log<PersistentTimerWithSerializationSampleBehaviour>(
+			logger?.Log<PersistentTimerWithSerializationSampleBehaviour>(
 				$"ACCUMULATING PERSISTENT TIMER SERIALIZED. PROGRESS: HOURS: {timeProgress.Hours.ToString()} MINUTES: {timeProgress.Minutes.ToString()} SECONDS: {timeProgress.Seconds.ToString()}");
 		}
 
@@ -306,7 +306,7 @@ namespace HereticalSolutions.Samples.PersistentTimerWithSerializationSample
 				else //CSV
 					methodRolled = "CSV";
 
-				logger.Log<PersistentTimerWithSerializationSampleBehaviour>(
+				logger?.Log<PersistentTimerWithSerializationSampleBehaviour>(
 					$"ACCUMULATING PERSISTENT TIMER DESERIALIZED. METHOD: \"{methodRolled}\" PROGRESS: HOURS: {timeProgress.Hours.ToString()} MINUTES: {timeProgress.Minutes.ToString()} SECONDS: {timeProgress.Seconds.ToString()}");
 			}
 

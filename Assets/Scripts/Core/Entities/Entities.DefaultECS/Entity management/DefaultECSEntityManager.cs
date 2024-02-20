@@ -68,6 +68,7 @@ namespace HereticalSolutions.Entities
             return result;
         }
 
+        /*
         public EntityDescriptor<TEntityID>[] AllRegistryEntities
         {
             get
@@ -91,6 +92,9 @@ namespace HereticalSolutions.Entities
                 return result;
             }
         }
+        */
+
+        public IEnumerable<Entity> AllRegistryEntities => registryEntitiesRepository.Values;
         
         public IEnumerable<TEntityID> AllAllocatedIDs => registryEntitiesRepository.Keys;
 
@@ -172,6 +176,7 @@ namespace HereticalSolutions.Entities
             if (!SpawnAndResolveEntityInAllRelevantWorlds(
                 newGUID,
                 prototypeID,
+                source,
                 authoringPreset))
                 return default(TEntityID);
 

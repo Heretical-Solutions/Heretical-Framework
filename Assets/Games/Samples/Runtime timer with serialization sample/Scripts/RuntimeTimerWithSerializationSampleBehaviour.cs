@@ -239,7 +239,7 @@ namespace HereticalSolutions.Samples.RuntimeTimerWithSerializationSample
 			//Debug
 			var timeProgress = runtimeTimer.TimeElapsed;
 
-			logger.Log<RuntimeTimerWithSerializationSampleBehaviour>(
+			logger?.Log<RuntimeTimerWithSerializationSampleBehaviour>(
 				$"ACCUMULATING RUNTIME TIMER SERIALIZED. TIME ELAPSED: {timeProgress.ToString()}");
 		}
 
@@ -304,7 +304,7 @@ namespace HereticalSolutions.Samples.RuntimeTimerWithSerializationSample
 				else //CSV
 					methodRolled = "CSV";
 
-				logger.Log<RuntimeTimerWithSerializationSampleBehaviour>(
+				logger?.Log<RuntimeTimerWithSerializationSampleBehaviour>(
 					$"ACCUMULATING RUNTIME TIMER DESERIALIZED. METHOD: \"{methodRolled}\" TIME ELAPSED: {timeProgress.ToString()}");
 			}
 

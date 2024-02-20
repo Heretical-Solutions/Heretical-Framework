@@ -15,7 +15,8 @@ namespace HereticalSolutions.Entities
         : IWorldController<World, ISystem<Entity>, Entity>,
           IPrototypeCompliantWorldController<World, Entity>,
           IEntityIDCompliantWorldController<TEntityID, Entity>,
-          IRegistryCompliantWorldController<Entity>
+          IRegistryCompliantWorldController<Entity>,
+          IContainsEntityInitializationSystems<ISystem<Entity>>
     {
         #region Delegates
 
@@ -105,6 +106,14 @@ namespace HereticalSolutions.Entities
             deinitializationSystems = null;
         }
 
+        #region IContainsEntityInitializationSystems
+
+        public ISystem<Entity> EntityResolveSystems { get => resolveSystems; }
+
+        public ISystem<Entity> EntityInitializationSystems { get => initializationSystems; }
+
+        public ISystem<Entity> EntityDeinitializationSystems { get => deinitializationSystems; }
+
         public void Initialize(
             ISystem<Entity> resolveSystems,
             ISystem<Entity> initializationSystems,
@@ -117,18 +126,11 @@ namespace HereticalSolutions.Entities
             this.deinitializationSystems = deinitializationSystems;
         }
 
+        #endregion
+
         #region IWorldController
 
         public World World { get; private set; }
-
-
-        //Entity systems
-        public ISystem<Entity> EntityResolveSystems { get => resolveSystems; }
-
-        public ISystem<Entity> EntityInitializationSystems { get => initializationSystems; }
-
-        public ISystem<Entity> EntityDeinitializationSystems { get => deinitializationSystems; }
-
 
         public bool TrySpawnEntity(
             out Entity entity)

@@ -60,7 +60,7 @@ namespace HereticalSolutions.Samples.PingerSample
 
 		void Print()
 		{
-			logger.Log<PingerSampleBehaviour>("Ping");
+			logger?.Log<PingerSampleBehaviour>("Ping");
 		}
 
 		void Update()
@@ -94,7 +94,7 @@ namespace HereticalSolutions.Samples.PingerSample
 
 			subscriptionActive = true;
 
-			logger.Log<PingerSampleBehaviour>(
+			logger?.Log<PingerSampleBehaviour>(
 				"Subscribed");
 		}
 
@@ -109,7 +109,7 @@ namespace HereticalSolutions.Samples.PingerSample
 
 			subscriptionActive = false;
 
-			logger.Log<PingerSampleBehaviour>(
+			logger?.Log<PingerSampleBehaviour>(
 				"Unsubscribed");
 		}
 	}

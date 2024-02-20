@@ -20,6 +20,8 @@ namespace HereticalSolutions.Entities.Editor
 	[CanEditMultipleObjects]
 	public class EntitySettingsEditor : UnityEditor.Editor
 	{
+		private const bool DEBUG_OPERATION = true;
+
 		private ComponentTypesProvider componentTypesProvider;
 
 		private EntityPrototypeDTO entityPrototypeDTO;
@@ -32,21 +34,40 @@ namespace HereticalSolutions.Entities.Editor
 
 		void OnEnable()
 		{
+			if (DEBUG_OPERATION)
+				UnityEngine.Debug.Log("[EntitySettingsEditor] OnEnable");
+
 			if (componentTypesProvider == null)
 			{
+				if (DEBUG_OPERATION)
+					UnityEngine.Debug.Log("[EntitySettingsEditor] Creating new ComponentTypesProvider");
+
 				componentTypesProvider = new ComponentTypesProvider();
 
 				componentTypesProvider.OnComponentSelected += OnComponentTypeToAddSelected;
 			}
 
 			if (jsonSerializer == null)
+			{
+				if (DEBUG_OPERATION)
+					UnityEngine.Debug.Log("[EntitySettingsEditor] Creating new JSONSerializer");
+
 				jsonSerializer = UnityPersistenceFactory.BuildSimpleUnityJSONSerializer();
+			}
 
 			if (stringArgument == null)
+			{
+				if (DEBUG_OPERATION)
+					UnityEngine.Debug.Log("[EntitySettingsEditor] Creating new StringArgument");
+
 				stringArgument = new StringArgument();
+			}
 
 			if (structNameLabelStyle == null)
 			{
+				if (DEBUG_OPERATION)
+					UnityEngine.Debug.Log("[EntitySettingsEditor] Creating new GUIStyle");
+
 				structNameLabelStyle = new GUIStyle();
 				structNameLabelStyle.fontSize = 12;
 				structNameLabelStyle.fontStyle = FontStyle.Bold;
@@ -72,15 +93,26 @@ namespace HereticalSolutions.Entities.Editor
 				entityPrototypeDTO.PrototypeID = prototypeID;
 
 				dirty = true;
+
+				if (DEBUG_OPERATION)
+					UnityEngine.Debug.Log("[EntitySettingsEditor] PrototypeID dirty");
 			}
 
 			if (DrawComponents())
+			{
 				dirty = true;
+
+				if (DEBUG_OPERATION)
+					UnityEngine.Debug.Log("[EntitySettingsEditor] DrawComponents dirty");
+			}
 
 			EditorGUILayout.Space(10f);
 
 			if (GUILayout.Button("ERASE"))
 			{
+				if (DEBUG_OPERATION)
+					UnityEngine.Debug.Log("[EntitySettingsEditor] Erasing");
+
 				Erase();
 			}
 
@@ -98,6 +130,9 @@ namespace HereticalSolutions.Entities.Editor
 				Serialize();
 
 				dirty = false;
+
+				if (DEBUG_OPERATION)
+					UnityEngine.Debug.Log("[EntitySettingsEditor] dirty reset");
 			}
 
 			serializedObject.ApplyModifiedProperties();
@@ -107,6 +142,9 @@ namespace HereticalSolutions.Entities.Editor
 		{
 			if (entityPrototypeDTO.Components == null)
 			{
+				if (DEBUG_OPERATION)
+					UnityEngine.Debug.Log("[EntitySettingsEditor] entityPrototypeDTO has no components");
+
 				Erase();
 			}
 
@@ -227,6 +265,9 @@ namespace HereticalSolutions.Entities.Editor
 						fieldInfo.SetValue(structObject, enumResult);
 
 						localDirty = true;
+
+						if (DEBUG_OPERATION)
+							UnityEngine.Debug.Log($"[EntitySettingsEditor] enum field {fieldName} dirty");
 					}
 
 					break;
@@ -242,6 +283,9 @@ namespace HereticalSolutions.Entities.Editor
 						fieldInfo.SetValue(structObject, intResult);
 
 						localDirty = true;
+
+						if (DEBUG_OPERATION)
+							UnityEngine.Debug.Log($"[EntitySettingsEditor] int field {fieldName} dirty");
 					}
 
 					break;
@@ -257,6 +301,9 @@ namespace HereticalSolutions.Entities.Editor
 						fieldInfo.SetValue(structObject, longResult);
 
 						localDirty = true;
+
+						if (DEBUG_OPERATION)
+							UnityEngine.Debug.Log($"[EntitySettingsEditor] long field {fieldName} dirty");
 					}
 
 					break;
@@ -272,6 +319,9 @@ namespace HereticalSolutions.Entities.Editor
 						fieldInfo.SetValue(structObject, floatResult);
 
 						localDirty = true;
+
+						if (DEBUG_OPERATION)
+							UnityEngine.Debug.Log($"[EntitySettingsEditor] float field {fieldName} dirty");
 					}
 
 					break;
@@ -287,6 +337,9 @@ namespace HereticalSolutions.Entities.Editor
 						fieldInfo.SetValue(structObject, doubleResult);
 
 						localDirty = true;
+
+						if (DEBUG_OPERATION)
+							UnityEngine.Debug.Log($"[EntitySettingsEditor] double field {fieldName} dirty");
 					}
 
 					break;
@@ -302,6 +355,9 @@ namespace HereticalSolutions.Entities.Editor
 						fieldInfo.SetValue(structObject, boolResult);
 
 						localDirty = true;
+
+						if (DEBUG_OPERATION)
+							UnityEngine.Debug.Log($"[EntitySettingsEditor] bool field {fieldName} dirty");
 					}
 
 					break;
@@ -336,6 +392,9 @@ namespace HereticalSolutions.Entities.Editor
 						fieldInfo.SetValue(structObject, vector2Result);
 
 						localDirty = true;
+
+						if (DEBUG_OPERATION)
+							UnityEngine.Debug.Log($"[EntitySettingsEditor] Vector2 field {fieldName} dirty");
 					}
 
 					break;
@@ -351,10 +410,15 @@ namespace HereticalSolutions.Entities.Editor
 						fieldInfo.SetValue(structObject, vector3Result);
 
 						localDirty = true;
+
+						if (DEBUG_OPERATION)
+							UnityEngine.Debug.Log($"[EntitySettingsEditor] Vector3 field {fieldName} dirty");
 					}
 
 					break;
 
+				//Layer mask in a component? Blah
+				/*
 				case LayerMask layerMask:
 					LayerMask temp =
 						EditorGUILayout.MaskField(
@@ -369,10 +433,14 @@ namespace HereticalSolutions.Entities.Editor
 						fieldInfo.SetValue(structObject, result);
 
 						localDirty = true;
+
+						UnityEngine.Debug.Log($"[EntitySettingsEditor] layer mask field {fieldName} dirty");
 					}
 
 					break;
+				*/
 
+				//Arrays in a component may be a problem for network serialization
 				/*case Array array:
                     if(array == null)
                         array = (Array)Activator.CreateInstance(fieldInfo.FieldType);
@@ -402,12 +470,15 @@ namespace HereticalSolutions.Entities.Editor
 							fieldInfo.SetValue(structObject, stringResult);
 
 							localDirty = true;
+
+							if (DEBUG_OPERATION)
+								UnityEngine.Debug.Log($"[EntitySettingsEditor] string field {fieldName} dirty");
 						}
 
 						break;
 					}
 
-					//TODO: check
+					//Enumerables may have the same problems as arrays
 					/*
 					if (fieldInfo.FieldType.GetInterface(typeof(IEnumerable<>).FullName) != null
 						&& fieldInfo.FieldType.GetElementType() != typeof(Entity))
@@ -565,6 +636,9 @@ namespace HereticalSolutions.Entities.Editor
 
 		private void Erase()
 		{
+			if (DEBUG_OPERATION)
+				UnityEngine.Debug.Log("[EntitySettingsEditor] Erasing");
+
 			entityPrototypeDTO = new EntityPrototypeDTO();
 
 			entityPrototypeDTO.Components = new object[0];
@@ -574,17 +648,42 @@ namespace HereticalSolutions.Entities.Editor
 
 		private void Serialize()
 		{
+			if (DEBUG_OPERATION)
+				UnityEngine.Debug.Log("[EntitySettingsEditor] Serializing");
+
 			jsonSerializer.Serialize<EntityPrototypeDTO>(
 				stringArgument,
 				entityPrototypeDTO);
 
 			((EntitySettings)target).EntityJson = stringArgument.Value;
 
+			if (DEBUG_OPERATION)
+			{
+				UnityEngine.Debug.Log($"[EntitySettingsEditor] New json: {((EntitySettings)target).EntityJson}");
+
+				UnityEngine.Debug.Log("[EntitySettingsEditor] Json updated");
+			}
+
 			EditorUtility.SetDirty(target);
 		}
 
 		private void Deserialize()
 		{
+			if (DEBUG_OPERATION)
+			{
+				UnityEngine.Debug.Log("[EntitySettingsEditor] Deserializing");
+
+				UnityEngine.Debug.Log($"[EntitySettingsEditor] Current json: {((EntitySettings)target).EntityJson}");
+			}
+
+			if (string.IsNullOrEmpty(((EntitySettings)target).EntityJson))
+			{
+				if (DEBUG_OPERATION)
+					UnityEngine.Debug.Log("[EntitySettingsEditor] Json is empty");
+
+				return;
+			}
+
 			stringArgument.Value = ((EntitySettings)target).EntityJson;
 
 			bool success = jsonSerializer.Deserialize(
@@ -592,8 +691,16 @@ namespace HereticalSolutions.Entities.Editor
 				typeof(EntityPrototypeDTO),
 				out object newEntityDTO);
 
+			if (DEBUG_OPERATION)
+				UnityEngine.Debug.Log($"[EntitySettingsEditor] Success: {success}");
+
 			if (success)
+			{
 				entityPrototypeDTO = (EntityPrototypeDTO)newEntityDTO;
+
+				if (DEBUG_OPERATION)
+					UnityEngine.Debug.Log("[EntitySettingsEditor] Updated entityPrototypeDTO");
+			}
 
 			//FOR SOME REASON THIS ONE FAILS TO POPULATE
 			/*
@@ -608,6 +715,9 @@ namespace HereticalSolutions.Entities.Editor
 
 		private void OnComponentTypeToAddSelected(Type componentType)
 		{
+			if (DEBUG_OPERATION)
+				UnityEngine.Debug.Log($"[EntitySettingsEditor] Component type added: {componentType.Name}");
+
 			object[] newComponentsArray = new object[entityPrototypeDTO.Components.Length + 1];
 
 			Array.Copy(
@@ -627,6 +737,9 @@ namespace HereticalSolutions.Entities.Editor
 
 		private void RemoveComponent(int index)
 		{
+			if (DEBUG_OPERATION)
+				UnityEngine.Debug.Log($"[EntitySettingsEditor] Component №{index} removed");
+
 			object[] newComponentsArray = new object[entityPrototypeDTO.Components.Length - 1];
 
 			Array.Copy(
@@ -653,6 +766,9 @@ namespace HereticalSolutions.Entities.Editor
 			if (index == 0)
 				return;
 
+			if (DEBUG_OPERATION)
+				UnityEngine.Debug.Log($"[EntitySettingsEditor] Component № {index} moved up");
+
 			object temp = entityPrototypeDTO.Components[index];
 
 			entityPrototypeDTO.Components[index] = entityPrototypeDTO.Components[index - 1];
@@ -666,6 +782,9 @@ namespace HereticalSolutions.Entities.Editor
 		{
 			if (index == entityPrototypeDTO.Components.Length - 1)
 				return;
+
+			if (DEBUG_OPERATION)
+				UnityEngine.Debug.Log($"[EntitySettingsEditor] Component № {index} moved down");
 
 			object temp = entityPrototypeDTO.Components[index];
 

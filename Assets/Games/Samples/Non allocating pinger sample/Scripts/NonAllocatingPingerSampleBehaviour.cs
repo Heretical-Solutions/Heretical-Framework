@@ -65,7 +65,7 @@ namespace HereticalSolutions.Samples.NonAllocatingPingerSample
 
 		void Print()
 		{
-			logger.Log<NonAllocatingPingerSampleBehaviour>(
+			logger?.Log<NonAllocatingPingerSampleBehaviour>(
 				"Ping");
 		}
 
@@ -98,7 +98,7 @@ namespace HereticalSolutions.Samples.NonAllocatingPingerSample
 			else
 				pingerAsSubscribable.Subscribe(subscription);
 
-			logger.Log<NonAllocatingPingerSampleBehaviour>(
+			logger?.Log<NonAllocatingPingerSampleBehaviour>(
 				"Subscribed");
 		}
 
@@ -111,7 +111,7 @@ namespace HereticalSolutions.Samples.NonAllocatingPingerSample
 			else
 				pingerAsSubscribable.Unsubscribe(subscription);
 
-			logger.Log<NonAllocatingPingerSampleBehaviour>(
+			logger?.Log<NonAllocatingPingerSampleBehaviour>(
 				"Unsubscribed");
 		}
 	}

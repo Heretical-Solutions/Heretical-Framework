@@ -42,7 +42,7 @@ namespace HereticalSolutions.DI
 		{
 			logger = loggerResolver.GetLogger(GetType());
 
-			logger.Log(
+			logger?.Log(
 				GetType(),
 				$"INSTALLING BINDINGS. INITIALIZING ASYNC INSTALL CHAIN");
 
@@ -59,7 +59,7 @@ namespace HereticalSolutions.DI
 		/// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
 		public async Task InstallAsync()
 		{
-			logger.Log(
+			logger?.Log(
 				GetType(),
 				"INITIALIZING ASYNC INSTALL");
 
@@ -68,7 +68,7 @@ namespace HereticalSolutions.DI
 			installed = true;
 
 
-			logger.Log(
+			logger?.Log(
 				GetType(),
 				"ASYNC INSTALL FINISHED");
 

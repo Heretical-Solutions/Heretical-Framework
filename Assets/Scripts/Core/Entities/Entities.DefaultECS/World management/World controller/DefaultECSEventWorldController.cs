@@ -23,14 +23,6 @@ namespace HereticalSolutions.Entities
 
 		public World World { get; private set; }
 
-
-		public ISystem<Entity> EntityResolveSystems { get => null; }
-
-		public ISystem<Entity> EntityInitializationSystems { get => null; }
-
-		public ISystem<Entity> EntityDeinitializationSystems { get => null; }
-
-
 		public bool TrySpawnEntity(
 			out Entity entity)
 		{

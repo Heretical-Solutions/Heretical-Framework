@@ -5,14 +5,6 @@
         TWorld World { get; }
 
 
-        //Entity systems
-        TSystem EntityResolveSystems { get; }
-
-        TSystem EntityInitializationSystems { get; }
-
-        TSystem EntityDeinitializationSystems { get; }
-
-
         bool TrySpawnEntity(
             out TEntity entity);
 

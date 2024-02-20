@@ -84,7 +84,7 @@ namespace HereticalSolutions.Samples.MessageBusSample
 
 		void Print(SampleMessage message)
 		{
-			logger.Log<MessageBusSampleBehaviour>(
+			logger?.Log<MessageBusSampleBehaviour>(
 				$"Received message: \"{message.Message}\"");
 		}
 
@@ -108,7 +108,7 @@ namespace HereticalSolutions.Samples.MessageBusSample
 
 		void DeliverMessagesInMailbox()
 		{
-			logger.Log<MessageBusSampleBehaviour>(
+			logger?.Log<MessageBusSampleBehaviour>(
 				"Delivering messages from the mailbox");
 
 			messageBusAsSender.DeliverMessagesInMailbox();
@@ -131,12 +131,12 @@ namespace HereticalSolutions.Samples.MessageBusSample
 						.Write<SampleMessage>(messageAllGenerics, messageArgs)
 						.Send<SampleMessage>(messageAllGenerics);
 
-					logger.Log<MessageBusSampleBehaviour>(
+					logger?.Log<MessageBusSampleBehaviour>(
 						"Storing a message in the mailbox");
 				}
 				else
 				{
-					logger.Log<MessageBusSampleBehaviour>(
+					logger?.Log<MessageBusSampleBehaviour>(
 						"Delivering generic message immediately");
 
 					messageBusAsSender
@@ -181,7 +181,7 @@ namespace HereticalSolutions.Samples.MessageBusSample
 
 			subscriptionActive = true;
 
-			logger.Log<MessageBusSampleBehaviour>(
+			logger?.Log<MessageBusSampleBehaviour>(
 				"Subscribed");
 		}
 
@@ -200,7 +200,7 @@ namespace HereticalSolutions.Samples.MessageBusSample
 
 			subscriptionActive = false;
 
-			logger.Log<MessageBusSampleBehaviour>(
+			logger?.Log<MessageBusSampleBehaviour>(
 				"Unsubscribed");
 		}
 

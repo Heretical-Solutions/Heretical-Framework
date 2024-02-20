@@ -1,3 +1,4 @@
+/*
 using System;
 
 namespace HereticalSolutions.Entities
@@ -10,3 +11,4 @@ namespace HereticalSolutions.Entities
         public string PrototypeID;
     }
 }
+*/

@@ -56,7 +56,7 @@ namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Installers
 					.ContinueWith(
 						targetTask =>
 						{
-							logger.Log<SampleEntityPrototypeImportInstaller>(
+							logger?.Log<SampleEntityPrototypeImportInstaller>(
 								$"CREATING ENTITY PROTOTYPE VISITORS");
 
 							var worldContainer = entityManager as IContainsEntityWorlds<World, ISystem<Entity>, Entity>;
@@ -97,14 +97,14 @@ namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Installers
 								loggerResolver?.GetLogger<DefaultECSEntityPrototypeVisitor>());
 
 
-							logger.Log<SampleEntityPrototypeImportInstaller>(
+							logger?.Log<SampleEntityPrototypeImportInstaller>(
 								$"PARSING ENTITY PROTOTYPES");
 
 							foreach (var resource in settings.Resources)
 							{
 								string entityName = resource.ResourceID;
 
-								logger.Log<SampleEntityPrototypeImportInstaller>(
+								logger?.Log<SampleEntityPrototypeImportInstaller>(
 									$"PARSING {entityName}");
 
 								if (!runtimeResourceManager.TryGetResource(
@@ -131,12 +131,12 @@ namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Installers
 										continue;
 									}
 
-									logger.Log<ResourceImporterFromScriptable>(
+									logger?.Log<ResourceImporterFromScriptable>(
 										$"LOADED REGISTRY ENTITY FOR: {entityName}");
 								}
 								else
 								{
-									logger.Log<SampleEntityPrototypeImportInstaller>(
+									logger?.Log<SampleEntityPrototypeImportInstaller>(
 										$"NO REGISTRY ENTITY FOUND FOR: {entityName}");
 								}
 
@@ -154,12 +154,12 @@ namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Installers
 										continue;
 									}
 
-									logger.Log<ResourceImporterFromScriptable>(
+									logger?.Log<ResourceImporterFromScriptable>(
 										$"LOADED SIMULATION ENTITY FOR: {entityName}");
 								}
 								else
 								{
-									logger.Log<SampleEntityPrototypeImportInstaller>(
+									logger?.Log<SampleEntityPrototypeImportInstaller>(
 										$"NO SIMULATION ENTITY FOUND FOR: {entityName}");
 								}
 
@@ -177,12 +177,12 @@ namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Installers
 										continue;
 									}
 
-									logger.Log<ResourceImporterFromScriptable>(
+									logger?.Log<ResourceImporterFromScriptable>(
 										$"LOADED VIEW ENTITY FOR: {entityName}");
 								}
 								else
 								{
-									logger.Log<SampleEntityPrototypeImportInstaller>(
+									logger?.Log<SampleEntityPrototypeImportInstaller>(
 										$"NO VIEW ENTITY FOUND FOR: {entityName}");
 								}
 							}

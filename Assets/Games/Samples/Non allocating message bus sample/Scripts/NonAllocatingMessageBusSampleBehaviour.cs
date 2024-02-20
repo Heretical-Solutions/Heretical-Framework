@@ -91,7 +91,7 @@ namespace HereticalSolutions.Samples.NonAllocatingMessageBusSample
 
 		void Print(SampleMessage message)
 		{
-			logger.Log<NonAllocatingMessageBusSampleBehaviour>(
+			logger?.Log<NonAllocatingMessageBusSampleBehaviour>(
 				$"Received message: \"{message.Message}\"");
 		}
 
@@ -114,7 +114,7 @@ namespace HereticalSolutions.Samples.NonAllocatingMessageBusSample
 
 		void DeliverMessagesInMailbox()
 		{
-			logger.Log<NonAllocatingMessageBusSampleBehaviour>(
+			logger?.Log<NonAllocatingMessageBusSampleBehaviour>(
 				"Delivering messages from the mailbox");
 
 			messageBusAsSender.DeliverMessagesInMailbox();
@@ -137,12 +137,12 @@ namespace HereticalSolutions.Samples.NonAllocatingMessageBusSample
 						.Write<SampleMessage>(messageAllGenerics, messageArgs)
 						.Send<SampleMessage>(messageAllGenerics);
 
-					logger.Log<NonAllocatingMessageBusSampleBehaviour>(
+					logger?.Log<NonAllocatingMessageBusSampleBehaviour>(
 						"Storing a message in the mailbox");
 				}
 				else
 				{
-					logger.Log<NonAllocatingMessageBusSampleBehaviour>(
+					logger?.Log<NonAllocatingMessageBusSampleBehaviour>(
 						"Delivering generic message immediately");
 
 					messageBusAsSender
@@ -181,7 +181,7 @@ namespace HereticalSolutions.Samples.NonAllocatingMessageBusSample
 			else
 				messageBusAsReceiver.SubscribeTo(typeof(SampleMessage), subscription);
 
-			logger.Log<NonAllocatingMessageBusSampleBehaviour>(
+			logger?.Log<NonAllocatingMessageBusSampleBehaviour>(
 				"Subscribed");
 		}
 
@@ -194,7 +194,7 @@ namespace HereticalSolutions.Samples.NonAllocatingMessageBusSample
 			else
 				messageBusAsReceiver.UnsubscribeFrom(typeof(SampleMessage), subscription);
 
-			logger.Log<NonAllocatingMessageBusSampleBehaviour>(
+			logger?.Log<NonAllocatingMessageBusSampleBehaviour>(
 				"Unsubscribed");
 		}
 
