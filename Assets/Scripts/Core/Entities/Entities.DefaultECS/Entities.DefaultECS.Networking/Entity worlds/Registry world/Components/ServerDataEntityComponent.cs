@@ -2,8 +2,8 @@ using DefaultEcs;
 
 namespace HereticalSolutions.Entities
 {
-    [Component("Registry world")]
-    [IdentityComponent]
+    [Component("Server world")]
+    [WorldIdentityComponent]
     public struct ServerDataEntityComponent
     {
         public Entity ServerDataEntity;

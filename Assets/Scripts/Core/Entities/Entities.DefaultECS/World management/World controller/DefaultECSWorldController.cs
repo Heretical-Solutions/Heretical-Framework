@@ -293,6 +293,24 @@ namespace HereticalSolutions.Entities
 
         #region IRegistryCompliantWorldController
 
+        public bool TryGetEntityFromRegistry(
+            Entity registryEntity,
+            out Entity localEntity)
+        {
+            if (!registryEntity.Has<TWorldIdentityComponent>())
+            {
+                localEntity = default;
+
+                return false;
+            }
+
+            ref var entityIdentityComponent = ref registryEntity.Get<TWorldIdentityComponent>();
+
+            localEntity = getEntityFromWorldIdentityComponentDelegate.Invoke(entityIdentityComponent);
+
+            return true;
+        }
+
         public bool TrySpawnEntityFromRegistry(
             Entity registryEntity,
             out Entity localEntity)

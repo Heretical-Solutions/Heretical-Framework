@@ -1800,6 +1800,7 @@ GameObject:
   - component: {fileID: 8953306360588676269}
   - component: {fileID: 8953306360588676267}
   - component: {fileID: 8953306360588676264}
+  - component: {fileID: 2338409933553530205}
   m_Layer: 0
   m_Name: Player view prefab
   m_TagString: Untagged
@@ -1862,6 +1863,19 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &2338409933553530205
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8953306360588676262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 211b5f2bbb7296e288a53f284d4dbf8a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  viewComponents: []
 --- !u!1 &8953306361051779976
 GameObject:
   m_ObjectHideFlags: 0
@@ -1871,7 +1885,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8953306361051779979}
-  - component: {fileID: 8953306361051779978}
   m_Layer: 0
   m_Name: Animation
   m_TagString: Untagged
@@ -1894,25 +1907,6 @@ Transform:
   m_Father: {fileID: 8953306360380665163}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8953306361051779978
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8953306361051779976}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e91034f32b1532415a39f60da778e28b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 9044511104547337458}
-  idleParameter: Idle
-  runningParameter: Running
-  talkingParameter: Talking
-  idleAnimationSelectionParameter: Idle animation selection
-  idleAnimationsCount: 4
-  locomotionBehaviour: {fileID: 0}
 --- !u!1 &9044511104537970308
 GameObject:
   m_ObjectHideFlags: 0

@@ -13,7 +13,9 @@ using DefaultEcs.System;
 
 namespace HereticalSolutions.Entities
 {
-	public class ResolvePooledGameObjectViewSystem : IDefaultECSEntityInitializationSystem
+	public class ResolvePooledGameObjectViewSystem<TSceneEntity>
+		: IDefaultECSEntityInitializationSystem
+		  where TSceneEntity : MonoBehaviour
 	{
 		private readonly INonAllocDecoratedPool<GameObject> pool;
 
@@ -88,13 +90,13 @@ namespace HereticalSolutions.Entities
 			entity.Remove<SpawnPooledGameObjectView>();
 
 
-			var sceneEntity = pooledViewElement.Value.GetComponent<SceneEntity>();
+			var sceneEntity = pooledViewElement.Value.GetComponentInChildren<TSceneEntity>();
 
 			if (sceneEntity != null)
 				GameObject.Destroy(sceneEntity);
 
 
-			var viewEntityAdapter = pooledViewElement.Value.GetComponent<GameObjectViewEntityAdapter>();
+			var viewEntityAdapter = pooledViewElement.Value.GetComponentInChildren<GameObjectViewEntityAdapter>();
 
 			if (viewEntityAdapter != null)
 			{

@@ -1,3 +1,4 @@
+using System;
 using DefaultEcs;
 
 namespace HereticalSolutions.Entities
@@ -9,4 +10,9 @@ namespace HereticalSolutions.Entities
 	public delegate void AddObjectComponentToEntityDelegate(
 		Entity entity,
 		object component);
+
+	public delegate bool TryGetIDComponentFromEntityDelegate(
+		Entity entity,
+		out Type componentType,
+		out object component);
 }

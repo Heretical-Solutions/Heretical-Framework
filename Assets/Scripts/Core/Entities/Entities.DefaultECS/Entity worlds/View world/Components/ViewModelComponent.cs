@@ -2,7 +2,7 @@
 
 namespace HereticalSolutions.Entities
 {
-    [Component("View world/References")]
+    [Component("View world/View models")]
     public struct ViewModelComponent
     {
         public Entity SourceEntity;

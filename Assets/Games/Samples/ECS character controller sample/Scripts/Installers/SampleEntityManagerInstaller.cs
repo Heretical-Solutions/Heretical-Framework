@@ -26,6 +26,12 @@ namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Installers
                 .Bind<SampleEntityManager>()
                 .FromInstance(entityManager)
                 .AsCached();
+
+            //For editor purposes
+            Container
+                .Bind<DefaultECSEntityManager<Guid>>()
+                .FromInstance(entityManager)
+                .AsCached();
         }
     }
 }

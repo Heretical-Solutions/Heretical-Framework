@@ -2,6 +2,10 @@ namespace HereticalSolutions.Entities
 {
 	public interface IRegistryCompliantWorldController<TEntity>
 	{
+		bool TryGetEntityFromRegistry(
+			TEntity registryEntity,
+			out TEntity localEntity);
+
 		bool TrySpawnEntityFromRegistry(
 			TEntity registryEntity,
 			out TEntity localEntity);

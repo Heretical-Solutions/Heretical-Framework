@@ -2,11 +2,8 @@ using DefaultEcs;
 
 namespace HereticalSolutions.Entities
 {
-    /// <summary>
-    /// Represents a component that stores the view entity and prototype ID for an entity.
-    /// </summary>
-    [Component("Registry world")]
-    [IdentityComponent]
+    [Component("View world")]
+    [WorldIdentityComponent]
     public struct ViewEntityComponent
     {
         /// <summary>

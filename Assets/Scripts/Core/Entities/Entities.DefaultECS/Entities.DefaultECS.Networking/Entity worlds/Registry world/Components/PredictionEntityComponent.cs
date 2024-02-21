@@ -2,11 +2,8 @@
 
  namespace HereticalSolutions.Entities
  {
-     /// <summary>
-     /// Represents a component for a prediction entity.
-     /// </summary>
-     [Component("Registry world")]
-    [IdentityComponent]
+    [Component("Prediction world")]
+    [WorldIdentityComponent]
     public struct PredictionEntityComponent
      {
          /// <summary>

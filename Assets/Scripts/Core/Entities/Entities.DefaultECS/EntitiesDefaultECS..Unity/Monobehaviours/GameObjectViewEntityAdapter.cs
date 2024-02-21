@@ -2,11 +2,11 @@ using DefaultEcs;
 
 using UnityEngine;
 
-#if UNITY_EDITOR
-
-using System;
-
-#endif
+//#if UNITY_EDITOR
+//
+//using System;
+//
+//#endif
 
 namespace HereticalSolutions.Entities
 {
@@ -38,12 +38,12 @@ namespace HereticalSolutions.Entities
 			}
 		}
 
-#if UNITY_EDITOR
-        
-        [SerializeField]
-        private string GUID;
-
-#endif
+//#if UNITY_EDITOR
+//        
+//        [SerializeField]
+//        private string GUID;
+//
+//#endif
 
 		public void Initialize(Entity viewEntity)
 		{
@@ -54,9 +54,9 @@ namespace HereticalSolutions.Entities
 				viewComponent.Install(viewEntity);
 			}
 
-#if UNITY_EDITOR
-            GUID = viewEntity.Get<GUIDComponent>().GUID.ToString();
-#endif
+//#if UNITY_EDITOR
+//            GUID = viewEntity.Get<GUIDComponent>().GUID.ToString();
+//#endif
 
 			initialized = true;
 		}
@@ -65,9 +65,9 @@ namespace HereticalSolutions.Entities
 		{
 			this.viewEntity = default(Entity);
 
-#if UNITY_EDITOR
-            GUID = string.Empty;            
-#endif
+//#if UNITY_EDITOR
+//            GUID = string.Empty;            
+//#endif
 
 			initialized = false;
 		}

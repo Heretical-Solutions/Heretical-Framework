@@ -63,6 +63,31 @@ namespace HereticalSolutions.Entities
             return result;
         }
 
+        public Entity GetEntity(
+            TEntityID entityID,
+            string worldID)
+        {
+            if (!registryEntitiesRepository.TryGet(
+                entityID,
+                out var registryEntity))
+                return default(Entity);
+
+            var worldController = entityWorldsRepository.GetWorldController(
+                worldID);
+
+            var registryCompliantWorldController = worldController as IRegistryCompliantWorldController<Entity>;
+
+            if (registryCompliantWorldController == null)
+                return default(Entity);
+
+            if (!registryCompliantWorldController.TryGetEntityFromRegistry(
+                registryEntity,
+                out var localEntity))
+                return default(Entity);
+
+            return localEntity;
+        }
+
         /*
         public EntityDescriptor<TEntityID>[] AllRegistryEntities
         {

@@ -5,8 +5,8 @@ namespace HereticalSolutions.Entities
     /// <summary>
     /// Component representing a simulation entity in the game.
     /// </summary>
-    [Component("Registry world")]
-    [IdentityComponent]
+    [Component("Simulation world")]
+    [WorldIdentityComponent]
     public struct SimulationEntityComponent 
     {
         /// <summary>

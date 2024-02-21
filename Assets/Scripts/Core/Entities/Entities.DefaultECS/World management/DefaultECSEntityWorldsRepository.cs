@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq; //error CS1061: 'IEnumerable<World>' does not contain a definition for 'Contains'
 
 using HereticalSolutions.Repositories;
@@ -92,6 +93,10 @@ namespace HereticalSolutions.Entities
 
 			return result;
 		}
+
+		public IEnumerable<string> AllWorldIDs { get => worldsRepository.Keys; }
+
+		public IEnumerable<World> AllWorlds { get => worldsRepository.Values;}
 
 		#endregion
 

@@ -73,7 +73,7 @@ namespace HereticalSolutions.Entities
 			entity.Remove<SpawnPooledGameObjectView>();
 
 
-			var viewEntityAdapter = pooledViewElement.Value.GetComponent<GameObjectViewEntityAdapter>();
+			var viewEntityAdapter = pooledViewElement.Value.GetComponentInChildren<GameObjectViewEntityAdapter>();
 
 			if (viewEntityAdapter != null)
 			{

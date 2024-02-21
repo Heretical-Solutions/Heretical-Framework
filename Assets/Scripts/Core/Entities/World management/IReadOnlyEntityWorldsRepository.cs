@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace HereticalSolutions.Entities
 {
 	public interface IReadOnlyEntityWorldsRepository<TWorld, TWorldController>
@@ -7,5 +9,9 @@ namespace HereticalSolutions.Entities
 		TWorldController GetWorldController(string worldID);
 
 		TWorldController GetWorldController(TWorld world);
+
+		IEnumerable<string> AllWorldIDs { get; }
+
+		IEnumerable<TWorld> AllWorlds { get; }
 	}
 }

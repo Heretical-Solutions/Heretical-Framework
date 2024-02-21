@@ -40,9 +40,9 @@ namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Installers
 
 			viewWorldSystemsContainer.Initialize(
 				new DefaultECSSequentialEntityInitializationSystem(
-					new ResolvePooledGameObjectViewSystem(
+					new ResolvePooledGameObjectViewSystem<SampleSceneEntity>(
 						gameObjectPool,
-						loggerResolver?.GetLogger<ResolvePooledGameObjectViewSystem>())),
+						loggerResolver?.GetLogger<ResolvePooledGameObjectViewSystem<SampleSceneEntity>>())),
 				new DefaultECSSequentialEntityInitializationSystem(
 					new SpawnPooledGameObjectViewSystem(
 						gameObjectPool,

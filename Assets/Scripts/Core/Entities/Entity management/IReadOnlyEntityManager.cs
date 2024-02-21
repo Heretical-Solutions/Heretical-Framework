@@ -9,6 +9,10 @@ namespace HereticalSolutions.Entities
         
         TEntity GetRegistryEntity(TEntityID entityID);
 
+        TEntity GetEntity(
+            TEntityID entityID,
+            string worldID);
+
         //EntityDescriptor<TEntityID>[] AllRegistryEntities { get; }
 
         IEnumerable<TEntity> AllRegistryEntities { get; }
