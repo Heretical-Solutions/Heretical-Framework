@@ -24,3 +24,11 @@ MonoBehaviour:
     - VariantID: View entity
       Priority: 0
       Resource: {fileID: 11400000, guid: 8ae0cbeada67be68590c23bee780c033, type: 2}
+  - ResourceID: Joystick
+    Variants:
+    - VariantID: Registry entity
+      Priority: 1
+      Resource: {fileID: 11400000, guid: 2d81c34f54378154d804af9b4e669663, type: 2}
+    - VariantID: View entity
+      Priority: 0
+      Resource: {fileID: 11400000, guid: f73845613746d25a88a5bd63942c85f4, type: 2}

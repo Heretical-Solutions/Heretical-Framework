@@ -11,7 +11,7 @@ using DefaultEcs;
 
 using Zenject;
 
-namespace HereticalSolutions.Sample.ECSCharacterControllerSample
+namespace HereticalSolutions.Samples.ECSCharacterControllerSample
 {
 	public class SampleSceneManager : MonoBehaviour
 	{

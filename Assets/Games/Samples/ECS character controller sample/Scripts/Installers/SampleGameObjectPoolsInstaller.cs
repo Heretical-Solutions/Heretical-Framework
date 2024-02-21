@@ -1,6 +1,6 @@
 using HereticalSolutions.Pools;
 
-using HereticalSolutions.Sample.ECSCharacterControllerSample.Factories;
+using HereticalSolutions.Samples.ECSCharacterControllerSample.Factories;
 
 using HereticalSolutions.Logging;
 
@@ -8,7 +8,7 @@ using UnityEngine;
 
 using Zenject;
 
-namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Installers
+namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 {
 	public class SampleGameObjectPoolsInstaller : MonoInstaller
 	{

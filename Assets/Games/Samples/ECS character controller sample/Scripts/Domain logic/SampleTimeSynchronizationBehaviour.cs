@@ -2,7 +2,7 @@ using UnityEngine;
 
 using HereticalSolutions.Time;
 
-namespace HereticalSolutions.Sample.ECSCharacterControllerSample
+namespace HereticalSolutions.Samples.ECSCharacterControllerSample
 {
 	public class SampleTimeSynchronizationBehaviour : MonoBehaviour
 	{

@@ -1,6 +1,6 @@
 using System;
 
-namespace HereticalSolutions.Sample.ECSCharacterControllerSample
+namespace HereticalSolutions.Samples.ECSCharacterControllerSample
 {
 	[Serializable]
 	public class SampleGameObjectWithAddressSettings

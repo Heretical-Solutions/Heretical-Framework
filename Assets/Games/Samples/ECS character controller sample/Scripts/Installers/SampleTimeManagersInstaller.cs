@@ -11,7 +11,7 @@ using UnityEngine;
 
 using Zenject;
 
-namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Installers
+namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 {
     public class SampleTimeManagersInstaller : MonoInstaller
     {

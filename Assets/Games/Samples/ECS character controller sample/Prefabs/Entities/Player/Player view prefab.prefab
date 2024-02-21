@@ -1051,6 +1051,53 @@ Transform:
   m_Father: {fileID: 1186418123156449547}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &5778895620686313929
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 574245872333325446}
+  - component: {fileID: 7730755943602962681}
+  m_Layer: 0
+  m_Name: Rotation
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &574245872333325446
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5778895620686313929}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8953306360380665163}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7730755943602962681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5778895620686313929}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d842b1ebed3b740b38501c29157b2598, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RotationPivotTransform: {fileID: 8953306359907040926}
+  Angle: 0
+  Dirty: 0
 --- !u!1 &5882947332241593583
 GameObject:
   m_ObjectHideFlags: 0
@@ -1115,6 +1162,53 @@ Transform:
   m_Father: {fileID: 8786417526131572015}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6047269279824529995
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8045008717952789751}
+  - component: {fileID: 7749569605624161407}
+  m_Layer: 0
+  m_Name: Position
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8045008717952789751
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6047269279824529995}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8953306360380665163}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7749569605624161407
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6047269279824529995}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 70a59ab4df989530d892b703a9360ce6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PositionTransform: {fileID: 8953306360588676268}
+  Position: {x: 0, y: 0}
+  Dirty: 0
 --- !u!1 &6133315711085660071
 GameObject:
   m_ObjectHideFlags: 0
@@ -1753,7 +1847,7 @@ Transform:
   m_Children:
   - {fileID: 9044511104537484138}
   m_Father: {fileID: 8953306360380665163}
-  m_RootOrder: 1
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8953306360380665160
 GameObject:
@@ -1783,6 +1877,8 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 8045008717952789751}
+  - {fileID: 574245872333325446}
   - {fileID: 8953306361051779979}
   - {fileID: 8953306359907040926}
   m_Father: {fileID: 8953306360588676268}
@@ -1801,9 +1897,10 @@ GameObject:
   - component: {fileID: 8953306360588676267}
   - component: {fileID: 8953306360588676264}
   - component: {fileID: 2338409933553530205}
+  - component: {fileID: 6948080417793700540}
   m_Layer: 0
   m_Name: Player view prefab
-  m_TagString: Untagged
+  m_TagString: Entity
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1875,7 +1972,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 211b5f2bbb7296e288a53f284d4dbf8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  viewComponents: []
+  viewComponents:
+  - {fileID: 7749569605624161407}
+  - {fileID: 7730755943602962681}
+  - {fileID: 7512349755821548149}
+--- !u!114 &6948080417793700540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8953306360588676262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19addd5f11c723eb08ce639b736d1160, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prototypeID: Player
 --- !u!1 &8953306361051779976
 GameObject:
   m_ObjectHideFlags: 0
@@ -1885,6 +1998,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8953306361051779979}
+  - component: {fileID: 7512349755821548149}
   m_Layer: 0
   m_Name: Animation
   m_TagString: Untagged
@@ -1905,8 +2019,28 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8953306360380665163}
-  m_RootOrder: 0
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7512349755821548149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8953306361051779976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7541aabe9bd74e8e91a7f52faeb495d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Animator: {fileID: 9044511104547337458}
+  IdleParameter: Idle
+  RunningParameter: Running
+  TalkingParameter: Talking
+  IdleAnimationSelectionParameter: Idle animation selection
+  IdleAnimationsCount: 4
+  WasIdleLastUpdate: 1
+  LocomotionVector: {x: 0, y: 0}
 --- !u!1 &9044511104537970308
 GameObject:
   m_ObjectHideFlags: 0

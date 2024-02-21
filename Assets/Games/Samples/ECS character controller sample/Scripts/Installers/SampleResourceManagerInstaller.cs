@@ -5,12 +5,12 @@ using HereticalSolutions.Logging;
 
 using Zenject;
 
-namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Installers
+namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 {
 	public class SampleResourceManagerInstaller : MonoInstaller
 	{
-		[Inject]
-		private ILoggerResolver loggerResolver;
+		//[Inject]
+		//private ILoggerResolver loggerResolver;
 
 		public override void InstallBindings()
 		{

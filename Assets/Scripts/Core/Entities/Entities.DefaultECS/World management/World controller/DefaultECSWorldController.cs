@@ -219,6 +219,7 @@ namespace HereticalSolutions.Entities
                 return false;
             }
 
+
             //Mark entity as in need of resolving and provide a source as a payload to the component
             entity.Set<TResolveWorldIdentityComponent>(
                 createResolveWorldIdentityComponentDelegate.Invoke(source));
@@ -228,6 +229,7 @@ namespace HereticalSolutions.Entities
 
             //Don't need it anymore. Bye!
             entity.Remove<TResolveWorldIdentityComponent>();
+
 
             //Process freshly resolved entity with initialization systems
             initializationSystems?.Update(entity);
@@ -244,21 +246,28 @@ namespace HereticalSolutions.Entities
             TEntityID entityID,
             out Entity entity)
         {
+            /*
             if (!TrySpawnEntityFromPrototype(
                 prototypeID,
                 out entity))
             {
                 return false;
             }
+            */
 
-            //Give the entity its ID
-
-            //ref GUIDComponent guidComponent = ref entity.Get<GUIDComponent>();
-            //
-            //guidComponent.GUID = guid;
+            if (!TryClonePrototypeEntityToWorld(
+                prototypeID,
+                out entity))
+            {
+                return false;
+            }
 
             entity.Set<TEntityIDComponent>(
                 createIDComponentDelegate.Invoke(entityID));
+            
+
+            //Process freshly spawned entity with initialization systems
+            initializationSystems?.Update(entity);
 
             return true;
         }
@@ -269,6 +278,7 @@ namespace HereticalSolutions.Entities
             object source,
             out Entity entity)
         {
+            /*
             if (!TrySpawnAndResolveEntityFromPrototype(
                 prototypeID,
                 source,
@@ -276,15 +286,32 @@ namespace HereticalSolutions.Entities
             {
                 return false;
             }
+            */
 
-            //Give the entity its ID
-
-            //ref GUIDComponent guidComponent = ref entity.Get<GUIDComponent>();
-            //
-            //guidComponent.GUID = guid;
+            if (!TryClonePrototypeEntityToWorld(
+                prototypeID,
+                out entity))
+            {
+                return false;
+            }
 
             entity.Set<TEntityIDComponent>(
                 createIDComponentDelegate.Invoke(entityID));
+
+
+            //Mark entity as in need of resolving and provide a source as a payload to the component
+            entity.Set<TResolveWorldIdentityComponent>(
+                createResolveWorldIdentityComponentDelegate.Invoke(source));
+
+            //Process freshly spawned entity with resolve systems
+            resolveSystems?.Update(entity);
+
+            //Don't need it anymore. Bye!
+            entity.Remove<TResolveWorldIdentityComponent>();
+
+
+            //Process freshly resolved entity with initialization systems
+            initializationSystems?.Update(entity);
 
             return true;
         }

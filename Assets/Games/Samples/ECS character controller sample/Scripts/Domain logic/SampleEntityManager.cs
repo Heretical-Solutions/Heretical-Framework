@@ -11,7 +11,7 @@ using World = DefaultEcs.World;
 
 using Entity = DefaultEcs.Entity;
 
-namespace HereticalSolutions.Sample.ECSCharacterControllerSample
+namespace HereticalSolutions.Samples.ECSCharacterControllerSample
 {
 	public class SampleEntityManager : DefaultECSEntityManager<Guid>
 	{

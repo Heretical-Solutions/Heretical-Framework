@@ -23,5 +23,16 @@ MonoBehaviour:
         Rule: 3
         Amount: 4
       Additional:
-        Rule: 2
-        Amount: 0
+        Rule: 3
+        Amount: 4
+  - GameObjectAddress: Joystick view
+    Variants:
+    - Chance: 1
+      Prefab: {fileID: 1230688845738325699, guid: 1363873c6ef8dbcd0a7e4f0b14c5493c,
+        type: 3}
+      Initial:
+        Rule: 3
+        Amount: 1
+      Additional:
+        Rule: 3
+        Amount: 1

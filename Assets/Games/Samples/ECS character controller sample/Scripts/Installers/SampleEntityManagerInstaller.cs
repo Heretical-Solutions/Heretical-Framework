@@ -4,13 +4,11 @@ using HereticalSolutions.Entities;
 
 using HereticalSolutions.Logging;
 
-using DefaultEcs;
-
 using Zenject;
 
-using HereticalSolutions.Sample.ECSCharacterControllerSample.Factories;
+using HereticalSolutions.Samples.ECSCharacterControllerSample.Factories;
 
-namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Installers
+namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 {
     public class SampleEntityManagerInstaller : MonoInstaller
     {

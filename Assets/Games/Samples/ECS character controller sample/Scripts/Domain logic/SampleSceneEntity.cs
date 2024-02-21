@@ -4,7 +4,7 @@ using HereticalSolutions.Entities;
 
 using HereticalSolutions.Allocations.Factories;
 
-namespace HereticalSolutions.Sample.ECSCharacterControllerSample
+namespace HereticalSolutions.Samples.ECSCharacterControllerSample
 {
 	public class SampleSceneEntity :
 		ASceneEntity<Guid>

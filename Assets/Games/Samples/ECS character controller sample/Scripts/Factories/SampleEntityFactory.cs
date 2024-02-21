@@ -12,7 +12,7 @@ using HereticalSolutions.Logging;
 
 using DefaultEcs;
 
-namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Factories
+namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Factories
 {
 	public static class SampleEntityFactory
 	{

@@ -14,7 +14,7 @@ using UnityEngine;
 
 using Zenject;
 
-namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Factories
+namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Factories
 {
 	public static class SampleGameObjectPoolsFactory
 	{
@@ -141,7 +141,7 @@ namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Factories
 						callbacks);
 
 					// Build the resizable pool.
-					var resizablePool = resizablePoolBuilder.BuildResizablePool();
+					var resizablePool = resizablePoolBuilder.BuildSupplyAndMergePool(); //.BuildResizablePool();
 
 					// Build the game object pool.
 					var gameObjectPool = UnityDecoratorsPoolsFactory.BuildNonAllocGameObjectPool(

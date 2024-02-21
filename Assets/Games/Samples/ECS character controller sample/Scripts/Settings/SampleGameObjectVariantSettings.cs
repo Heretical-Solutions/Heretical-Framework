@@ -4,7 +4,7 @@ using HereticalSolutions.Allocations;
 
 using UnityEngine;
 
-namespace HereticalSolutions.Sample.ECSCharacterControllerSample
+namespace HereticalSolutions.Samples.ECSCharacterControllerSample
 {
 	[Serializable]
 	public class SampleGameObjectVariantSettings
