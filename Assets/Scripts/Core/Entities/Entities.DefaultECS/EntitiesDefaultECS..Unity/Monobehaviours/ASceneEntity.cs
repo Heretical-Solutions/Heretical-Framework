@@ -2,35 +2,18 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace HereticalSolutions.Entities
 {
-	public abstract class ASceneEntity<TEntityID> : MonoBehaviour
+	public abstract class ASceneEntity : MonoBehaviour
 	{
-		[SerializeField] // FOR DEBUG PURPOSES ONLY
-		protected string persistentID;
+		[SerializeField]
+		private string prototypeID;
 
-		public List<ASceneEntity<TEntityID>> childEntities;
+		public List<ASceneEntity> childEntities;
 
-		public abstract TEntityID EntityID { get; }
-
-#if UNITY_EDITOR
-        public void OnValidate()
-        {
-            if (string.IsNullOrEmpty(persistentID))
-            {
-				persistentID = AllocateID().ToString();
-
-                UnityEditor.Undo.RecordObject(this, "Assigned entity ID");
-            }
-
-            EditorUtility.SetDirty(this);
-        }
-
-		protected abstract TEntityID AllocateID();
-#endif
+		public string PrototypeID
+		{
+			get => prototypeID;
+		}
 	}
 }

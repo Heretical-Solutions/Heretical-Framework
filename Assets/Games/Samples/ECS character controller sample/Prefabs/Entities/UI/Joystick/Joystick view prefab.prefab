@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8345794556113401828}
   - component: {fileID: 9108465378604320417}
-  - component: {fileID: 740945474530516345}
   m_Layer: 0
   m_Name: Joystick view prefab
   m_TagString: Entity
@@ -54,19 +53,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   viewComponents:
   - {fileID: 3027378335589927373}
---- !u!114 &740945474530516345
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1230688845738325699}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19addd5f11c723eb08ce639b736d1160, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  prototypeID: Joystick
 --- !u!1 &1903648407093313857
 GameObject:
   m_ObjectHideFlags: 0

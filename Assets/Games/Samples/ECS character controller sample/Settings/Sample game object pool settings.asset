@@ -36,3 +36,14 @@ MonoBehaviour:
       Additional:
         Rule: 3
         Amount: 1
+  - GameObjectAddress: Virtual camera view
+    Variants:
+    - Chance: 1
+      Prefab: {fileID: 6746251727759287232, guid: 43224fb35d5c47ee782115263e5ba3f2,
+        type: 3}
+      Initial:
+        Rule: 3
+        Amount: 1
+      Additional:
+        Rule: 3
+        Amount: 1

@@ -106,7 +106,11 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 			ISystem<float> updateSystems = new SequentialSystem<float>(
 				new SampleJoystickPresenterInitializationSystem(
 					viewWorld,
-					simulationWorld));
+					simulationWorld),
+				new SampleVirtualCameraPresenterInitializationSystem(
+					viewWorld,
+					simulationWorld,
+					entityManager));
 
 			ISystem<float> fixedUpdateSystems = new SequentialSystem<float>(
 				new SampleLookTowardsLastLocomotionVectorSystem(
@@ -123,13 +127,17 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 			ISystem<float> lateUpdateSystems = new SequentialSystem<float>(
 				new SampleJoystickPresenterSystem(
 					viewWorld),
+
 				new SamplePositionPresenterSystem(
 					viewWorld),
 				new SampleRotationPresenterSystem(
 					viewWorld),
 				new SampleAnimatorPresenterSystem(
 					viewWorld),
-					
+
+				new SampleVirtualCameraPresenterSystem(
+					viewWorld),
+
 				new SampleTransformPositionViewSystem(
 					viewWorld),
 				new SampleTransformRotationViewSystem(

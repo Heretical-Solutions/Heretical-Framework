@@ -39,26 +39,15 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 					continue;
 				}
 
-				var resolveMeAs = gameObjectWithTag.GetComponent<ResolveMeAs>();
-
-				if (resolveMeAs == null)
-				{
-					logger?.LogError<SampleResolveEntitiesOnSceneInstaller>(
-						$"GAME OBJECT {gameObjectWithTag.name} HAS AN ENTITY TAG BUT NO ResolveMeAs COMPONENT",
-						new object[]
-						{
-							gameObjectWithTag
-						});
-
-					continue;
-				}
-
 				var sceneEntity = gameObjectWithTag.GetComponent<SampleSceneEntity>();
 
-				if (sceneEntity == null)
+				var worldLocalSceneEntity = gameObjectWithTag.GetComponent<WorldLocalSceneEntity>();
+
+				if (sceneEntity == null
+					&& worldLocalSceneEntity == null)
 				{
 					logger?.LogError<SampleResolveEntitiesOnSceneInstaller>(
-						$"GAME OBJECT {gameObjectWithTag.name} HAS AN ENTITY TAG BUT NO SampleSceneEntity COMPONENT",
+						$"GAME OBJECT {gameObjectWithTag.name} HAS AN ENTITY TAG BUT NEITHER SampleSceneEntity NOR WorldLocalSceneEntity COMPONENT",
 						new object[]
 						{
 							gameObjectWithTag
@@ -74,21 +63,39 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 						gameObjectWithTag
 					});
 
-				entityManager.ResolveEntity(
-					sceneEntity.EntityID,
-					gameObjectWithTag,
-					resolveMeAs.PrototypeID);
+				if (sceneEntity != null)
+				{
+					entityManager.ResolveEntity(
+						sceneEntity.EntityID,
+						gameObjectWithTag,
+						sceneEntity.PrototypeID);
 
-				ResolveChildren(
-					sceneEntity,
-					logger);
+					ResolveChildren(
+						sceneEntity,
+						logger);
+				}
+
+				if (worldLocalSceneEntity != null)
+				{
+					entityManager.ResolveWorldLocalEntity(
+						worldLocalSceneEntity.PrototypeID,
+						gameObjectWithTag,
+						worldLocalSceneEntity.WorldID);
+
+					ResolveChildren(
+						worldLocalSceneEntity,
+						logger);
+				}
 			}
 		}
 
 		private void ResolveChildren(
-			SampleSceneEntity parentSceneEntity,
+			ASceneEntity parentSceneEntity,
 			ILogger logger = null)
 		{
+			if (parentSceneEntity.childEntities == null)
+				return;
+
 			foreach (var childSceneEntity in parentSceneEntity.childEntities)
 			{
 				var childAdapter = childSceneEntity.GetComponent<GameObjectViewEntityAdapter>();
@@ -105,20 +112,6 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 					continue;
 				}
 
-				var childResolveMeAs = childSceneEntity.GetComponent<ResolveMeAs>();
-
-				if (childResolveMeAs == null)
-				{
-					logger?.LogError<SampleResolveEntitiesOnSceneInstaller>(
-						$"GAME OBJECT {childSceneEntity.name} HAS AN ENTITY TAG BUT NO ResolveMeAs COMPONENT",
-						new object[]
-						{
-							childSceneEntity
-						});
-
-					continue;
-				}
-
 				logger?.Log<SampleResolveEntitiesOnSceneInstaller>(
 					$"RESOLVING GAME OBJECT {childSceneEntity.gameObject.name}",
 					new object[]
@@ -126,10 +119,25 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 						childSceneEntity.gameObject
 					});
 
-				entityManager.ResolveEntity(
-					childSceneEntity.EntityID,
-					childSceneEntity.gameObject,
-					childResolveMeAs.PrototypeID);
+				var childSampleSceneEntity = childSceneEntity as SampleSceneEntity;
+
+				if (childSampleSceneEntity != null)
+				{
+					entityManager.ResolveEntity(
+						childSampleSceneEntity.EntityID,
+						childSceneEntity.gameObject,
+						childSampleSceneEntity.PrototypeID);
+				}
+
+				var childWorldLocalSceneEntity = childSceneEntity as WorldLocalSceneEntity;
+
+				if (childWorldLocalSceneEntity != null)
+				{
+					entityManager.ResolveWorldLocalEntity(
+						childWorldLocalSceneEntity.PrototypeID,
+						childWorldLocalSceneEntity.gameObject,
+						childWorldLocalSceneEntity.WorldID);
+				}
 			}
 
 		}

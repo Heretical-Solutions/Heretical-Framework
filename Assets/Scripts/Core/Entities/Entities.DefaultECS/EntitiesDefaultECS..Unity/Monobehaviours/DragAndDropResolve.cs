@@ -18,7 +18,7 @@ using Zenject;
 
 namespace HereticalSolutions.Entities
 {
-	public class ResolveMeAs
+	public class DragAndDropResolve
 		: MonoBehaviour
 	{
 #if UNITY_EDITOR
