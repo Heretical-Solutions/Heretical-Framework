@@ -8,7 +8,7 @@ using HereticalSolutions.Logging;
 namespace HereticalSolutions.Entities
 {
     public class DefaultECSRegistryWorldController<TEntityID, TEntityIDComponent>
-        : IWorldController<World, ISystem<Entity>, Entity>,
+        : IDefaultECSEntityWorldController,
           IPrototypeCompliantWorldController<World, Entity>,
           IEntityIDCompliantWorldController<TEntityID, Entity>
     {

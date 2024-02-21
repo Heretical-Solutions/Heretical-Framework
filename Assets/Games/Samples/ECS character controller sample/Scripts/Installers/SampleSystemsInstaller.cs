@@ -21,7 +21,7 @@ namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Installers
 		private ILoggerResolver loggerResolver;
 
 		[Inject]
-		private IEntityManager<World, Guid, Entity> entityManager;
+		private SampleEntityManager entityManager;
 
 		[Inject]
 		private INonAllocDecoratedPool<GameObject> gameObjectPool;
@@ -30,20 +30,20 @@ namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Installers
 		{
 			var logger = loggerResolver.GetLogger<SampleEntityPrototypeImportInstaller>();
 
-			var worldContainer = entityManager as IContainsEntityWorlds<World, ISystem<Entity>, Entity>;
+			var worldContainer = entityManager as IContainsEntityWorlds<World, IDefaultECSEntityWorldController>;
 
 			var entityWorldsRepository = worldContainer.EntityWorldsRepository;
 
 			var viewWorldController = entityWorldsRepository.GetWorldController(WorldConstants.VIEW_WORLD_ID);
 
-			var viewWorldSystemsContainer = viewWorldController as  IContainsEntityInitializationSystems<ISystem<Entity>>;
+			var viewWorldSystemsContainer = viewWorldController as  IContainsEntityInitializationSystems<IDefaultECSEntityInitializationSystem>;
 
 			viewWorldSystemsContainer.Initialize(
-				new SequentialSystem<Entity>(
+				new DefaultECSSequentialEntityInitializationSystem(
 					new ResolvePooledGameObjectViewSystem(
 						gameObjectPool,
 						loggerResolver?.GetLogger<ResolvePooledGameObjectViewSystem>())),
-				new SequentialSystem<Entity>(
+				new DefaultECSSequentialEntityInitializationSystem(
 					new SpawnPooledGameObjectViewSystem(
 						gameObjectPool,
 						loggerResolver?.GetLogger<SpawnPooledGameObjectViewSystem>())),

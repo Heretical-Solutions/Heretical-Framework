@@ -5,7 +5,8 @@ using DefaultEcs.System;
 
 namespace HereticalSolutions.Entities
 {
-    public class InitializeViewModelComponentSystem<TEntityID, TEntityIDComponent> : ISystem<Entity>
+    public class InitializeViewModelComponentSystem<TEntityID, TEntityIDComponent>
+        : IDefaultECSEntityInitializationSystem
     {
         private readonly Func<TEntityIDComponent, TEntityID> getEntityIDFromIDComponentDelegate;
 
@@ -19,7 +20,7 @@ namespace HereticalSolutions.Entities
 
         public bool IsEnabled { get; set; } = true;
 
-        void ISystem<Entity>.Update(Entity entity)
+        public void Update(Entity entity)
         {
             if (!IsEnabled)
                 return;
@@ -31,6 +32,7 @@ namespace HereticalSolutions.Entities
 
 
             //var guid = entity.Get<GUIDComponent>().GUID;
+
             var entityID = getEntityIDFromIDComponentDelegate.Invoke(
                 entity.Get<TEntityIDComponent>());
             

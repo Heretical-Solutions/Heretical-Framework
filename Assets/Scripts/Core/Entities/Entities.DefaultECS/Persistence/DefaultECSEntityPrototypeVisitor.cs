@@ -129,7 +129,7 @@ namespace HereticalSolutions.Entities
 		{
 			if (componentTypes == null)
 			{
-				DefaultECSEntitiesFactory.BuildComponentTypesListWithAttribute<ComponentAttribute>(
+				DefaultECSEntityFactory.BuildComponentTypesListWithAttribute<ComponentAttribute>(
 					out componentTypes);
 			}
 

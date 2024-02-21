@@ -6,7 +6,7 @@ using HereticalSolutions.Logging;
 namespace HereticalSolutions.Entities
 {
 	public class DefaultECSEventWorldController
-		: IWorldController<World, ISystem<Entity>, Entity>
+		: IDefaultECSEntityWorldController
 	{
 		private readonly ILogger logger;
 

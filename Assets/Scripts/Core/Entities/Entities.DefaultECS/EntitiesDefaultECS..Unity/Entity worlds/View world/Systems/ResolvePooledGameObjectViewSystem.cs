@@ -13,7 +13,7 @@ using DefaultEcs.System;
 
 namespace HereticalSolutions.Entities
 {
-	public class ResolvePooledGameObjectViewSystem : ISystem<Entity>
+	public class ResolvePooledGameObjectViewSystem : IDefaultECSEntityInitializationSystem
 	{
 		private readonly INonAllocDecoratedPool<GameObject> pool;
 
@@ -44,7 +44,7 @@ namespace HereticalSolutions.Entities
 		//Required by ISystem
 		public bool IsEnabled { get; set; } = true;
 
-		void ISystem<Entity>.Update(Entity entity)
+		public void Update(Entity entity)
 		{
 			if (!IsEnabled)
 				return;

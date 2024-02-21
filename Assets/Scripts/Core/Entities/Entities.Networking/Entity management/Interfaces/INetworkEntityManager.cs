@@ -5,10 +5,10 @@ namespace HereticalSolutions.Entities
 	/// <summary>
 	/// Interface for managing game entities.
 	/// </summary>
-	public interface INetworkEntityManager
+	public interface INetworkEntityManager<TEntityID>
 	{
 		void SpawnEntityFromServer(
-			Guid guid,
+			TEntityID entityID,
 			string prototypeID);
 	}
 }

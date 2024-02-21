@@ -2,15 +2,9 @@ using System;
 
 namespace HereticalSolutions.Entities
 {
-    /// <summary>
-    /// Represents a component for specifying the target entity of an event.
-    /// </summary>
     [NetworkEventComponent]
-    public struct EventTargetEntityComponent
+    public struct EventTargetEntityComponent<TEntityID>
     {
-        /// <summary>
-        /// The global unique identifier (GUID) of the target entity.
-        /// </summary>
-        public Guid TargetGUID;
+        public TEntityID TargetID;
     }
 }

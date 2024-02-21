@@ -1,7 +1,7 @@
 namespace HereticalSolutions.Entities
 {
-    public interface IEntityWorldsRepository<TWorld, TSystem, TEntity>
-        : IReadOnlyEntityWorldsRepository<TWorld, TSystem, TEntity>
+    public interface IEntityWorldsRepository<TWorld, TWorldController>
+        : IReadOnlyEntityWorldsRepository<TWorld, TWorldController>
     {
         bool HasWorld(string worldID);
 
@@ -10,7 +10,7 @@ namespace HereticalSolutions.Entities
 
         void AddWorld(
             string worldID,
-            IWorldController<TWorld, TSystem, TEntity> worldController);
+            TWorldController worldController);
 
         
         void RemoveWorld(string worldID);

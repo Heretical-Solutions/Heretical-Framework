@@ -9,8 +9,8 @@ namespace HereticalSolutions.Entities
     /// <summary>
     /// Represents a class for building event entities.
     /// </summary>
-    public class DefaultECSEventEntityBuilder
-        : IEventEntityBuilder<Entity>
+    public class DefaultECSEventEntityBuilder<TEntityID>
+        : IEventEntityBuilder<Entity, TEntityID>
     {
         protected readonly World eventWorld;
 
@@ -20,14 +20,14 @@ namespace HereticalSolutions.Entities
             this.eventWorld = eventWorld;
         }
 
-        public IEventEntityBuilder<Entity> NewEvent(out Entity eventEntity)
+        public IEventEntityBuilder<Entity, TEntityID> NewEvent(out Entity eventEntity)
         {
             eventEntity = eventWorld.CreateEntity();
 
             return this;
         }
 
-        public IEventEntityBuilder<Entity> HappenedAtPosition(
+        public IEventEntityBuilder<Entity, TEntityID> HappenedAtPosition(
             Entity eventEntity,
             Vector3 position)
         {
@@ -41,35 +41,35 @@ namespace HereticalSolutions.Entities
             return this;
         }
 
-        public IEventEntityBuilder<Entity> CausedByEntity(
+        public IEventEntityBuilder<Entity, TEntityID> CausedByEntity(
             Entity eventEntity,
-            Guid sourceEntity)
+            TEntityID sourceEntity)
         {
             eventEntity
-                .Set<EventSourceEntityComponent>(
-                    new EventSourceEntityComponent
+                .Set<EventSourceEntityComponent<TEntityID>>(
+                    new EventSourceEntityComponent<TEntityID>
                     {
-                        SourceGUID = sourceEntity
+                        SourceID = sourceEntity
                     });
 
             return this;
         }
 
-        public IEventEntityBuilder<Entity> TargetedAtEntity(
+        public IEventEntityBuilder<Entity, TEntityID> TargetedAtEntity(
             Entity eventEntity,
-            Guid targetEntity)
+            TEntityID targetEntity)
         {
             eventEntity
-                .Set<EventTargetEntityComponent>(
-                    new EventTargetEntityComponent
+                .Set<EventTargetEntityComponent<TEntityID>>(
+                    new EventTargetEntityComponent<TEntityID>
                     {
-                        TargetGUID = targetEntity
+                        TargetID = targetEntity
                     });
 
             return this;
         }
 
-        public IEventEntityBuilder<Entity> TargetedAtPosition(
+        public IEventEntityBuilder<Entity, TEntityID> TargetedAtPosition(
             Entity eventEntity,
             Vector3 position)
         {
@@ -83,7 +83,7 @@ namespace HereticalSolutions.Entities
             return this;
         }
 
-        public IEventEntityBuilder<Entity> HappenedAtTime(
+        public IEventEntityBuilder<Entity, TEntityID> HappenedAtTime(
             Entity eventEntity,
             long ticks)
         {
@@ -97,7 +97,7 @@ namespace HereticalSolutions.Entities
             return this;
         }
 
-        public IEventEntityBuilder<Entity> WithData<TData>(
+        public IEventEntityBuilder<Entity, TEntityID> WithData<TData>(
             Entity eventEntity,
             TData data)
         {

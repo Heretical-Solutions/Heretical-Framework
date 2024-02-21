@@ -1,7 +1,7 @@
 namespace HereticalSolutions.Entities
 {
-	public interface IContainsEntityWorlds<TWorld, TSystem, TEntity>
+	public interface IContainsEntityWorlds<TWorld, TWorldController>
 	{
-		IReadOnlyEntityWorldsRepository<TWorld, TSystem, TEntity> EntityWorldsRepository { get; }
+		IReadOnlyEntityWorldsRepository<TWorld, TWorldController> EntityWorldsRepository { get; }
 	}
 }

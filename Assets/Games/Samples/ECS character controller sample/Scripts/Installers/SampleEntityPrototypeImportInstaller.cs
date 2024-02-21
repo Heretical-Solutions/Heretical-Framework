@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 
 using HereticalSolutions.AssetImport;
 
@@ -12,7 +11,6 @@ using HereticalSolutions.Logging;
 using UnityEngine;
 
 using DefaultEcs;
-using DefaultEcs.System;
 
 using Zenject;
 
@@ -36,7 +34,7 @@ namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Installers
 		private IRuntimeResourceManager runtimeResourceManager;
 
 		[Inject]
-		private IEntityManager<World, Guid, Entity> entityManager;
+		private SampleEntityManager entityManager;
 
 		[SerializeField]
 		private ResourcesSettings settings;
@@ -59,7 +57,7 @@ namespace HereticalSolutions.Sample.ECSCharacterControllerSample.Installers
 							logger?.Log<SampleEntityPrototypeImportInstaller>(
 								$"CREATING ENTITY PROTOTYPE VISITORS");
 
-							var worldContainer = entityManager as IContainsEntityWorlds<World, ISystem<Entity>, Entity>;
+							var worldContainer = entityManager as IContainsEntityWorlds<World, IDefaultECSEntityWorldController>;
 
 							var entityWorldsRepository = worldContainer.EntityWorldsRepository;
 

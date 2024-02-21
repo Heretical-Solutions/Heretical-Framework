@@ -7,6 +7,24 @@ namespace HereticalSolutions.Allocations.Factories
     /// </summary>
     public static class IDAllocationsFactory
     {
+        public static TValue BuildID<TValue>()
+        {
+            //I'd be more happy with pattern matching but thanks anyway, copilot
+            
+            if (typeof(TValue) == typeof(Guid))
+            {
+                return (TValue)(object)BuildGUID();
+            }
+            else if (typeof(TValue) == typeof(int))
+            {
+                return (TValue)(object)BuildInt();
+            }
+            else
+            {
+                throw new ArgumentException("The type of ID is not supported.");
+            }
+        }
+
         /// <summary>
         /// Builds a new GUID.
         /// </summary>

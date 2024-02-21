@@ -1,7 +1,6 @@
 ﻿using System;
 
 using DefaultEcs;
-using DefaultEcs.System;
 
 using HereticalSolutions.Logging;
 
@@ -12,11 +11,11 @@ namespace HereticalSolutions.Entities
         TEntityIDComponent,
         TWorldIdentityComponent,
         TResolveWorldIdentityComponent>
-        : IWorldController<World, ISystem<Entity>, Entity>,
+        : IDefaultECSEntityWorldController,
           IPrototypeCompliantWorldController<World, Entity>,
           IEntityIDCompliantWorldController<TEntityID, Entity>,
           IRegistryCompliantWorldController<Entity>,
-          IContainsEntityInitializationSystems<ISystem<Entity>>
+          IContainsEntityInitializationSystems<IDefaultECSEntityInitializationSystem>
     {
         #region Delegates
 
@@ -50,11 +49,11 @@ namespace HereticalSolutions.Entities
 
         #region Systems
 
-        private ISystem<Entity> resolveSystems;
+        private IDefaultECSEntityInitializationSystem resolveSystems;
 
-        private ISystem<Entity> initializationSystems;
+        private IDefaultECSEntityInitializationSystem initializationSystems;
 
-        private ISystem<Entity> deinitializationSystems;
+        private IDefaultECSEntityInitializationSystem deinitializationSystems;
 
         #endregion
 
@@ -108,16 +107,16 @@ namespace HereticalSolutions.Entities
 
         #region IContainsEntityInitializationSystems
 
-        public ISystem<Entity> EntityResolveSystems { get => resolveSystems; }
+        public IDefaultECSEntityInitializationSystem EntityResolveSystems { get => resolveSystems; }
 
-        public ISystem<Entity> EntityInitializationSystems { get => initializationSystems; }
+        public IDefaultECSEntityInitializationSystem EntityInitializationSystems { get => initializationSystems; }
 
-        public ISystem<Entity> EntityDeinitializationSystems { get => deinitializationSystems; }
+        public IDefaultECSEntityInitializationSystem EntityDeinitializationSystems { get => deinitializationSystems; }
 
         public void Initialize(
-            ISystem<Entity> resolveSystems,
-            ISystem<Entity> initializationSystems,
-            ISystem<Entity> deinitializationSystems)
+            IDefaultECSEntityInitializationSystem resolveSystems,
+            IDefaultECSEntityInitializationSystem initializationSystems,
+            IDefaultECSEntityInitializationSystem deinitializationSystems)
         {
             this.resolveSystems = resolveSystems;
 
@@ -278,7 +277,7 @@ namespace HereticalSolutions.Entities
                 return false;
             }
 
-            //Give the entity its GUID
+            //Give the entity its ID
 
             //ref GUIDComponent guidComponent = ref entity.Get<GUIDComponent>();
             //
@@ -306,6 +305,7 @@ namespace HereticalSolutions.Entities
             }
 
             //Get the target ID from the registry entity
+
             //var guid = registryEntity.Get<GUIDComponent>().GUID;
 
             var entityID = getEntityIDFromIDComponentDelegate.Invoke(
@@ -348,6 +348,7 @@ namespace HereticalSolutions.Entities
             }
 
             //Get the target ID from the registry entity
+
             //var guid = registryEntity.Get<GUIDComponent>().GUID;
 
             var entityID = getEntityIDFromIDComponentDelegate.Invoke(
@@ -430,6 +431,7 @@ namespace HereticalSolutions.Entities
             }
 
             //Get the target ID from the registry entity
+
             //var guid = registryEntity.Get<GUIDComponent>().GUID;
 
             var entityID = getEntityIDFromIDComponentDelegate.Invoke(
@@ -486,6 +488,7 @@ namespace HereticalSolutions.Entities
             }
 
             //Get the target ID from the registry entity
+
             //var guid = registryEntity.Get<GUIDComponent>().GUID;
 
             var entityID = getEntityIDFromIDComponentDelegate.Invoke(
@@ -528,6 +531,7 @@ namespace HereticalSolutions.Entities
             }
 
             //Get the target ID from the registry entity
+
             //var guid = registryEntity.Get<GUIDComponent>().GUID;
 
             var entityID = getEntityIDFromIDComponentDelegate.Invoke(

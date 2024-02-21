@@ -4,31 +4,31 @@ using System.Numerics;
 
 namespace HereticalSolutions.Entities
 {
-    public interface IEventEntityBuilder<TEntity>
+    public interface IEventEntityBuilder<TEntity, TEntityID>
     {
-        IEventEntityBuilder<TEntity> NewEvent(out TEntity eventEntity);
+        IEventEntityBuilder<TEntity, TEntityID> NewEvent(out TEntity eventEntity);
 
-        IEventEntityBuilder<TEntity> HappenedAtPosition(
+        IEventEntityBuilder<TEntity, TEntityID> HappenedAtPosition(
             TEntity eventEntity,
             Vector3 position);
 
-        IEventEntityBuilder<TEntity> CausedByEntity(
+        IEventEntityBuilder<TEntity, TEntityID> CausedByEntity(
             TEntity eventEntity,
-            Guid sourceEntity);
+            TEntityID sourceEntity);
 
-        IEventEntityBuilder<TEntity> TargetedAtEntity(
+        IEventEntityBuilder<TEntity, TEntityID> TargetedAtEntity(
             TEntity eventEntity,
-            Guid targetEntity);
+            TEntityID targetEntity);
 
-        IEventEntityBuilder<TEntity> TargetedAtPosition(
+        IEventEntityBuilder<TEntity, TEntityID> TargetedAtPosition(
             TEntity eventEntity,
             Vector3 position);
 
-        IEventEntityBuilder<TEntity> HappenedAtTime(
+        IEventEntityBuilder<TEntity, TEntityID> HappenedAtTime(
             TEntity eventEntity,
             long ticks);
 
-        IEventEntityBuilder<TEntity> WithData<TData>(
+        IEventEntityBuilder<TEntity, TEntityID> WithData<TData>(
             TEntity eventEntity,
             TData data);
     }

@@ -19,7 +19,7 @@ namespace HereticalSolutions.Sample.ECSCharacterControllerSample
 		private ILoggerResolver loggerResolver;
 
 		[Inject]
-		private IEntityManager<World, Guid, Entity> entityManager;
+		private SampleEntityManager entityManager;
 
 		[SerializeField]
 		private string playerEntityPrototypeID;

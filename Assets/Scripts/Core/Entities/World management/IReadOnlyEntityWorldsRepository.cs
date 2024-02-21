@@ -1,11 +1,11 @@
 namespace HereticalSolutions.Entities
 {
-	public interface IReadOnlyEntityWorldsRepository<TWorld, TSystem, TEntity>
+	public interface IReadOnlyEntityWorldsRepository<TWorld, TWorldController>
 	{
 		TWorld GetWorld(string worldID);
 
-		IWorldController<TWorld, TSystem, TEntity> GetWorldController(string worldID);
+		TWorldController GetWorldController(string worldID);
 
-		IWorldController<TWorld, TSystem, TEntity> GetWorldController(TWorld world);
+		TWorldController GetWorldController(TWorld world);
 	}
 }

@@ -4,38 +4,22 @@ using HereticalSolutions.Repositories;
 
 using DefaultEcs;
 
-using IEntityWorldsRepository =
-	HereticalSolutions
-	.Entities
-	.IEntityWorldsRepository<
-		DefaultEcs.World,
-		DefaultEcs.System.ISystem<DefaultEcs.Entity>,
-		DefaultEcs.Entity>;
-
-using IWorldController =
-	HereticalSolutions
-	.Entities
-	.IWorldController<
-		DefaultEcs.World,
-		DefaultEcs.System.ISystem<DefaultEcs.Entity>,
-		DefaultEcs.Entity>;
-
 using HereticalSolutions.Logging;
 
 namespace HereticalSolutions.Entities
 {
 	public class DefaultECSEntityWorldsRepository
-		: IEntityWorldsRepository
+		: IDefaultECSEntityWorldsRepository
 	{
 		private readonly IRepository<string, World> worldsRepository;
 
-		private readonly IRepository<World, IWorldController> worldControllersRepository;
+		private readonly IRepository<World, IDefaultECSEntityWorldController> worldControllersRepository;
 
 		private readonly ILogger logger;
 
 		public DefaultECSEntityWorldsRepository(
 			IRepository<string, World> worldsRepository,
-			IRepository<World, IWorldController> worldControllersRepository,
+			IRepository<World, IDefaultECSEntityWorldController> worldControllersRepository,
 			ILogger logger = null)
 		{
 			this.worldsRepository = worldsRepository;
@@ -64,7 +48,7 @@ namespace HereticalSolutions.Entities
 			return result;
 		}
 
-		public IWorldController GetWorldController(string worldID)
+		public IDefaultECSEntityWorldController GetWorldController(string worldID)
 		{
 			var world = GetWorld(worldID);
 
@@ -86,7 +70,7 @@ namespace HereticalSolutions.Entities
 			return result;
 		}
 
-		public IWorldController GetWorldController(World world)
+		public IDefaultECSEntityWorldController GetWorldController(World world)
 		{
 			if (!worldsRepository.Values.Contains(world))
 			{
@@ -124,7 +108,7 @@ namespace HereticalSolutions.Entities
 
 		public void AddWorld(
 			string worldID,
-			IWorldController worldController)
+			IDefaultECSEntityWorldController worldController)
 		{
 			var world = worldController.World;
 
@@ -134,7 +118,7 @@ namespace HereticalSolutions.Entities
 
 			worldControllersRepository.TryAdd(
 				world,
-				worldController);
+				worldController as IDefaultECSEntityWorldController);
 		}
 
 

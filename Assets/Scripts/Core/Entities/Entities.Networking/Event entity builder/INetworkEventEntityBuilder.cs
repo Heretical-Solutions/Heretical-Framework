@@ -1,9 +1,9 @@
 namespace HereticalSolutions.Entities
 {
-	public interface INetworkEventEntityBuilder<TEntity>
+	public interface INetworkEventEntityBuilder<TEntity, TEntityID>
 	{
-		IEventEntityBuilder<TEntity> HostShouldBeNotified(TEntity eventEntity);
+		IEventEntityBuilder<TEntity, TEntityID> HostShouldBeNotified(TEntity eventEntity);
 
-		IEventEntityBuilder<TEntity> PlayersShouldBeNotified(TEntity eventEntity);
+		IEventEntityBuilder<TEntity, TEntityID> PlayersShouldBeNotified(TEntity eventEntity);
 	}
 }

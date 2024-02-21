@@ -13,7 +13,7 @@ namespace HereticalSolutions.Entities.Factories
 	/// <summary>
 	/// Class containing methods to build entities and their components.
 	/// </summary>
-	public static partial class NetworkEntitiesFactory
+	public static partial class NetworkEntityFactory
 	{
 		public static DefaultECSEntityManager<TEntityID> BuildDefaultECSNetworkEntityManager<TEntityID, TEntityIDComponent>(
 			Func<TEntityID> allocateIDDelegate,
@@ -25,24 +25,24 @@ namespace HereticalSolutions.Entities.Factories
 		{
 			var registryEntityRepository = RepositoriesFactory.BuildDictionaryRepository<TEntityID, Entity>();
 
-			var entityWorldsRepository = DefaultECSEntitiesFactory.BuildDefaultECSEntityWorldsRepository(loggerResolver);
+			var entityWorldsRepository = DefaultECSEntityFactory.BuildDefaultECSEntityWorldsRepository(loggerResolver);
 
 
 			entityWorldsRepository.AddWorld(
 				WorldConstants.REGISTRY_WORLD_ID,
-				DefaultECSEntitiesFactory.BuildDefaultECSRegistryWorldController(
+				DefaultECSEntityFactory.BuildDefaultECSRegistryWorldController(
 					createIDComponentDelegate,
-					DefaultECSEntitiesFactory.BuildDefaultECSPrototypesRepository(),
+					DefaultECSEntityFactory.BuildDefaultECSPrototypesRepository(),
 					loggerResolver));
 
 			entityWorldsRepository.AddWorld(
 				WorldConstants.EVENT_WORLD_ID,
-				DefaultECSEntitiesFactory.BuildDefaultECSEventWorldController(
+				DefaultECSEntityFactory.BuildDefaultECSEventWorldController(
 					loggerResolver));
 
 			entityWorldsRepository.AddWorld(
 				WorldConstants.SIMULATION_WORLD_ID,
-				DefaultECSEntitiesFactory.BuildDefaultECSWorldController
+				DefaultECSEntityFactory.BuildDefaultECSWorldController
 					<TEntityID,
 					TEntityIDComponent,
 					SimulationEntityComponent,
@@ -68,7 +68,7 @@ namespace HereticalSolutions.Entities.Factories
 
 			entityWorldsRepository.AddWorld(
 				WorldConstants.VIEW_WORLD_ID,
-				DefaultECSEntitiesFactory.BuildDefaultECSWorldController
+				DefaultECSEntityFactory.BuildDefaultECSWorldController
 					<TEntityID,
 					TEntityIDComponent,
 					ViewEntityComponent,
@@ -94,7 +94,7 @@ namespace HereticalSolutions.Entities.Factories
 
 			entityWorldsRepository.AddWorld(
 				NetworkWorldConstants.NETWORKING_SERVER_DATA_WORLD_ID,
-				DefaultECSEntitiesFactory.BuildDefaultECSWorldController
+				DefaultECSEntityFactory.BuildDefaultECSWorldController
 					<TEntityID,
 					TEntityIDComponent,
 					ServerDataEntityComponent,
@@ -120,7 +120,7 @@ namespace HereticalSolutions.Entities.Factories
 
 			entityWorldsRepository.AddWorld(
 				NetworkWorldConstants.NETWORKING_PREDICTION_WORLD_ID,
-				DefaultECSEntitiesFactory.BuildDefaultECSWorldController
+				DefaultECSEntityFactory.BuildDefaultECSWorldController
 					<TEntityID,
 					TEntityIDComponent,
 					PredictionEntityComponent,
@@ -163,10 +163,10 @@ namespace HereticalSolutions.Entities.Factories
 				logger);
 		}
 
-		public static NetworkEventEntityBuilder BuildEventEntityBuilder(
+		public static NetworkEventEntityBuilder<TEntityID> BuildEventEntityBuilder<TEntityID>(
 			World world)
 		{
-			return new NetworkEventEntityBuilder(world);
+			return new NetworkEventEntityBuilder<TEntityID>(world);
 		}
 
 		/*
@@ -179,18 +179,18 @@ namespace HereticalSolutions.Entities.Factories
 			IEntityManager<World, TEntityID, Entity> entityManager,
 			ILoggerResolver loggerResolver = null)
 		{
-			DefaultECSEntitiesFactory.BuildComponentTypesListWithAttribute<NetworkComponentAttribute>(
+			DefaultECSEntityFactory.BuildComponentTypesListWithAttribute<NetworkComponentAttribute>(
 				out var componentTypes,
 				out var hashToType,
 				out var typeToHash);
 
 			var readComponentMethodInfo =
-				typeof(DefaultECSEntitiesFactory).GetMethod(
+				typeof(DefaultECSEntityFactory).GetMethod(
 					"ReadComponent",
 					BindingFlags.Static | BindingFlags.Public);
 
 			var writeComponentMethodInfo =
-				typeof(DefaultECSEntitiesFactory).GetMethod(
+				typeof(DefaultECSEntityFactory).GetMethod(
 					"WriteComponent",
 					BindingFlags.Static | BindingFlags.Public);
 
@@ -202,10 +202,10 @@ namespace HereticalSolutions.Entities.Factories
 				entityManager,
 				hashToType,
 				typeToHash,
-				DefaultECSEntitiesFactory.BuildComponentReaders(
+				DefaultECSEntityFactory.BuildComponentReaders(
 					readComponentMethodInfo,
 					componentTypes),
-				DefaultECSEntitiesFactory.BuildComponentWriters(
+				DefaultECSEntityFactory.BuildComponentWriters(
 					writeComponentMethodInfo,
 					componentTypes),
 				logger);
@@ -215,18 +215,18 @@ namespace HereticalSolutions.Entities.Factories
 			IEntityManager<World, Entity> entityManager,
 			ILoggerResolver loggerResolver = null)
 		{
-			DefaultECSEntitiesFactory.BuildComponentTypesListWithAttribute<NetworkComponentAttribute>(
+			DefaultECSEntityFactory.BuildComponentTypesListWithAttribute<NetworkComponentAttribute>(
 				out var componentTypes,
 				out var hashToType,
 				out var typeToHash);
 
 			var readComponentMethodInfo =
-				typeof(DefaultECSEntitiesFactory).GetMethod(
+				typeof(DefaultECSEntityFactory).GetMethod(
 					"ReadComponent",
 					BindingFlags.Static | BindingFlags.Public);
 
 			var writeComponentMethodInfo =
-				typeof(DefaultECSEntitiesFactory).GetMethod(
+				typeof(DefaultECSEntityFactory).GetMethod(
 					"WriteComponent",
 					BindingFlags.Static | BindingFlags.Public);
 
@@ -238,10 +238,10 @@ namespace HereticalSolutions.Entities.Factories
 				entityManager,
 				hashToType,
 				typeToHash,
-				DefaultECSEntitiesFactory.BuildComponentReaders(
+				DefaultECSEntityFactory.BuildComponentReaders(
 					readComponentMethodInfo,
 					componentTypes),
-				DefaultECSEntitiesFactory.BuildComponentWriters(
+				DefaultECSEntityFactory.BuildComponentWriters(
 					writeComponentMethodInfo,
 					componentTypes),
 				new ECSWorldMemento(
@@ -256,38 +256,38 @@ namespace HereticalSolutions.Entities.Factories
 		}
 		*/
 
-		public static ECSEventWorldVisitor BuildECSEventWorldVisitor(
-			IEventEntityBuilder<Entity> eventEntityBuilder,
+		public static ECSEventWorldVisitor<TEntityID> BuildECSEventWorldVisitor<TEntityID>(
+			IEventEntityBuilder<Entity, TEntityID> eventEntityBuilder,
 			bool host,
 			ILoggerResolver loggerResolver = null)
 		{
-			DefaultECSEntitiesFactory.BuildComponentTypesListWithAttribute<NetworkEventComponentAttribute>(
+			DefaultECSEntityFactory.BuildComponentTypesListWithAttribute<NetworkEventComponentAttribute>(
 				out var componentTypes,
 				out var hashToType,
 				out var typeToHash);
 
 			var readComponentMethodInfo =
-				typeof(DefaultECSEntitiesFactory).GetMethod(
+				typeof(DefaultECSEntityFactory).GetMethod(
 					"ReadComponent",
 					BindingFlags.Static | BindingFlags.Public);
 
 			var writeComponentMethodInfo =
-				typeof(DefaultECSEntitiesFactory).GetMethod(
+				typeof(DefaultECSEntityFactory).GetMethod(
 					"WriteComponent",
 					BindingFlags.Static | BindingFlags.Public);
 
 			ILogger logger =
-				loggerResolver?.GetLogger<ECSEventWorldVisitor>()
+				loggerResolver?.GetLogger<ECSEventWorldVisitor<TEntityID>>()
 				?? null;
 
-			return new ECSEventWorldVisitor(
+			return new ECSEventWorldVisitor<TEntityID>(
 				eventEntityBuilder,
 				hashToType,
 				typeToHash,
-				DefaultECSEntitiesFactory.BuildComponentReaders(
+				DefaultECSEntityFactory.BuildComponentReaders(
 					readComponentMethodInfo,
 					componentTypes),
-				DefaultECSEntitiesFactory.BuildComponentWriters(
+				DefaultECSEntityFactory.BuildComponentWriters(
 					writeComponentMethodInfo,
 					componentTypes),
 				host,

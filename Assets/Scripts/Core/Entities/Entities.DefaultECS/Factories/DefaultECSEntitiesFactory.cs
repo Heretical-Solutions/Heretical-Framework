@@ -3,35 +3,19 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-using HereticalSolutions.Logging;
-
 using HereticalSolutions.Repositories;
 using HereticalSolutions.Repositories.Factories;
 
+using HereticalSolutions.Logging;
+
 using DefaultEcs;
-
-using IEntityWorldsRepository =
-    HereticalSolutions
-    .Entities
-    .IEntityWorldsRepository<
-        DefaultEcs.World,
-        DefaultEcs.System.ISystem<DefaultEcs.Entity>,
-        DefaultEcs.Entity>;
-
-using IWorldController =
-    HereticalSolutions
-    .Entities
-    .IWorldController<
-        DefaultEcs.World,
-        DefaultEcs.System.ISystem<DefaultEcs.Entity>,
-        DefaultEcs.Entity>;
 
 namespace HereticalSolutions.Entities.Factories
 {
     /// <summary>
     /// Class containing methods to build entities and their components.
     /// </summary>
-    public static partial class DefaultECSEntitiesFactory
+    public static partial class DefaultECSEntityFactory
     {
         /*
         public delegate void ComponentReaderDelegate<TComponent>(
@@ -237,12 +221,12 @@ namespace HereticalSolutions.Entities.Factories
 
         #region Entity worlds repository
 
-        public static IEntityWorldsRepository BuildDefaultECSEntityWorldsRepository(
+        public static IDefaultECSEntityWorldsRepository BuildDefaultECSEntityWorldsRepository(
             ILoggerResolver loggerResolver = null)
         {
             var worldsRepository = RepositoriesFactory.BuildDictionaryRepository<string, World>();
 
-            var worldControllersRepository = RepositoriesFactory.BuildDictionaryRepository<World, IWorldController>();
+            var worldControllersRepository = RepositoriesFactory.BuildDictionaryRepository<World, IDefaultECSEntityWorldController>();
 
             ILogger logger =
                 loggerResolver?.GetLogger<DefaultECSEntityWorldsRepository>()
@@ -258,10 +242,10 @@ namespace HereticalSolutions.Entities.Factories
 
         #region Event entity builder
 
-        public static DefaultECSEventEntityBuilder BuildDefaultECSEventEntityBuilder(
+        public static DefaultECSEventEntityBuilder<TEntityID> BuildDefaultECSEventEntityBuilder<TEntityID>(
             World world)
         {
-            return new DefaultECSEventEntityBuilder(world);
+            return new DefaultECSEventEntityBuilder<TEntityID>(world);
         }
 
         #endregion

@@ -1,8 +1,5 @@
 using System;
-using System.Linq; //error CS1061: 'IEnumerable<Guid>' does not contain a definition for 'Count'
 using System.Collections.Generic;
-
-using HereticalSolutions.Allocations.Factories;
 
 using HereticalSolutions.Repositories;
 
@@ -12,19 +9,17 @@ using World = DefaultEcs.World;
 
 using Entity = DefaultEcs.Entity;
 
-using DefaultEcs.System;
-
 namespace HereticalSolutions.Entities
 {
     public class DefaultECSEntityManager<TEntityID>
         : IEntityManager<World, TEntityID, Entity>,
-          IContainsEntityWorlds<World, ISystem<Entity>, Entity>
+          IContainsEntityWorlds<World, IDefaultECSEntityWorldController>
     {
         private readonly Func<TEntityID> allocateIDDelegate;
 
         private readonly IRepository<TEntityID, Entity> registryEntitiesRepository;
 
-        private readonly IReadOnlyEntityWorldsRepository<World, ISystem<Entity>, Entity> entityWorldsRepository;
+        private readonly IReadOnlyEntityWorldsRepository<World, IDefaultECSEntityWorldController> entityWorldsRepository;
 
         //TODO: ensure that it's what this class needs
         private readonly IReadOnlyList<World> childEntityWorlds;
@@ -34,7 +29,7 @@ namespace HereticalSolutions.Entities
         public DefaultECSEntityManager(
             Func<TEntityID> allocateIDDelegate,
             IRepository<TEntityID, Entity> registryEntitiesRepository,
-            IReadOnlyEntityWorldsRepository<World, ISystem<Entity>, Entity> entityWorldsRepository,
+            IReadOnlyEntityWorldsRepository<World, IDefaultECSEntityWorldController> entityWorldsRepository,
             IReadOnlyList<World> childEntityWorlds,
             ILogger logger = null)
         {
@@ -171,16 +166,16 @@ namespace HereticalSolutions.Entities
             string prototypeID,
             EEntityAuthoringPresets authoringPreset = EEntityAuthoringPresets.DEFAULT)
         {
-            var newGUID = AllocateID();
+            var newID = AllocateID();
 
             if (!SpawnAndResolveEntityInAllRelevantWorlds(
-                newGUID,
+                newID,
                 prototypeID,
                 source,
                 authoringPreset))
                 return default(TEntityID);
 
-            return newGUID;
+            return newID;
         }
 
         public bool ResolveEntity(
@@ -291,7 +286,7 @@ namespace HereticalSolutions.Entities
 
         #region IContainsEntityWorlds
 
-        public IReadOnlyEntityWorldsRepository<World, ISystem<Entity>, Entity> EntityWorldsRepository { get => entityWorldsRepository; }
+        public IReadOnlyEntityWorldsRepository<World, IDefaultECSEntityWorldController> EntityWorldsRepository { get => entityWorldsRepository; }
 
         #endregion
 

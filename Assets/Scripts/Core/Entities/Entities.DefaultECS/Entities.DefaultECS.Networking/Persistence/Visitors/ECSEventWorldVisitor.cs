@@ -11,10 +11,10 @@ using DefaultEcs;
 
 namespace HereticalSolutions.Entities
 {
-    public class ECSEventWorldVisitor :
+    public class ECSEventWorldVisitor<TEntityID> :
         ASaveLoadVisitor<World, ECSEventsBufferDTO>
     {
-        private readonly IEventEntityBuilder<Entity> eventEntityBuilder;
+        private readonly IEventEntityBuilder<Entity, TEntityID> eventEntityBuilder;
 
         private readonly IReadOnlyRepository<int, Type> hashToType;
         
@@ -36,7 +36,7 @@ namespace HereticalSolutions.Entities
         
 
         public ECSEventWorldVisitor(
-            IEventEntityBuilder<Entity> eventEntityBuilder,
+            IEventEntityBuilder<Entity, TEntityID> eventEntityBuilder,
             IReadOnlyRepository<int, Type> hashToType,
             IReadOnlyRepository<Type, int> typeToHash,
             ReadComponentToDTOsListDelegate[] componentReaders,
