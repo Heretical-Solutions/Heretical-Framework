@@ -552,7 +552,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'This is a monobehaviour character controller scene
+  m_text: 'This is an ECS character controller scene
 
 
     Expected behaviour:
@@ -753,7 +753,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'This is a monobehaviour character controller scene
+  m_text: 'This is an ECS character controller scene
 
 
     Expected behaviour:
