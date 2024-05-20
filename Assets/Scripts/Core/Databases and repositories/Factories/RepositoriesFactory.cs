@@ -105,6 +105,35 @@ namespace HereticalSolutions.Repositories.Factories
 
         #endregion
 
+        #region Dictionary one to one map
+
+        public static DictionaryOneToOneMap<TValue1, TValue2> BuildDictionaryOneToOneMap<TValue1, TValue2>()
+        {
+            return new DictionaryOneToOneMap<TValue1, TValue2>(
+                new Dictionary<TValue1, TValue2>(),
+                new Dictionary<TValue2, TValue1>());
+        }
+        
+        public static DictionaryOneToOneMap<TValue1, TValue2> BuildDictionaryOneToOneMap<TValue1, TValue2>(
+            Dictionary<TValue1, TValue2> leftDatabase,
+            Dictionary<TValue2, TValue1> rightDatabase)
+        {
+            return new DictionaryOneToOneMap<TValue1, TValue2>(
+                leftDatabase,
+                rightDatabase);
+        }
+        
+        public static DictionaryOneToOneMap<TValue1, TValue2> BuildDictionaryOneToOneMap<TValue1, TValue2>(
+            IEqualityComparer<TValue1> leftComparer,
+            IEqualityComparer<TValue2> rightComparer)
+        {
+            return new DictionaryOneToOneMap<TValue1, TValue2>(
+                new Dictionary<TValue1, TValue2>(leftComparer),
+                new Dictionary<TValue2, TValue1>(rightComparer));
+        }
+
+        #endregion
+        
         #region Concurrent dictionary object repository
 
         public static ConcurrentDictionaryObjectRepository BuildConcurrentDictionaryObjectRepository()

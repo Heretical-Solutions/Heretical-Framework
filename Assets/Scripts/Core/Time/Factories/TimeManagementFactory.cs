@@ -1,3 +1,5 @@
+using HereticalSolutions.Pools;
+
 using HereticalSolutions.Repositories.Factories;
 
 using HereticalSolutions.Synchronization;
@@ -38,5 +40,20 @@ namespace HereticalSolutions.Time.Factories
                 applicationActiveTimer,
                 applicationPersistentTimer);
         }
+
+        public static TimerManager BuildTimerManager(
+            string managerID,
+            ISynchronizationProvider provider,
+            bool renameTimersOnPop = true,
+            ILoggerResolver loggerResolver = null)
+        {
+            return new TimerManager(
+                managerID,
+                RepositoriesFactory.BuildDictionaryRepository<int, IPoolElement<TimerWithSubscriptionsContainer>>(),
+                TimerPoolFactory.BuildRuntimeTimersPool(
+                    provider,
+                    loggerResolver),
+                renameTimersOnPop);
+        }        
     }
 }

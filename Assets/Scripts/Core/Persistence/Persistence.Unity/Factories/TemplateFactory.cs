@@ -6,44 +6,59 @@ using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Repositories;
 using HereticalSolutions.Repositories.Factories;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Persistence.Factories
 {
     public static class UnityPersistenceFactory
     {
-        public static BinarySerializer BuildSimpleUnityBinarySerializer()
+        public static BinarySerializer BuildSimpleUnityBinarySerializer(
+            ILoggerResolver loggerResolver = null)
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
-            database.Add(typeof(StreamArgument), new SerializeBinaryIntoStreamStrategy());
+            database.Add(typeof(StreamArgument), new SerializeBinaryIntoStreamStrategy(
+                loggerResolver?.GetLogger<SerializeBinaryIntoStreamStrategy>()));
             
             database.Add(typeof(UnityStreamArgument), new UnitySerializeBinaryIntoStreamStrategy());
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
             
-            return new BinarySerializer(strategyRepository);
+            return new BinarySerializer(
+                strategyRepository,
+                loggerResolver?.GetLogger<BinarySerializer>());
         }
         
-        public static ProtobufSerializer BuildSimpleUnityProtobufSerializer()
+        public static ProtobufSerializer BuildSimpleUnityProtobufSerializer(
+            ILoggerResolver loggerResolver = null)
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
-            database.Add(typeof(StreamArgument), new SerializeProtobufIntoStreamStrategy());
+            database.Add(typeof(StreamArgument), new SerializeProtobufIntoStreamStrategy(
+                loggerResolver?.GetLogger<SerializeProtobufIntoStreamStrategy>()));
             
             database.Add(typeof(UnityStreamArgument), new UnitySerializeProtobufIntoStreamStrategy());
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
             
-            return new ProtobufSerializer(strategyRepository);
+            return new ProtobufSerializer(
+                strategyRepository,
+                loggerResolver?.GetLogger<ProtobufSerializer>());
         }
         
-        public static JSONSerializer BuildSimpleUnityJSONSerializer()
+        public static JSONSerializer BuildSimpleUnityJSONSerializer(
+            ILoggerResolver loggerResolver = null)
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
-            database.Add(typeof(StringArgument), new SerializeJsonIntoStringStrategy());
+            database.Add(typeof(StringArgument), new SerializeJsonIntoStringStrategy(
+                loggerResolver?.GetLogger<SerializeJsonIntoStringStrategy>()));
             
-            database.Add(typeof(StreamArgument), new SerializeJsonIntoStreamStrategy());
-            database.Add(typeof(TextFileArgument), new SerializeJsonIntoTextFileStrategy());
+            database.Add(typeof(StreamArgument), new SerializeJsonIntoStreamStrategy(
+                loggerResolver?.GetLogger<SerializeJsonIntoStreamStrategy>()));
+
+            database.Add(typeof(TextFileArgument), new SerializeJsonIntoTextFileStrategy(
+                loggerResolver?.GetLogger<SerializeJsonIntoTextFileStrategy>()));
             
             database.Add(typeof(UnityStreamArgument), new UnitySerializeJsonIntoStreamStrategy());
             database.Add(typeof(UnityTextFileArgument), new UnitySerializeJsonIntoTextFileStrategy());
@@ -52,17 +67,24 @@ namespace HereticalSolutions.Persistence.Factories
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
             
-            return new JSONSerializer(strategyRepository);
+            return new JSONSerializer(
+                strategyRepository,
+                loggerResolver?.GetLogger<JSONSerializer>());
         }
 
-        public static XMLSerializer BuildSimpleUnityXMLSerializer()
+        public static XMLSerializer BuildSimpleUnityXMLSerializer(
+            ILoggerResolver loggerResolver = null)
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
-            database.Add(typeof(StringArgument), new SerializeXmlIntoStringStrategy());
+            database.Add(typeof(StringArgument), new SerializeXmlIntoStringStrategy(
+                loggerResolver?.GetLogger<SerializeXmlIntoStringStrategy>()));
             
-            database.Add(typeof(StreamArgument), new SerializeXmlIntoStreamStrategy());
-            database.Add(typeof(TextFileArgument), new SerializeXmlIntoTextFileStrategy());
+            database.Add(typeof(StreamArgument), new SerializeXmlIntoStreamStrategy(
+                loggerResolver?.GetLogger<SerializeXmlIntoStreamStrategy>()));
+
+            database.Add(typeof(TextFileArgument), new SerializeXmlIntoTextFileStrategy(
+                loggerResolver?.GetLogger<SerializeXmlIntoTextFileStrategy>()));
             
             database.Add(typeof(UnityStreamArgument), new UnitySerializeXmlIntoStreamStrategy());
             database.Add(typeof(UnityTextFileArgument), new UnitySerializeXmlIntoTextFileStrategy());
@@ -71,17 +93,24 @@ namespace HereticalSolutions.Persistence.Factories
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
             
-            return new XMLSerializer(strategyRepository);
+            return new XMLSerializer(
+                strategyRepository,
+                loggerResolver?.GetLogger<XMLSerializer>());
         }
         
-        public static YAMLSerializer BuildSimpleUnityYAMLSerializer()
+        public static YAMLSerializer BuildSimpleUnityYAMLSerializer(
+            ILoggerResolver loggerResolver = null)
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
-            database.Add(typeof(StringArgument), new SerializeYamlIntoStringStrategy());
+            database.Add(typeof(StringArgument), new SerializeYamlIntoStringStrategy(
+                loggerResolver?.GetLogger<SerializeYamlIntoStringStrategy>()));
             
-            database.Add(typeof(StreamArgument), new SerializeYamlIntoStreamStrategy());
-            database.Add(typeof(TextFileArgument), new SerializeYamlIntoTextFileStrategy());
+            database.Add(typeof(StreamArgument), new SerializeYamlIntoStreamStrategy(
+                loggerResolver?.GetLogger<SerializeYamlIntoStreamStrategy>()));
+
+            database.Add(typeof(TextFileArgument), new SerializeYamlIntoTextFileStrategy(
+                loggerResolver?.GetLogger<SerializeYamlIntoTextFileStrategy>()));
             
             database.Add(typeof(UnityStreamArgument), new UnitySerializeYamlIntoStreamStrategy());
             database.Add(typeof(UnityTextFileArgument), new UnitySerializeYamlIntoTextFileStrategy());
@@ -90,17 +119,24 @@ namespace HereticalSolutions.Persistence.Factories
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
             
-            return new YAMLSerializer(strategyRepository);
+            return new YAMLSerializer(
+                strategyRepository,
+                loggerResolver?.GetLogger<YAMLSerializer>());
         }
         
-        public static CSVSerializer BuildSimpleUnityCSVSerializer()
+        public static CSVSerializer BuildSimpleUnityCSVSerializer(
+            ILoggerResolver loggerResolver = null)
         {
             IRepository<Type, object> database = RepositoriesFactory.BuildDictionaryRepository<Type, object>();
             
-            database.Add(typeof(StringArgument), new SerializeCsvIntoStringStrategy());
+            database.Add(typeof(StringArgument), new SerializeCsvIntoStringStrategy(
+                loggerResolver?.GetLogger<SerializeCsvIntoStringStrategy>()));
             
-            database.Add(typeof(StreamArgument), new SerializeCsvIntoStreamStrategy());
-            database.Add(typeof(TextFileArgument), new SerializeCsvIntoTextFileStrategy());
+            database.Add(typeof(StreamArgument), new SerializeCsvIntoStreamStrategy(
+                loggerResolver?.GetLogger<SerializeCsvIntoStreamStrategy>()));
+
+            database.Add(typeof(TextFileArgument), new SerializeCsvIntoTextFileStrategy(
+                loggerResolver?.GetLogger<SerializeCsvIntoTextFileStrategy>()));
             
             database.Add(typeof(UnityStreamArgument), new UnitySerializeCsvIntoStreamStrategy());
             database.Add(typeof(UnityTextFileArgument), new UnitySerializeCsvIntoTextFileStrategy());
@@ -109,7 +145,9 @@ namespace HereticalSolutions.Persistence.Factories
             
             IReadOnlyObjectRepository strategyRepository = RepositoriesFactory.BuildDictionaryObjectRepository(database);
             
-            return new CSVSerializer(strategyRepository);
+            return new CSVSerializer(
+                strategyRepository,
+                loggerResolver?.GetLogger<CSVSerializer>());
         }
     }
 }

@@ -3,7 +3,8 @@ using DefaultEcs.System;
 
 namespace HereticalSolutions.Entities
 {
-    public class DisposeProcessedEventsSystem : AEntitySetSystem<float>
+    public class DisposeProcessedEventsSystem<TDelta>
+        : AEntitySetSystem<TDelta>
     {
         public DisposeProcessedEventsSystem(World eventWorld)
             : base(
@@ -14,7 +15,7 @@ namespace HereticalSolutions.Entities
         {
         }
 
-        protected override void Update(float deltaTime, in Entity entity)
+        protected override void Update(TDelta delta, in Entity entity)
         {
             entity.Set<DespawnComponent>();
         }

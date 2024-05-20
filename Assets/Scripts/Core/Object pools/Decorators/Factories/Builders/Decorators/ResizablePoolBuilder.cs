@@ -17,6 +17,8 @@ namespace HereticalSolutions.Pools.Factories
 
         private Func<T> valueAllocationDelegate;
 
+        private bool topUpIfElementValueIsNull;
+
         private Func<MetadataAllocationDescriptor>[] metadataDescriptorBuilders;
 
         private AllocationCommandDescriptor initialAllocation;
@@ -36,12 +38,18 @@ namespace HereticalSolutions.Pools.Factories
 
         public void Initialize(
             Func<T> valueAllocationDelegate,
+            bool topUpIfElementValueIsNull,
+
             Func<MetadataAllocationDescriptor>[] metadataDescriptorBuilders,
+            
             AllocationCommandDescriptor initialAllocation,
             AllocationCommandDescriptor additionalAllocation,
+
             IAllocationCallback<T>[] callbacks)
         {
             this.valueAllocationDelegate = valueAllocationDelegate;
+
+            this.topUpIfElementValueIsNull = topUpIfElementValueIsNull;
 
             this.metadataDescriptorBuilders = metadataDescriptorBuilders;
 
@@ -94,23 +102,33 @@ namespace HereticalSolutions.Pools.Factories
             {
                 result = PoolsFactory.BuildResizableNonAllocPool(
                     valueAllocationDelegate,
+                    topUpIfElementValueIsNull,
+
                     metadataDescriptors,
+
                     initialAllocation,
                     additionalAllocation,
+
                     loggerResolver);
             }
             else
             {
                 result = PoolsFactory.BuildResizableNonAllocPoolWithAllocationCallback(
                     valueAllocationDelegate,
+                    topUpIfElementValueIsNull,
+
                     metadataDescriptors,
+
                     initialAllocation,
                     additionalAllocation,
+
                     callback,
+
                     loggerResolver);
             }
 
             valueAllocationDelegate = null;
+            topUpIfElementValueIsNull = false;
             metadataDescriptorBuilders = null;
             initialAllocation = default(AllocationCommandDescriptor);
             additionalAllocation = default(AllocationCommandDescriptor);
@@ -161,23 +179,34 @@ namespace HereticalSolutions.Pools.Factories
             {
                 result = PoolsFactory.BuildSupplyAndMergePool(
                     valueAllocationDelegate,
+                    topUpIfElementValueIsNull,
+
                     metadataDescriptors,
+
                     initialAllocation,
                     additionalAllocation,
+
                     loggerResolver);
             }
             else
             {
                 result = PoolsFactory.BuildSupplyAndMergePoolWithAllocationCallback(
                     valueAllocationDelegate,
+                    topUpIfElementValueIsNull,
+
                     metadataDescriptors,
+
                     initialAllocation,
                     additionalAllocation,
+
                     callback,
+                    
                     loggerResolver);
             }
 
             valueAllocationDelegate = null;
+
+            topUpIfElementValueIsNull = false;
 
             metadataDescriptorBuilders = null;
 

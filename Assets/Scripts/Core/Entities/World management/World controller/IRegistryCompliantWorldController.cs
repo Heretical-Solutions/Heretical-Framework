@@ -9,9 +9,20 @@ namespace HereticalSolutions.Entities
 		bool TrySpawnEntityFromRegistry(
 			TEntity registryEntity,
 			out TEntity localEntity);
+		
+		bool TrySpawnEntityFromRegistry(
+			TEntity registryEntity,
+			TEntity overrideEntity,
+			out TEntity localEntity);
 
 		bool TrySpawnAndResolveEntityFromRegistry(
 			TEntity registryEntity,
+			object source,
+			out TEntity localEntity);
+		
+		bool TrySpawnAndResolveEntityFromRegistry(
+			TEntity registryEntity,
+			TEntity overrideEntity,
 			object source,
 			out TEntity localEntity);
 

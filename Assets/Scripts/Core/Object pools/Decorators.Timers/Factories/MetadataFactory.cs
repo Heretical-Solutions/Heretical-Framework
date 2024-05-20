@@ -1,5 +1,7 @@
 using HereticalSolutions.Metadata.Allocations;
 
+using HereticalSolutions.Time;
+
 namespace HereticalSolutions.Pools.Factories
 {
     /// <summary>
@@ -9,25 +11,17 @@ namespace HereticalSolutions.Pools.Factories
     {
         #region Metadata
 
-        /// <summary>
-        /// Builds a new instance of <see cref="RuntimeTimerMetadata"/>.
-        /// </summary>
-        /// <returns>A new instance of <see cref="RuntimeTimerMetadata"/>.</returns>
-        public static RuntimeTimerMetadata BuildRuntimeTimerMetadata()
+        public static RuntimeTimerWithPushSubscriptionMetadata BuildRuntimeTimerWithPushSubscriptionMetadata()
         {
-            return new RuntimeTimerMetadata();
+            return new RuntimeTimerWithPushSubscriptionMetadata();
         }
 
-        /// <summary>
-        /// Builds a new instance of <see cref="MetadataAllocationDescriptor"/> for <see cref="IContainsRuntimeTimer"/>.
-        /// </summary>
-        /// <returns>A new instance of <see cref="MetadataAllocationDescriptor"/>.</returns>
-        public static MetadataAllocationDescriptor BuildRuntimeTimerMetadataDescriptor()
+        public static MetadataAllocationDescriptor BuildRuntimeTimerWithPushSubscriptionMetadataDescriptor()
         {
             return new MetadataAllocationDescriptor
             {
                 BindingType = typeof(IContainsRuntimeTimer),
-                ConcreteType = typeof(RuntimeTimerMetadata)
+                ConcreteType = typeof(RuntimeTimerWithPushSubscriptionMetadata)
             };
         }
 

@@ -222,7 +222,7 @@ namespace HereticalSolutions.Quests.Factories
 
                     foreach (var tracker in activeQuest.QuestProgressTracker.AllActiveObjectives)
                     {
-#if UNITY_EDITOR //TODO: remove
+#if (UNITY_STANDALONE || UNITY_IOS || UNITY_IPHONE || UNITY_ANDROID || UNITY_SERVER || UNITY_WEBGL || UNITY_EDITOR) //TODO: remove
                         int desiredValueClosure = tracker.Objective.Descriptor.ExpectedValue;
 
                         string trackerIDClosure = tracker.Objective.Descriptor.ObjectiveID;

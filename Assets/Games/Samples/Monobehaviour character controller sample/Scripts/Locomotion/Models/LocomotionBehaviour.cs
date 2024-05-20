@@ -28,10 +28,7 @@ namespace HereticalSolutions.Samples.MonobehaviourCharacterControllerSample.Mode
 
             Vector2 locomotionVector = LocomotionVectorNormalized * (locomotionSpeed * UnityEngine.Time.fixedDeltaTime);
 
-            locomotionTransform.position += new Vector3(
-                locomotionVector.x,
-                0f,
-                locomotionVector.y);
+            locomotionTransform.position += MathHelpersUnity.Vector2XZTo3(locomotionVector);
         }
     }
 }

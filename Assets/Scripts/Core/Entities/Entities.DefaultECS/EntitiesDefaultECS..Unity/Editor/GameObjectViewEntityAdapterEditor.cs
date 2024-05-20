@@ -15,6 +15,8 @@ namespace HereticalSolutions.Entities.Editor
 	{
 		private IEntityIDEditorHelper[] entityIDEditorHelpers;
 
+		private IEntityIDEditorHelper effectiveEntityIDEditorHelper;
+
 		private object entityManager;
 
 		private IContainsEntityWorlds<World, IDefaultECSEntityWorldController> entityWorldsRepository;
@@ -43,6 +45,8 @@ namespace HereticalSolutions.Entities.Editor
 				{
 					if (helper.TryGetEntityManager(out entityManager))
 					{
+						effectiveEntityIDEditorHelper = helper;
+						
 						entityWorldsRepository = entityManager as IContainsEntityWorlds<World, IDefaultECSEntityWorldController>;
 
 						break;
@@ -51,42 +55,25 @@ namespace HereticalSolutions.Entities.Editor
 			}
 
 			//Still not found
-			if (entityManager == null)
+			if (entityManager == null
+			    || effectiveEntityIDEditorHelper == null)
 			{
 				EditorGUILayout.LabelField($"Could not find entity manager");
 
 				return;
 			}
 
-			object entityIDObject = null;
-
-			foreach (var helper in entityIDEditorHelpers)
-			{
-				if (helper.TryGetEntityID(
-					viewEntityAdapter.ViewEntity,
-					out entityIDObject))
-				{
-					break;
-				}
-			}
-
-			if (entityIDObject != null)
+			if (effectiveEntityIDEditorHelper.TryGetEntityID(
+				viewEntityAdapter.ViewEntity,
+				out object entityIDObject))
 			{
 				//var guid = viewEntityAdapter.ViewEntity.Get<GameEntityComponent>().GUID;
 
 				var registryEntity = default(Entity);
 
-				foreach (var helper in entityIDEditorHelpers)
-				{
-					registryEntity = helper.GetRegistryEntity(
-						entityManager,
-						entityIDObject);
-
-					if (registryEntity != default)
-					{
-						break;
-					}
-				}
+				registryEntity = effectiveEntityIDEditorHelper.GetRegistryEntity(
+					entityManager,
+					entityIDObject);
 
 				if (registryEntity == default)
 				{
@@ -105,18 +92,10 @@ namespace HereticalSolutions.Entities.Editor
 				{
 					var localEntity = default(Entity);
 
-					foreach (var helper in entityIDEditorHelpers)
-					{
-						localEntity = helper.GetEntity(
-							entityManager,
-							entityIDObject,
-							worldID);
-
-						if (localEntity != default)
-						{
-							break;
-						}
-					}
+					localEntity = effectiveEntityIDEditorHelper.GetEntity(
+						entityManager,
+						entityIDObject,
+						worldID);
 
 					if (localEntity == default)
 					{

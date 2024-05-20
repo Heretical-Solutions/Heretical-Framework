@@ -3,6 +3,7 @@ using HereticalSolutions.Pools.Decorators;
 using HereticalSolutions.Synchronization;
 
 using HereticalSolutions.Logging;
+using HereticalSolutions.Time;
 
 namespace HereticalSolutions.Pools.Factories
 {
@@ -10,15 +11,13 @@ namespace HereticalSolutions.Pools.Factories
     {
         #region Decorator pools
 
-        // No XML comments for this region.
-
         #endregion
 
         #region Non alloc decorator pools
 
         public static NonAllocPoolWithRuntimeTimer<T> BuildNonAllocPoolWithRuntimeTimer<T>(
             INonAllocDecoratedPool<T> innerPool,
-            ISynchronizationProvider synchronizationProvider,
+            ITimerManager timerManager,
             ILoggerResolver loggerResolver = null)
         {
             ILogger logger =
@@ -27,7 +26,7 @@ namespace HereticalSolutions.Pools.Factories
 
             return new NonAllocPoolWithRuntimeTimer<T>(
                 innerPool,
-                synchronizationProvider,
+                timerManager,
                 logger);
         }
         

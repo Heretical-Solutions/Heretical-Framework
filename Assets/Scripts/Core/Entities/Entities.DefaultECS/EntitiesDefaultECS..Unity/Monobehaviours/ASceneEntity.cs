@@ -9,7 +9,7 @@ namespace HereticalSolutions.Entities
 		[SerializeField]
 		private string prototypeID;
 
-		public List<ASceneEntity> childEntities;
+		public List<ChildEntityDescriptor> ChildEntities;
 
 		public string PrototypeID
 		{

@@ -2,6 +2,7 @@ using System;
 
 using HereticalSolutions.MVVM.View;
 
+using HereticalSolutions.Logging;
 using ILogger = HereticalSolutions.Logging.ILogger;
 
 using UnityEngine;
@@ -37,7 +38,7 @@ namespace HereticalSolutions.MVVM.UIToolkit
                 propertyID,
                 out colorProperty))
                 throw new Exception(
-                    logger.FormatException(
+                    logger.TryFormat<BackgroundColorView>(
                         $"Could not obtain property \"{propertyID}\" from ViewModel \"{viewModel.GetType()}\""));
             
             colorProperty.OnValueChanged += OnColorChanged;

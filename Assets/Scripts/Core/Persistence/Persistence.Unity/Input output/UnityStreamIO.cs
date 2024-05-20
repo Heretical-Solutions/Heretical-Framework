@@ -2,22 +2,33 @@ using System;
 using System.IO;
 using System.Text;
 
+using UnityEngine;
+
 namespace HereticalSolutions.Persistence.IO
 {
     public static class UnityStreamIO
     {
         public static bool  OpenReadStream(
             UnityPersistentFilePathSettings settings,
-            out FileStream dataStream)
+            out Stream dataStream)
         {
-            string savePath = settings.FullPath;
+            if (!settings.LoadFromResourcesFolder)
+            {
+                string savePath = settings.FullPath;
 
-            dataStream = default(FileStream);
+                dataStream = default(FileStream);
 
-            if (!FileExists(settings.FullPath))
-                return false;
+                if (!FileExists(settings.FullPath))
+                    return false;
 
-            dataStream = new FileStream(savePath, FileMode.Open);
+                dataStream = new FileStream(savePath, FileMode.Open);
+            }
+            else
+            {
+                TextAsset asset = Resources.Load<TextAsset>(settings.ResourcePath);
+
+                dataStream = new MemoryStream(asset.bytes);
+            }
 
             return true;
         }
@@ -40,13 +51,22 @@ namespace HereticalSolutions.Persistence.IO
         
         public static bool OpenWriteStream(
             UnityPersistentFilePathSettings settings,
-            out FileStream dataStream)
+            out Stream dataStream)
         {
             string savePath = settings.FullPath;
 
             EnsureDirectoryExists(savePath);
-            
+
             dataStream = new FileStream(savePath, FileMode.Create);
+            
+            /*
+            else
+            {
+                TextAsset asset = Resources.Load<TextAsset>(settings.ResourcePath);
+
+                dataStream = new MemoryStream(asset.bytes);
+            }
+            */
 
             return true;
         }
@@ -64,7 +84,7 @@ namespace HereticalSolutions.Persistence.IO
             return true;
         }
         
-        public static void CloseStream(FileStream dataStream)
+        public static void CloseStream(Stream dataStream)
         {
             dataStream.Close();
         }

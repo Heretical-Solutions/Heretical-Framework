@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using HereticalSolutions.Logging;
 using ILogger = HereticalSolutions.Logging.ILogger;
 
 using UnityEngine;
@@ -40,7 +41,7 @@ namespace HereticalSolutions.Blackboard
                 
                 default:
                     throw new Exception(
-                        logger.FormatException(
+                        logger.TryFormat(
                             "INVALID VALUE TYPE"));
             }
 
@@ -63,7 +64,7 @@ namespace HereticalSolutions.Blackboard
                 return (float)value;
 
             throw new Exception(
-                logger.FormatException(
+                logger.TryFormat(
                     $"CANNOT CONVERT VALUE TYPE {valueType} TO float"));
         }
         

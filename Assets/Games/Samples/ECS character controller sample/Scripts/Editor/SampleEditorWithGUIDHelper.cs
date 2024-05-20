@@ -1,7 +1,8 @@
 using System;
+using System.Collections.Generic;
 
 using DefaultEcs;
-
+using HereticalSolutions.Samples.ECSCharacterControllerSample;
 using Zenject;
 
 namespace HereticalSolutions.Entities.Editor
@@ -17,7 +18,7 @@ namespace HereticalSolutions.Entities.Editor
 			{
 				entityManager = sceneContext
 					.Container
-					.Resolve<DefaultECSEntityManager<Guid>>();
+					.TryResolve<SampleEntityManager>();
 
 				if (entityManager != null)
 					return true;
@@ -68,6 +69,16 @@ namespace HereticalSolutions.Entities.Editor
 			return entityManager.GetEntity(
 				entityID,
 				worldID);
+		}
+
+		public IEnumerable<Guid> GetAllRegistryEntityIDs(object entityManagerObject)
+		{
+			var entityManager = entityManagerObject as DefaultECSEntityManager<Guid>;
+
+			if (entityManager == null)
+				return null;
+			
+			return entityManager.AllAllocatedIDs;
 		}
 	}
 }

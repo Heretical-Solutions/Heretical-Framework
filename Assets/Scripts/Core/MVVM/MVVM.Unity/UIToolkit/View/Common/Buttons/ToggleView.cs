@@ -3,6 +3,7 @@ using System;
 using HereticalSolutions.MVVM.View;
 
 using HereticalSolutions.Logging;
+using ILogger = HereticalSolutions.Logging.ILogger;
 
 using UnityEngine.UIElements;
 
@@ -39,7 +40,7 @@ namespace HereticalSolutions.MVVM.UIToolkit
                 propertyID,
                 out boolProperty))
                 throw new Exception(
-                    logger.FormatException(
+                    logger.TryFormat<ToggleView>(
                         $"Could not obtain property \"{propertyID}\" from ViewModel \"{viewModel.GetType()}\""));
 
             boolProperty.OnValueChanged += OnBoolChanged;

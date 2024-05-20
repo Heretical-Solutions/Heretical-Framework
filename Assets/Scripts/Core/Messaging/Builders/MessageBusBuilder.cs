@@ -18,6 +18,8 @@ namespace HereticalSolutions.Messaging.Factories
 {
     public class MessageBusBuilder
     {
+        private const int DEFAULT_MESSAGE_POOL_CAPACITY = 16;
+
         private readonly IObjectRepository messagePoolRepository;
 
         private readonly BroadcasterWithRepositoryBuilder broadcasterBuilder;
@@ -43,7 +45,9 @@ namespace HereticalSolutions.Messaging.Factories
             {
                 Descriptor = new AllocationCommandDescriptor
                 {
-                    Rule = EAllocationAmountRule.ADD_ONE
+                    Rule = EAllocationAmountRule.ADD_PREDEFINED_AMOUNT,
+
+                    Amount = DEFAULT_MESSAGE_POOL_CAPACITY
                 },
                 AllocationDelegate = valueAllocationDelegate
             };

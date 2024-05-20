@@ -5,6 +5,8 @@ using HereticalSolutions.Delegates.Factories;
 using HereticalSolutions.Repositories;
 using HereticalSolutions.Repositories.Factories;
 
+using HereticalSolutions.Synchronization;
+
 using HereticalSolutions.Time.Strategies;
 using HereticalSolutions.Time.Timers;
 
@@ -14,6 +16,8 @@ namespace HereticalSolutions.Time.Factories
 {
     public static partial class TimeFactory
     {
+        
+
         #region Persistent timer
 
         public static PersistentTimer BuildPersistentTimer(
@@ -117,7 +121,58 @@ namespace HereticalSolutions.Time.Factories
 
             return repository;
         }
-        
+
         #endregion
+
+        public static TimerWithSubscriptionsContainer BuildRuntimeTimerWithSubscriptionsContainer(
+            ISynchronizationProvider provider,
+            string id = TimerConsts.ANONYMOUS_TIMER_ID,
+            float duration = 0f,
+            ILoggerResolver loggerResolver = null)
+        {
+            var timer = TimeFactory.BuildRuntimeTimer(
+                id,
+                duration,
+                loggerResolver);
+
+            // Subscribe to the runtime timer's tick event
+            var tickSubscription = DelegatesFactory.BuildSubscriptionSingleArgGeneric<float>(
+                timer.Tick,
+                loggerResolver);
+
+
+            var startTimerSubscription = DelegatesFactory.BuildSubscriptionSingleArgGeneric<IRuntimeTimer>(
+                (timer) =>
+                {
+                    if (!tickSubscription.Active)
+                        provider.Subscribe(tickSubscription);
+                },
+                loggerResolver);
+
+            //timer.OnStart.Subscribe(startTimerSubscription);
+
+
+            var finishTimerSubscription = DelegatesFactory.BuildSubscriptionSingleArgGeneric<IRuntimeTimer>(
+                (timer) =>
+                {
+                    if (tickSubscription.Active)
+                        provider.Unsubscribe(tickSubscription);
+                },
+                loggerResolver);
+
+            //timer.OnFinish.Subscribe(finishTimerSubscription);
+
+
+            return new TimerWithSubscriptionsContainer
+            {
+                Timer = timer,
+                
+                TickSubscription = tickSubscription,
+                
+                StartTimerSubscription = startTimerSubscription,
+                
+                FinishTimerSubscription = finishTimerSubscription
+            };
+        }
     }
 }

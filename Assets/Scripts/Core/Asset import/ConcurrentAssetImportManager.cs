@@ -19,11 +19,13 @@ namespace HereticalSolutions.AssetImport
 	public class ConcurrentAssetImportManager
 		: IAssetImportManager
 	{
+		private const int DEFAULT_IMPORTER_POOL_CAPACITY = 4;
+
 		private static readonly AllocationCommandDescriptor initialAllocation = new AllocationCommandDescriptor
 		{
-			Rule = EAllocationAmountRule.ADD_ONE,
+			Rule = EAllocationAmountRule.ADD_PREDEFINED_AMOUNT,
 
-			Amount = 1
+			Amount = DEFAULT_IMPORTER_POOL_CAPACITY
 		};
 
 		private static readonly AllocationCommandDescriptor additionalAllocation = new AllocationCommandDescriptor

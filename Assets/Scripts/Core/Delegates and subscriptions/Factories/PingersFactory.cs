@@ -16,6 +16,8 @@ namespace HereticalSolutions.Delegates.Factories
 {
     public static partial class DelegatesFactory
     {
+        private const int DEFAULT_PINGER_CAPACITY = 16;
+
         #region Pinger
         
         public static Pinger BuildPinger()
@@ -34,13 +36,17 @@ namespace HereticalSolutions.Delegates.Factories
 
             var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<ISubscription>(
                 valueAllocationDelegate,
+                false,
+
                 new []
                 {
                     PoolsFactory.BuildIndexedMetadataDescriptor()
                 },
                 new AllocationCommandDescriptor
                 {
-                    Rule = EAllocationAmountRule.ADD_ONE
+                    Rule = EAllocationAmountRule.ADD_PREDEFINED_AMOUNT,
+
+                    Amount = DEFAULT_PINGER_CAPACITY
                 },
                 new AllocationCommandDescriptor
                 {
@@ -62,6 +68,8 @@ namespace HereticalSolutions.Delegates.Factories
 
             var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<ISubscription>(
                 valueAllocationDelegate,
+                false,
+
                 new []
                 {
                     PoolsFactory.BuildIndexedMetadataDescriptor()

@@ -1,7 +1,6 @@
 ﻿using System;
 
 using HereticalSolutions.Logging;
-
 using ILogger = HereticalSolutions.Logging.ILogger;
 
 using UnityEngine;
@@ -41,7 +40,7 @@ namespace HereticalSolutions.Blackboard
         {
             if (blackboardBehaviour == null)
                 throw new Exception(
-                    logger.FormatException(
+                    logger.TryFormat<BlackboardTriggerBehaviour>(
                         "BLACKBOARD BEHAVIOUR IS NULL"));
             
             blackboardBehaviour.OnModified += PollTriggerConditions;

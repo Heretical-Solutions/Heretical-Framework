@@ -31,6 +31,9 @@ namespace HereticalSolutions.Samples.PoolWithAddressVariantAndTimerSample
 
 		private ITickable timeManagerAsTickable;
 
+
+		private ITimerManager timerManager;
+
 		
 		private INonAllocDecoratedPool<GameObject> gameObjectPool;
 
@@ -99,12 +102,22 @@ namespace HereticalSolutions.Samples.PoolWithAddressVariantAndTimerSample
 
 			#endregion
 
+			#region Initiate timer manager
+
+			timerManager = TimeFactory.BuildTimerManager(
+				"PoolWithAddressVariantAndTimerSampleBehaviour",
+				updateProvider,
+				false,
+				loggerResolver);
+
+			#endregion
+
 			#region Initiate pool and arguments
 
 			gameObjectPool = SamplePoolFactory.BuildPool(
 				null,
 				poolSettings,
-				updateProvider,
+				timerManager,
 				poolParent,
 				loggerResolver);
 

@@ -1,7 +1,5 @@
 using System;
 
-using System.Threading.Tasks;
-
 using HereticalSolutions.Allocations;
 
 using HereticalSolutions.Metadata.Allocations;
@@ -19,10 +17,15 @@ namespace HereticalSolutions.Pools.Factories
 
         public static ResizableNonAllocPool<T> BuildResizableNonAllocPoolWithAllocationCallback<T>(
             Func<T> valueAllocationDelegate,
+            bool topUpIfElementValueIsNull,
+
             MetadataAllocationDescriptor[] metadataDescriptors,
+
             AllocationCommandDescriptor initialAllocation,
             AllocationCommandDescriptor additionalAllocation,
+
             IAllocationCallback<T> callback,
+
             ILoggerResolver loggerResolver = null)
         {
             ResizableNonAllocPool<T> resizableNonAllocPool = BuildResizableNonAllocPoolFromPackedArrayPool<T>(
@@ -36,7 +39,10 @@ namespace HereticalSolutions.Pools.Factories
                     valueAllocationDelegate,
                     metadataDescriptors,
                     callback),
+
                 valueAllocationDelegate,
+                topUpIfElementValueIsNull,
+
                 loggerResolver);
 
             return resizableNonAllocPool;
@@ -44,9 +50,13 @@ namespace HereticalSolutions.Pools.Factories
 
         public static ResizableNonAllocPool<T> BuildResizableNonAllocPool<T>(
             Func<T> valueAllocationDelegate,
+            bool topUpIfElementValueIsNull,
+
             MetadataAllocationDescriptor[] metadataDescriptors,
+            
             AllocationCommandDescriptor initialAllocation,
             AllocationCommandDescriptor additionalAllocation,
+
             ILoggerResolver loggerResolver = null)
         {
             ResizableNonAllocPool<T> resizableNonAllocPool = BuildResizableNonAllocPoolFromPackedArrayPool<T>(
@@ -58,7 +68,10 @@ namespace HereticalSolutions.Pools.Factories
                     additionalAllocation,
                     valueAllocationDelegate,
                     metadataDescriptors),
+
                 valueAllocationDelegate,
+                topUpIfElementValueIsNull,
+
                 loggerResolver);
 
             return resizableNonAllocPool;
@@ -67,19 +80,31 @@ namespace HereticalSolutions.Pools.Factories
         public static ResizableNonAllocPool<T> BuildResizableNonAllocPoolFromPackedArrayPool<T>(
             AllocationCommand<IPoolElement<T>> initialAllocationCommand,
             AllocationCommand<IPoolElement<T>> resizeAllocationCommand,
+
             Func<T> topUpAllocationDelegate,
+            bool topUpIfElementValueIsNull,
+
             ILoggerResolver loggerResolver = null)
         {
             var pool = BuildPackedArrayPool<T>(
                 initialAllocationCommand,
                 loggerResolver);
 
+            ILogger logger =
+                loggerResolver?.GetLogger<ResizableNonAllocPool<T>>()
+                ?? null;
+
             return new ResizableNonAllocPool<T>(
                 pool,
                 pool,
+
                 ResizeNonAllocPool,
                 resizeAllocationCommand,
-                topUpAllocationDelegate);
+
+                topUpAllocationDelegate,
+                topUpIfElementValueIsNull,
+
+                logger);
         }
 
         /// <summary>

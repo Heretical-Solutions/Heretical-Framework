@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Player (view)
   m_EditorClassIdentifier: 
   EntityJson: "{\n  \"PrototypeID\": \"Player\",\n  \"Components\": [\n    {\n     
-    \"$type\": \"HereticalSolutions.Entities.SpawnPooledGameObjectView, Core\",\n     
+    \"$type\": \"HereticalSolutions.Entities.SpawnPooledGameObjectViewComponent, Core\",\n     
     \"Address\": \"Player view\"\n    },\n    {\n      \"$type\": \"HereticalSolutions.Samples.ECSCharacterControllerSample.SamplePositionPresenterComponent,
     Assembly-CSharp\",\n      \"TargetEntity\": {\n        \"World\": null,\n       
     \"IsAlive\": false\n      }\n    },\n    {\n      \"$type\": \"HereticalSolutions.Samples.ECSCharacterControllerSample.SampleRotationPresenterComponent,

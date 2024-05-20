@@ -12,6 +12,22 @@ namespace HereticalSolutions
         /// </summary>
         public const float EPSILON = 0.0001f;
 
+        public static float SanitizeAngle(this float degrees)
+        {
+            while (degrees > 180f)
+            {
+                degrees -= 360f;
+            }
+
+            while (degrees < -180f)
+            {
+                degrees += 360f;
+            }
+
+            return degrees;
+        }
+
+        /*
         public static float DegreesToRadians(float degrees)
         {
 #if (UNITY_STANDALONE || UNITY_IOS || UNITY_IPHONE || UNITY_ANDROID || UNITY_SERVER || UNITY_WEBGL || UNITY_EDITOR)
@@ -20,5 +36,6 @@ namespace HereticalSolutions
             return MathF.PI / 180f * degrees;
 #endif            
         }
+        */
     }
 }

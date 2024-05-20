@@ -15,7 +15,7 @@ namespace HereticalSolutions.Persistence.Serializers
         {
             UnityPersistentFilePathSettings fileSystemSettings = ((UnityStreamArgument)argument).Settings;
             
-            if (!UnityStreamIO.OpenWriteStream(fileSystemSettings, out FileStream fileStream))
+            if (!UnityStreamIO.OpenWriteStream(fileSystemSettings, out Stream fileStream))
                 return false;
             
             ProtobufInternalSerializer.Serialize(fileStream, value);
@@ -33,7 +33,7 @@ namespace HereticalSolutions.Persistence.Serializers
         {
             UnityPersistentFilePathSettings fileSystemSettings = ((UnityStreamArgument)argument).Settings;
 
-            if (!UnityStreamIO.OpenReadStream(fileSystemSettings, out FileStream fileStream))
+            if (!UnityStreamIO.OpenReadStream(fileSystemSettings, out Stream fileStream))
             {
                 value = default(object);
                 

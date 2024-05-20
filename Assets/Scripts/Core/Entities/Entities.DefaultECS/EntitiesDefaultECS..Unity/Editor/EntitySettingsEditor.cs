@@ -8,9 +8,11 @@ using HereticalSolutions.Persistence.Arguments;
 using HereticalSolutions.Persistence.Factories;
 using HereticalSolutions.Persistence.Serializers;
 
+using HereticalSolutions.Logging;
+using HereticalSolutions.Logging.Factories;
+
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
-using UnityEditorInternal;
 
 using UnityEngine;
 
@@ -26,11 +28,24 @@ namespace HereticalSolutions.Entities.Editor
 
 		private EntityPrototypeDTO entityPrototypeDTO;
 
+		private ILoggerResolver loggerResolver;
+
 		private JSONSerializer jsonSerializer;
 
 		private StringArgument stringArgument;
 
+		
 		private GUIStyle structNameLabelStyle;
+
+		private GUIStyle commandStructNameLabelStyle;
+		
+		private GUIStyle serverAuthoredStructNameLabelStyle;
+		
+		private GUIStyle serverAuthoredOnInitializationStructNameLabelStyle;
+		
+		private GUIStyle eventAuthoredStructNameLabelStyle;
+		
+		private GUIStyle clientDisabledStructNameLabelStyle;
 
 		void OnEnable()
 		{
@@ -47,12 +62,30 @@ namespace HereticalSolutions.Entities.Editor
 				componentTypesProvider.OnComponentSelected += OnComponentTypeToAddSelected;
 			}
 
+			if (loggerResolver == null)
+			{
+				ILoggerBuilder loggerBuilder = LoggersFactory.BuildLoggerBuilder();
+
+				loggerBuilder
+					.ToggleAllowedByDefault(true)
+					.AddOrWrap(
+						LoggersFactoryUnity.BuildUnityDebugLogger())
+					.AddOrWrap(
+						LoggersFactory.BuildLoggerWrapperWithLogTypePrefix(
+							loggerBuilder.CurrentLogger))
+					.AddOrWrap(
+						LoggersFactory.BuildLoggerWrapperWithSourceTypePrefix(
+							loggerBuilder.CurrentLogger));
+
+				loggerResolver = (ILoggerResolver)loggerBuilder;
+			}
+
 			if (jsonSerializer == null)
 			{
 				if (DEBUG_OPERATION)
 					UnityEngine.Debug.Log("[EntitySettingsEditor] Creating new JSONSerializer");
 
-				jsonSerializer = UnityPersistenceFactory.BuildSimpleUnityJSONSerializer();
+				jsonSerializer = UnityPersistenceFactory.BuildSimpleUnityJSONSerializer(loggerResolver);
 			}
 
 			if (stringArgument == null)
@@ -72,6 +105,61 @@ namespace HereticalSolutions.Entities.Editor
 				structNameLabelStyle.fontSize = 12;
 				structNameLabelStyle.fontStyle = FontStyle.Bold;
 				structNameLabelStyle.normal.textColor = Color.white;
+			}
+
+			if (commandStructNameLabelStyle == null)
+			{
+				if (DEBUG_OPERATION)
+					UnityEngine.Debug.Log("[EntitySettingsEditor] Creating new GUIStyle");
+
+				commandStructNameLabelStyle = new GUIStyle();
+				commandStructNameLabelStyle.fontStyle = FontStyle.Bold;
+				commandStructNameLabelStyle.fontSize = 10;
+				commandStructNameLabelStyle.normal.textColor = new Color(0f, 0.353f, 1f);
+			}
+			
+			if (serverAuthoredStructNameLabelStyle == null)
+			{
+				if (DEBUG_OPERATION)
+					UnityEngine.Debug.Log("[EntitySettingsEditor] Creating new GUIStyle");
+
+				serverAuthoredStructNameLabelStyle = new GUIStyle();
+				serverAuthoredStructNameLabelStyle.fontStyle = FontStyle.Bold;
+				serverAuthoredStructNameLabelStyle.fontSize = 10;
+				serverAuthoredStructNameLabelStyle.normal.textColor = new Color(1f, 0.647f, 0f);
+			}
+			
+			if (serverAuthoredOnInitializationStructNameLabelStyle == null)
+			{
+				if (DEBUG_OPERATION)
+					UnityEngine.Debug.Log("[EntitySettingsEditor] Creating new GUIStyle");
+
+				serverAuthoredOnInitializationStructNameLabelStyle = new GUIStyle();
+				serverAuthoredOnInitializationStructNameLabelStyle.fontStyle = FontStyle.Bold;
+				serverAuthoredOnInitializationStructNameLabelStyle.fontSize = 10;
+				serverAuthoredOnInitializationStructNameLabelStyle.normal.textColor = new Color(1f, 0.549f, 0f);
+			}
+			
+			if (eventAuthoredStructNameLabelStyle == null)
+			{
+				if (DEBUG_OPERATION)
+					UnityEngine.Debug.Log("[EntitySettingsEditor] Creating new GUIStyle");
+
+				eventAuthoredStructNameLabelStyle = new GUIStyle();
+				eventAuthoredStructNameLabelStyle.fontStyle = FontStyle.Bold;
+				eventAuthoredStructNameLabelStyle.fontSize = 10;
+				eventAuthoredStructNameLabelStyle.normal.textColor = new Color(0f, 1f, 0.647f);
+			}
+			
+			if (clientDisabledStructNameLabelStyle == null)
+			{
+				if (DEBUG_OPERATION)
+					UnityEngine.Debug.Log("[EntitySettingsEditor] Creating new GUIStyle");
+
+				clientDisabledStructNameLabelStyle = new GUIStyle();
+				clientDisabledStructNameLabelStyle.fontStyle = FontStyle.Bold;
+				clientDisabledStructNameLabelStyle.fontSize = 10;
+				clientDisabledStructNameLabelStyle.normal.textColor = new Color(1f, 0f, 0.353f);
 			}
 
 			//globalDirty = false;
@@ -179,9 +267,29 @@ namespace HereticalSolutions.Entities.Editor
 
 			EditorGUILayout.BeginHorizontal();
 
+			bool isCommandStruct = structType.GetCustomAttribute<InitializationCommandComponentAttribute>(false) != null;
+
+			bool isServerAuthoredStruct = structType.GetCustomAttribute<ServerAuthoredComponentAttribute>(false) != null;
+
+			bool isServerAuthoredOnInitializationStruct = structType.GetCustomAttribute<ServerAuthoredOnInitializationComponent>(false) != null;
+			
+			bool isEventAuthoredStruct = structType.GetCustomAttribute<EventAuthoredComponentAttribute>(false) != null;
+			
+			bool isClientDisabledStruct = structType.GetCustomAttribute<ClientDisabledComponentAttribute>(false) != null;
+			
+			GUIStyle selectedStyle = structNameLabelStyle;
+			
+			/*
+			if (isCommandStruct)
+				selectedStyle = commandStructNameLabelStyle;
+
+			if (isServerAuthoredStruct)
+				selectedStyle = serverAuthoredStructNameLabelStyle;
+			*/
+				
 			EditorGUILayout.LabelField(
 				structType.Name,
-				structNameLabelStyle);
+				selectedStyle);
 
 			bool modified = false;
 
@@ -190,14 +298,36 @@ namespace HereticalSolutions.Entities.Editor
 			{
 				if (GUILayout.Button("UP"))
 				{
-					MoveComponentUp(index);
-
+					if (Event.current.shift)
+					{
+						MoveComponentToTheTop(index);
+					}
+					else if (Event.current.control)
+					{
+						MoveComponentUpX5(index);
+					}
+					else
+					{
+						MoveComponentUp(index);
+					}
+					
 					modified = true;
 				}
 
 				if (GUILayout.Button("DOWN"))
 				{
-					MoveComponentDown(index);
+					if (Event.current.shift)
+					{
+						MoveComponentToTheBottom(index);
+					}
+					else if (Event.current.control)
+					{
+						MoveComponentDownX5(index);
+					}
+					else
+					{
+						MoveComponentDown(index);
+					}
 
 					modified = true;
 				}
@@ -212,6 +342,41 @@ namespace HereticalSolutions.Entities.Editor
 
 			EditorGUILayout.EndVertical();
 
+			if (isCommandStruct)
+			{
+				EditorGUILayout.LabelField(
+					"[InitializationCommandComponent]",
+					commandStructNameLabelStyle);
+			}
+			
+			if (isServerAuthoredStruct)
+			{
+				EditorGUILayout.LabelField(
+					"[ServerAuthoredComponent]",
+					serverAuthoredStructNameLabelStyle);
+			}
+			
+			if (isServerAuthoredOnInitializationStruct)
+			{
+				EditorGUILayout.LabelField(
+					"[ServerAuthoredOnInitializationComponent]",
+					serverAuthoredOnInitializationStructNameLabelStyle);
+			}
+			
+			if (isEventAuthoredStruct)
+			{
+				EditorGUILayout.LabelField(
+					"[EventAuthoredComponent]",
+					eventAuthoredStructNameLabelStyle);
+			}
+			
+			if (isClientDisabledStruct)
+			{
+				EditorGUILayout.LabelField(
+					"[ClientDisabledComponent]",
+					clientDisabledStructNameLabelStyle);
+			}
+
 			EditorGUILayout.Space(10f);
 
 			bool localDirty = false;
@@ -220,14 +385,11 @@ namespace HereticalSolutions.Entities.Editor
 			{
 				foreach (var fieldInfo in fields)
 				{
-					if (!fieldInfo.IsDefined(typeof(HideInInspector), true)) //HideInInspector filtered out
-					{
-						if (DrawField(
-								ref structObject,
-								fieldInfo,
-								level))
-							localDirty = true;
-					}
+					if (DrawField(
+							ref structObject,
+							fieldInfo,
+							level))
+						localDirty = true;
 				}
 			}
 
@@ -252,9 +414,25 @@ namespace HereticalSolutions.Entities.Editor
 			switch (value)
 			{
 				case Guid guidValue:
+					EditorGUI.BeginDisabledGroup(true);
+
+					EditorGUILayout.TextField(
+						fieldName,
+						guidValue.ToString());
+
+					EditorGUI.EndDisabledGroup();
+
 					break;
 
 				case Entity entityValue:
+					EditorGUI.BeginDisabledGroup(true);
+
+					EditorGUILayout.TextField(
+						fieldName,
+						entityValue.ToString());
+
+					EditorGUI.EndDisabledGroup();
+
 					break;
 
 				case Enum enumValue:
@@ -272,6 +450,46 @@ namespace HereticalSolutions.Entities.Editor
 
 					break;
 
+				case byte byteValue:
+
+					int byteResultAsInt = EditorGUILayout.IntField(
+						fieldName,
+						(byte)value);
+
+					if (byteResultAsInt != byteValue
+					    && byteResultAsInt >= 0
+					    && byteResultAsInt <= byte.MaxValue)
+					{
+						fieldInfo.SetValue(structObject, (byte)byteResultAsInt);
+
+						localDirty = true;
+
+						if (DEBUG_OPERATION)
+							UnityEngine.Debug.Log($"[EntitySettingsEditor] byte field {fieldName} dirty");
+					}
+
+					break;
+				
+				case ushort ushortValue:
+
+					int ushortResultAsInt = EditorGUILayout.IntField(
+						fieldName,
+						(ushort)value);
+
+					if (ushortResultAsInt != ushortValue
+					    && ushortResultAsInt >= 0
+					    && ushortResultAsInt <= ushort.MaxValue)
+					{
+						fieldInfo.SetValue(structObject, (ushort)ushortResultAsInt);
+
+						localDirty = true;
+
+						if (DEBUG_OPERATION)
+							UnityEngine.Debug.Log($"[EntitySettingsEditor] ushort field {fieldName} dirty");
+					}
+
+					break;
+                
 				case int intValue:
 
 					int intResult = EditorGUILayout.IntField(
@@ -479,7 +697,10 @@ namespace HereticalSolutions.Entities.Editor
 					}
 
 					//Enumerables may have the same problems as arrays
-					/*
+					//TODO: implement fixed-size buffers instead of arrays
+					//Courtesy of: https://stackoverflow.com/questions/8704161/c-sharp-array-within-a-struct/8704505#8704505
+					//https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/unsafe-code?redirectedfrom=MSDN#fixed-size-buffers
+
 					if (fieldInfo.FieldType.GetInterface(typeof(IEnumerable<>).FullName) != null
 						&& fieldInfo.FieldType.GetElementType() != typeof(Entity))
 					{
@@ -499,6 +720,7 @@ namespace HereticalSolutions.Entities.Editor
 						break;
 					}
 
+					/*
 					bool isEmptyScriptable = valueType.Name.Contains("Config"); //don't know how to show scriptable field with Null value to set it
 
 					if (value as ScriptableObject || isEmptyScriptable)
@@ -545,14 +767,17 @@ namespace HereticalSolutions.Entities.Editor
 			return localDirty;
 		}
 
-		/*
 		private Array DrawArray(string fieldName, Array arrayValue, out bool dirty)
 		{
 			dirty = false;
 
+			EditorGUILayout.BeginHorizontal();
+
 			EditorGUILayout.LabelField(fieldName);
 
-			EditorGUILayout.LabelField("Length: " + arrayValue.Length);
+			EditorGUILayout.BeginVertical();
+
+			EditorGUILayout.LabelField($"Length: {arrayValue.Length}");
 
 			for (int i = 0; i < arrayValue.Length; i++)
 			{
@@ -562,21 +787,23 @@ namespace HereticalSolutions.Entities.Editor
 
 				EditorGUILayout.BeginHorizontal();
 
-				EditorGUILayout.BeginVertical();
-
-				if (DrawStruct(ref element, -1))
+				if (DrawValue(
+					ref element))
 					localDirty = true;
 
 				if (localDirty)
+				{
 					arrayValue.SetValue(element, i);
 
+					if (DEBUG_OPERATION)
+						UnityEngine.Debug.Log($"[EntitySettingsEditor] array field {fieldName} dirty");
+				}
+				
 				if (GUILayout.Button("Remove", EditorStyles.miniButtonRight))
 				{
 					arrayValue = RemoveElement(arrayValue, i, out dirty);
 					break;
 				}
-
-				EditorGUILayout.EndVertical();
 
 				EditorGUILayout.EndHorizontal();
 
@@ -588,11 +815,207 @@ namespace HereticalSolutions.Entities.Editor
 				arrayValue = AddNewElement(arrayValue, out dirty);
 			}
 
+			EditorGUILayout.EndVertical();
+
+			EditorGUILayout.EndHorizontal();
+
 			return arrayValue;
 		}
-		*/
 
-		/*
+		private bool DrawValue(
+			ref object valueObject)
+		{
+			bool localDirty = false;
+
+			switch (valueObject)
+			{
+				case Guid guidValue:
+					EditorGUI.BeginDisabledGroup(true);
+
+					EditorGUILayout.TextField(
+						guidValue.ToString());
+
+					EditorGUI.EndDisabledGroup();
+
+					break;
+
+				case Entity entityValue:
+					EditorGUI.BeginDisabledGroup(true);
+
+					EditorGUILayout.TextField(
+						entityValue.ToString());
+
+					EditorGUI.EndDisabledGroup();
+
+					break;
+
+				case Enum enumValue:
+					var enumResult = EditorGUILayout.EnumPopup(enumValue);
+
+					if (!Equals(enumResult, enumValue))
+					{
+						valueObject = enumResult;
+
+						localDirty = true;
+					}
+
+					break;
+				
+				case byte byteValue:
+
+					int byteResultAsInt = EditorGUILayout.IntField(
+						(byte)byteValue);
+
+					if (byteResultAsInt != byteValue
+					    && byteResultAsInt >= 0
+					    && byteResultAsInt <= byte.MaxValue)
+					{
+						valueObject = (byte)byteResultAsInt;
+
+						localDirty = true;
+					}
+
+					break;
+				
+				case ushort ushortValue:
+
+					int ushortResultAsInt = EditorGUILayout.IntField(
+						(ushort)ushortValue);
+
+					if (ushortResultAsInt != ushortValue
+					    && ushortResultAsInt >= 0
+					    && ushortResultAsInt <= ushort.MaxValue)
+					{
+						valueObject = (ushort)ushortResultAsInt;
+
+						localDirty = true;
+					}
+
+					break;
+
+				case int intValue:
+
+					int intResult = EditorGUILayout.IntField(
+						intValue);
+
+					if (intResult != intValue)
+					{
+						valueObject = intResult;
+
+						localDirty = true;
+					}
+
+					break;
+
+				case long longValue:
+
+					long longResult = EditorGUILayout.LongField(
+						longValue);
+
+					if (longResult != longValue)
+					{
+						valueObject = longResult;
+
+						localDirty = true;
+					}
+
+					break;
+
+				case float floatValue:
+
+					float floatResult = EditorGUILayout.FloatField(
+						floatValue);
+
+					if (floatResult != floatValue)
+					{
+						valueObject = floatResult;
+
+						localDirty = true;
+					}
+
+					break;
+
+				case double doubleValue:
+
+					double doubleResult = EditorGUILayout.DoubleField(
+						doubleValue);
+
+					if (doubleResult != doubleValue)
+					{
+						valueObject = doubleResult;
+
+						localDirty = true;
+					}
+
+					break;
+
+				case bool boolValue:
+
+					bool boolResult = EditorGUILayout.Toggle(
+						boolValue);
+
+					if (boolResult != boolValue)
+					{
+						valueObject = boolResult;
+
+						localDirty = true;
+					}
+
+					break;
+
+				case Vector2 vector2Value:
+
+					Vector2 vector2Result = EditorGUILayout.Vector2Field(
+						"", //it does not accept 1 argument
+						vector2Value);
+
+					if (vector2Result != vector2Value)
+					{
+						valueObject = vector2Result;
+
+						localDirty = true;
+					}
+
+					break;
+
+				case Vector3 vector3Value:
+
+					Vector3 vector3Result = EditorGUILayout.Vector3Field(
+						"", //it does not accept 1 argument
+						vector3Value);
+
+					if (vector3Result != vector3Value)
+					{
+						valueObject = vector3Result;
+
+						localDirty = true;
+					}
+
+					break;
+
+				default:
+
+					if (valueObject is string stringValue)
+					{
+						string stringResult = EditorGUILayout.TextField(
+							stringValue);
+
+						if (stringResult != stringValue)
+						{
+							valueObject = stringResult;
+
+							localDirty = true;
+						}
+
+						break;
+					}
+
+					break;
+			}
+
+			return localDirty;
+		}
+
 		private Array AddNewElement(Array arrayValue, out bool dirty)
 		{
 			dirty = false;
@@ -604,8 +1027,19 @@ namespace HereticalSolutions.Entities.Editor
 				newArray.SetValue(arrayValue.GetValue(i), i);
 			}
 
+			object newElement = null;
+
 			var elementType = arrayValue.GetType().GetElementType();
-			var newElement = Activator.CreateInstance(elementType);
+
+			if (elementType.IsValueType)
+			{
+				newElement = Activator.CreateInstance(elementType);
+			}
+			else
+			{
+				if (elementType == typeof(string))
+					newElement = string.Empty;
+			}
 
 			newArray.SetValue(newElement, arrayValue.Length);
 
@@ -632,7 +1066,6 @@ namespace HereticalSolutions.Entities.Editor
 
 			return newArray;
 		}
-		*/
 
 		private void Erase()
 		{
@@ -777,6 +1210,47 @@ namespace HereticalSolutions.Entities.Editor
 
 			Serialize();
 		}
+		
+		private void MoveComponentUpX5(int index)
+		{
+			if (index == 0)
+				return;
+
+			if (DEBUG_OPERATION)
+				UnityEngine.Debug.Log($"[EntitySettingsEditor] Component № {index} moved up 5 times");
+
+			int destinationIndex = Math.Clamp(
+				index - 5,
+				0,
+				index);
+			
+			object temp = entityPrototypeDTO.Components[index];
+
+			for (int i = index; i > destinationIndex; i--)
+				entityPrototypeDTO.Components[i] = entityPrototypeDTO.Components[i - 1];
+
+			entityPrototypeDTO.Components[destinationIndex] = temp;
+
+			Serialize();
+		}
+		
+		private void MoveComponentToTheTop(int index)
+		{
+			if (index == 0)
+				return;
+
+			if (DEBUG_OPERATION)
+				UnityEngine.Debug.Log($"[EntitySettingsEditor] Component № {index} moved to the top");
+			
+			object temp = entityPrototypeDTO.Components[index];
+
+			for (int i = index; i > 0; i--)
+				entityPrototypeDTO.Components[i] = entityPrototypeDTO.Components[i - 1];
+
+			entityPrototypeDTO.Components[0] = temp;
+
+			Serialize();
+		}
 
 		private void MoveComponentDown(int index)
 		{
@@ -791,6 +1265,47 @@ namespace HereticalSolutions.Entities.Editor
 			entityPrototypeDTO.Components[index] = entityPrototypeDTO.Components[index + 1];
 
 			entityPrototypeDTO.Components[index + 1] = temp;
+
+			Serialize();
+		}
+		
+		private void MoveComponentDownX5(int index)
+		{
+			if (index == entityPrototypeDTO.Components.Length - 1)
+				return;
+
+			if (DEBUG_OPERATION)
+				UnityEngine.Debug.Log($"[EntitySettingsEditor] Component № {index} moved down 5 times");
+
+			int destinationIndex = Math.Clamp(
+				index + 5,
+				index,
+				entityPrototypeDTO.Components.Length - 1);
+			
+			object temp = entityPrototypeDTO.Components[index];
+
+			for (int i = index; i < destinationIndex; i++)
+				entityPrototypeDTO.Components[i] = entityPrototypeDTO.Components[i + 1];
+
+			entityPrototypeDTO.Components[destinationIndex] = temp;
+
+			Serialize();
+		}
+		
+		private void MoveComponentToTheBottom(int index)
+		{
+			if (index == entityPrototypeDTO.Components.Length - 1)
+				return;
+
+			if (DEBUG_OPERATION)
+				UnityEngine.Debug.Log($"[EntitySettingsEditor] Component № {index} moved to the bottom");
+
+			object temp = entityPrototypeDTO.Components[index];
+
+			for (int i = index; i < entityPrototypeDTO.Components.Length - 1; i++)
+				entityPrototypeDTO.Components[i] = entityPrototypeDTO.Components[i + 1];
+
+			entityPrototypeDTO.Components[entityPrototypeDTO.Components.Length - 1] = temp;
 
 			Serialize();
 		}

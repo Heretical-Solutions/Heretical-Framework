@@ -127,13 +127,37 @@ namespace HereticalSolutions.Entities
             EEntityAuthoringPresets authoringPreset = EEntityAuthoringPresets.DEFAULT)
         {
             var newID = AllocateID();
-
+            
             if (!SpawnEntityInAllRelevantWorlds(
                     newID,
                     prototypeID,
+                    null,
                     authoringPreset))
                 return default(TEntityID);
 
+            logger?.Log<DefaultECSEntityManager<Entity>>(
+                $"SPAWNED ENTITY WITH ID {newID} AND PROTOTYPE ID {prototypeID}");
+            
+            return newID;
+        }
+
+        public TEntityID SpawnEntity(
+            string prototypeID,
+            PrototypeOverride<Entity>[] overrides,
+            EEntityAuthoringPresets authoringPreset = EEntityAuthoringPresets.DEFAULT)
+        {
+            var newID = AllocateID();
+            
+            if (!SpawnEntityInAllRelevantWorlds(
+                    newID,
+                    prototypeID,
+                    overrides,
+                    authoringPreset))
+                return default(TEntityID);
+
+            logger?.Log<DefaultECSEntityManager<Entity>>(
+                $"SPAWNED ENTITY WITH ID {newID} AND PROTOTYPE ID {prototypeID}");
+            
             return newID;
         }
 
@@ -145,6 +169,20 @@ namespace HereticalSolutions.Entities
             return SpawnEntityInAllRelevantWorlds(
                 entityID,
                 prototypeID,
+                null,
+                authoringPreset);
+        }
+
+        public bool SpawnEntity(
+            TEntityID entityID,
+            string prototypeID,
+            PrototypeOverride<Entity>[] overrides,
+            EEntityAuthoringPresets authoringPreset = EEntityAuthoringPresets.DEFAULT)
+        {
+            return SpawnEntityInAllRelevantWorlds(
+                entityID,
+                prototypeID,
+                overrides,
                 authoringPreset);
         }
 
@@ -152,15 +190,46 @@ namespace HereticalSolutions.Entities
             string prototypeID,
             string worldID)
         {
+            if (!entityWorldsRepository.HasWorld(worldID))
+                return default;
+            
             var worldController = (IPrototypeCompliantWorldController<World, Entity>)
                 entityWorldsRepository.GetWorldController(worldID);
 
             if (worldController == null)
                 return default;
-
+            
             worldController.TrySpawnEntityFromPrototype(
                 prototypeID,
                 out var localEntity);
+            
+            logger?.Log<DefaultECSEntityManager<Entity>>(
+                $"SPAWNED WORLD LOCAL ENTITY {localEntity} AT WORLD {worldID} WITH PROTOTYPE ID {prototypeID}");
+
+            return localEntity;
+        }
+
+        public Entity SpawnWorldLocalEntity(
+            string prototypeID,
+            Entity @override,
+            string worldID)
+        {
+            if (!entityWorldsRepository.HasWorld(worldID))
+                return default;
+            
+            var worldController = (IPrototypeCompliantWorldController<World, Entity>)
+                entityWorldsRepository.GetWorldController(worldID);
+
+            if (worldController == null)
+                return default;
+            
+            worldController.TrySpawnEntityFromPrototype(
+                prototypeID,
+                @override,
+                out var localEntity);
+            
+            logger?.Log<DefaultECSEntityManager<Entity>>(
+                $"SPAWNED WORLD LOCAL ENTITY {localEntity} AT WORLD {worldID} WITH PROTOTYPE ID {prototypeID}");
 
             return localEntity;
         }
@@ -169,6 +238,9 @@ namespace HereticalSolutions.Entities
             string prototypeID,
             World world)
         {
+            if (!entityWorldsRepository.HasWorld(world))
+                return default;
+            
             var worldController = (IPrototypeCompliantWorldController<World, Entity>)
                 entityWorldsRepository.GetWorldController(world);
 
@@ -179,6 +251,34 @@ namespace HereticalSolutions.Entities
                 prototypeID,
                 out var localEntity);
 
+            logger?.Log<DefaultECSEntityManager<Entity>>(
+                $"SPAWNED WORLD LOCAL ENTITY {localEntity} AT WORLD {world} WITH PROTOTYPE ID {prototypeID}");
+            
+            return localEntity;
+        }
+
+        public Entity SpawnWorldLocalEntity(
+            string prototypeID,
+            Entity @override,
+            World world)
+        {
+            if (!entityWorldsRepository.HasWorld(world))
+                return default;
+            
+            var worldController = (IPrototypeCompliantWorldController<World, Entity>)
+                entityWorldsRepository.GetWorldController(world);
+
+            if (worldController == null)
+                return default;
+
+            worldController.TrySpawnEntityFromPrototype(
+                prototypeID,
+                @override,
+                out var localEntity);
+
+            logger?.Log<DefaultECSEntityManager<Entity>>(
+                $"SPAWNED WORLD LOCAL ENTITY {localEntity} AT WORLD {world} WITH PROTOTYPE ID {prototypeID}");
+            
             return localEntity;
         }
 
@@ -196,10 +296,44 @@ namespace HereticalSolutions.Entities
             if (!SpawnAndResolveEntityInAllRelevantWorlds(
                 newID,
                 prototypeID,
+                null,
                 source,
                 authoringPreset))
                 return default(TEntityID);
 
+            logger?.Log<DefaultECSEntityManager<Entity>>(
+                $"RESOLVED ENTITY WITH ID {newID} AND PROTOTYPE ID {prototypeID} FROM SOURCE",
+                new object[]
+                {
+                    source
+                });
+            
+            return newID;
+        }
+
+        public TEntityID ResolveEntity(
+            object source,
+            string prototypeID,
+            PrototypeOverride<Entity>[] overrides,
+            EEntityAuthoringPresets authoringPreset = EEntityAuthoringPresets.DEFAULT)
+        {
+            var newID = AllocateID();
+
+            if (!SpawnAndResolveEntityInAllRelevantWorlds(
+                    newID,
+                    prototypeID,
+                    overrides,
+                    source,
+                    authoringPreset))
+                return default(TEntityID);
+
+            logger?.Log<DefaultECSEntityManager<Entity>>(
+                $"RESOLVED ENTITY WITH ID {newID} AND PROTOTYPE ID {prototypeID} FROM SOURCE",
+                new object[]
+                {
+                    source
+                });
+            
             return newID;
         }
 
@@ -212,6 +346,22 @@ namespace HereticalSolutions.Entities
             return SpawnAndResolveEntityInAllRelevantWorlds(
                 entityID,
                 prototypeID,
+                null,
+                source,
+                authoringPreset);
+        }
+
+        public bool ResolveEntity(
+            TEntityID entityID,
+            object source,
+            string prototypeID,
+            PrototypeOverride<Entity>[] overrides,
+            EEntityAuthoringPresets authoringPreset = EEntityAuthoringPresets.DEFAULT)
+        {
+            return SpawnAndResolveEntityInAllRelevantWorlds(
+                entityID,
+                prototypeID,
+                overrides,
                 source,
                 authoringPreset);
         }
@@ -221,6 +371,9 @@ namespace HereticalSolutions.Entities
             object source,
             string worldID)
         {
+            if (!entityWorldsRepository.HasWorld(worldID))
+                return default;
+            
             var worldController = (IPrototypeCompliantWorldController<World, Entity>)
                 entityWorldsRepository.GetWorldController(worldID);
 
@@ -231,6 +384,44 @@ namespace HereticalSolutions.Entities
                 prototypeID,
                 source,
                 out var localEntity);
+            
+            logger?.Log<DefaultECSEntityManager<Entity>>(
+                $"RESOLVED WORLD LOCAL ENTITY {localEntity} AT WORLD {worldID} WITH PROTOTYPE ID {prototypeID} FROM SOURCE",
+                new object[]
+                {
+                    source
+                });
+
+            return localEntity;
+        }
+
+        public Entity ResolveWorldLocalEntity(
+            string prototypeID,
+            object source,
+            Entity @override,
+            string worldID)
+        {
+            if (!entityWorldsRepository.HasWorld(worldID))
+                return default;
+            
+            var worldController = (IPrototypeCompliantWorldController<World, Entity>)
+                entityWorldsRepository.GetWorldController(worldID);
+
+            if (worldController == null)
+                return default;
+
+            worldController.TrySpawnAndResolveEntityFromPrototype(
+                prototypeID,
+                @override,
+                source,
+                out var localEntity);
+            
+            logger?.Log<DefaultECSEntityManager<Entity>>(
+                $"RESOLVED WORLD LOCAL ENTITY {localEntity} AT WORLD {worldID} WITH PROTOTYPE ID {prototypeID} FROM SOURCE",
+                new object[]
+                {
+                    source
+                });
 
             return localEntity;
         }
@@ -240,6 +431,9 @@ namespace HereticalSolutions.Entities
             object source,
             World world)
         {
+            if (!entityWorldsRepository.HasWorld(world))
+                return default;
+            
             var worldController = (IPrototypeCompliantWorldController<World, Entity>)
                 entityWorldsRepository.GetWorldController(world);
 
@@ -250,6 +444,44 @@ namespace HereticalSolutions.Entities
                 prototypeID,
                 source,
                 out var localEntity);
+            
+            logger?.Log<DefaultECSEntityManager<Entity>>(
+                $"RESOLVED WORLD LOCAL ENTITY {localEntity} AT WORLD {world} WITH PROTOTYPE ID {prototypeID} FROM SOURCE",
+                new object[]
+                {
+                    source
+                });
+
+            return localEntity;
+        }
+
+        public Entity ResolveWorldLocalEntity(
+            string prototypeID,
+            object source,
+            Entity @override,
+            World world)
+        {
+            if (!entityWorldsRepository.HasWorld(world))
+                return default;
+            
+            var worldController = (IPrototypeCompliantWorldController<World, Entity>)
+                entityWorldsRepository.GetWorldController(world);
+
+            if (worldController == null)
+                return default;
+
+            worldController.TrySpawnAndResolveEntityFromPrototype(
+                prototypeID,
+                @override,
+                source,
+                out var localEntity);
+            
+            logger?.Log<DefaultECSEntityManager<Entity>>(
+                $"RESOLVED WORLD LOCAL ENTITY {localEntity} AT WORLD {world} WITH PROTOTYPE ID {prototypeID} FROM SOURCE",
+                new object[]
+                {
+                    source
+                });
 
             return localEntity;
         }
@@ -290,6 +522,9 @@ namespace HereticalSolutions.Entities
 
             registryEntitiesRepository.Remove(
                 entityID);
+            
+            logger?.Log<DefaultECSEntityManager<Entity>>(
+                $"DESPAWNED ENTITY {entityID}");
         }
 
         public void DespawnWorldLocalEntity(Entity entity)
@@ -303,6 +538,9 @@ namespace HereticalSolutions.Entities
 
             worldController.DespawnEntity(
                 entity);
+            
+            logger?.Log<DefaultECSEntityManager<Entity>>(
+                $"DESPAWNED WORLD LOCAL ENTITY {entity}");
         }
 
         #endregion
@@ -347,6 +585,7 @@ namespace HereticalSolutions.Entities
         private bool SpawnEntityInAllRelevantWorlds(
             TEntityID entityID,
             string prototypeID,
+            PrototypeOverride<Entity>[] overrides,
             EEntityAuthoringPresets authoringPreset = EEntityAuthoringPresets.DEFAULT)
         {
             var registryWorldController = (IEntityIDCompliantWorldController<TEntityID, Entity>)
@@ -366,7 +605,13 @@ namespace HereticalSolutions.Entities
             
             switch (authoringPreset)
             {
+                case EEntityAuthoringPresets.NONE:
+                    break;
+                
                 case EEntityAuthoringPresets.DEFAULT:
+                case EEntityAuthoringPresets.NETWORKING_HOST: //TODO: change
+                case EEntityAuthoringPresets.NETWORKING_CLIENT: //TODO: change
+                case EEntityAuthoringPresets.NETWORKING_HOST_HEADLESS: //TODO: change
                     foreach (var entityWorld in childEntityWorlds)
                     {
                         var worldController = (IRegistryCompliantWorldController<Entity>)
@@ -375,9 +620,35 @@ namespace HereticalSolutions.Entities
                         if (worldController == null)
                             continue;
 
-                        worldController.TrySpawnEntityFromRegistry(
-                            registryEntity,
-                            out var localEntity);
+                        bool spawnWithOverrideAttempted = false;
+                        
+                        if (overrides != null)
+                        {
+                            for (int i = 0; i < overrides.Length; i++)
+                            {
+                                if (string.IsNullOrEmpty(overrides[i].WorldID))
+                                    continue;
+
+                                if (entityWorldsRepository.GetWorld(overrides[i].WorldID) == entityWorld)
+                                {
+                                    spawnWithOverrideAttempted = true;
+
+                                    worldController.TrySpawnEntityFromRegistry(
+                                        registryEntity,
+                                        overrides[i].OverrideEntity,
+                                        out var localEntity);
+
+                                    break;
+                                }
+                            }
+                        }
+                            
+                        if (!spawnWithOverrideAttempted)
+                        {
+                            worldController.TrySpawnEntityFromRegistry(
+                                registryEntity,
+                                out var localEntity);
+                        }
                     }
 
                     break;
@@ -400,6 +671,7 @@ namespace HereticalSolutions.Entities
         private bool SpawnAndResolveEntityInAllRelevantWorlds(
             TEntityID entityID,
             string prototypeID,
+            PrototypeOverride<Entity>[] overrides,
             object source,
             EEntityAuthoringPresets authoring = EEntityAuthoringPresets.DEFAULT)
         {
@@ -420,7 +692,13 @@ namespace HereticalSolutions.Entities
             
             switch (authoring)
             {
+                case EEntityAuthoringPresets.NONE:
+                    break;
+                
                 case EEntityAuthoringPresets.DEFAULT:
+                case EEntityAuthoringPresets.NETWORKING_HOST: //TODO: change
+                case EEntityAuthoringPresets.NETWORKING_CLIENT: //TODO: change
+                case EEntityAuthoringPresets.NETWORKING_HOST_HEADLESS: //TODO: change
                     foreach (var entityWorld in childEntityWorlds)
                     {
                         var worldController = (IRegistryCompliantWorldController<Entity>)
@@ -428,11 +706,38 @@ namespace HereticalSolutions.Entities
 
                         if (worldController == null)
                             continue;
+                        
+                        bool spawnWithOverrideAttempted = false;
 
-                        worldController.TrySpawnAndResolveEntityFromRegistry(
-                            registryEntity,
-                            source,
-                            out var localEntity);
+                        if (overrides != null)
+                        {
+                            for (int i = 0; i < overrides.Length; i++)
+                            {
+                                if (string.IsNullOrEmpty(overrides[i].WorldID))
+                                    continue;
+
+                                if (entityWorldsRepository.GetWorld(overrides[i].WorldID) == entityWorld)
+                                {
+                                    spawnWithOverrideAttempted = true;
+
+                                    worldController.TrySpawnAndResolveEntityFromRegistry(
+                                        registryEntity,
+                                        overrides[i].OverrideEntity,
+                                        source,
+                                        out var localEntity);
+
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (!spawnWithOverrideAttempted)
+                        {
+                            worldController.TrySpawnAndResolveEntityFromRegistry(
+                                registryEntity,
+                                source,
+                                out var localEntity);
+                        }
                     }
 
                     break;

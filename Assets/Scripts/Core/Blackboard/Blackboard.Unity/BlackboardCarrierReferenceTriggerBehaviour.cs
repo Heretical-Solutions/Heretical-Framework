@@ -1,7 +1,6 @@
 ﻿using System;
 
 using HereticalSolutions.Logging;
-
 using ILogger = HereticalSolutions.Logging.ILogger;
 
 using UnityEngine;
@@ -42,7 +41,7 @@ namespace HereticalSolutions.Blackboard
         {
             if (blackboardCarrierReferenceBehaviour == null)
                 throw new Exception(
-                    logger.FormatException(
+                    logger.TryFormat<BlackboardCarrierReferenceTriggerBehaviour>(
                         "CARRIER BEHAVIOUR IS NULL"));
 
 

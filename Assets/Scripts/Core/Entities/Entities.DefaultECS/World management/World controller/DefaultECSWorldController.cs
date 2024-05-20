@@ -46,6 +46,8 @@ namespace HereticalSolutions.Entities
         #endregion
 
         private readonly IPrototypesRepository<World, Entity> prototypeRepository;
+        
+        private readonly ComponentCloner componentCloner;
 
         #region Systems
 
@@ -73,6 +75,7 @@ namespace HereticalSolutions.Entities
             Func<object, TResolveWorldIdentityComponent> createResolveWorldIdentityComponentDelegate,
 
             IPrototypesRepository<World, Entity> prototypeRepository,
+            ComponentCloner componentCloner,
             ILogger logger = null)
         {
             World = world;
@@ -94,6 +97,8 @@ namespace HereticalSolutions.Entities
 
 
             this.prototypeRepository = prototypeRepository;
+            
+            this.componentCloner = componentCloner;
 
             this.logger = logger;
 
@@ -206,6 +211,25 @@ namespace HereticalSolutions.Entities
 
             return true;
         }
+        
+        public bool TrySpawnEntityFromPrototype(
+            string prototypeID,
+            Entity @override,
+            out Entity entity)
+        {
+            if (!TryClonePrototypeEntityToWorld(
+                prototypeID,
+                @override,
+                out entity))
+            {
+                return false;
+            }
+
+            //Process freshly spawned entity with initialization systems
+            initializationSystems?.Update(entity);
+
+            return true;
+        }
 
         public bool TrySpawnAndResolveEntityFromPrototype(
             string prototypeID,
@@ -214,6 +238,38 @@ namespace HereticalSolutions.Entities
         {
             if (!TryClonePrototypeEntityToWorld(
                 prototypeID,
+                out entity))
+            {
+                return false;
+            }
+
+
+            //Mark entity as in need of resolving and provide a source as a payload to the component
+            entity.Set<TResolveWorldIdentityComponent>(
+                createResolveWorldIdentityComponentDelegate.Invoke(source));
+
+            //Process freshly spawned entity with resolve systems
+            resolveSystems?.Update(entity);
+
+            //Don't need it anymore. Bye!
+            entity.Remove<TResolveWorldIdentityComponent>();
+
+
+            //Process freshly resolved entity with initialization systems
+            initializationSystems?.Update(entity);
+
+            return true;
+        }
+        
+        public bool TrySpawnAndResolveEntityFromPrototype(
+            string prototypeID,
+            Entity @override,
+            object source,
+            out Entity entity)
+        {
+            if (!TryClonePrototypeEntityToWorld(
+                prototypeID,
+                @override,
                 out entity))
             {
                 return false;
@@ -271,6 +327,30 @@ namespace HereticalSolutions.Entities
 
             return true;
         }
+        
+        public bool TrySpawnEntityWithIDFromPrototype(
+            string prototypeID,
+            TEntityID entityID,
+            Entity @override,
+            out Entity entity)
+        {
+            if (!TryClonePrototypeEntityToWorld(
+                prototypeID,
+                @override,
+                out entity))
+            {
+                return false;
+            }
+
+            entity.Set<TEntityIDComponent>(
+                createIDComponentDelegate.Invoke(entityID));
+            
+
+            //Process freshly spawned entity with initialization systems
+            initializationSystems?.Update(entity);
+
+            return true;
+        }
 
         public bool TrySpawnAndResolveEntityWithIDFromPrototype(
             string prototypeID,
@@ -290,6 +370,42 @@ namespace HereticalSolutions.Entities
 
             if (!TryClonePrototypeEntityToWorld(
                 prototypeID,
+                out entity))
+            {
+                return false;
+            }
+
+            entity.Set<TEntityIDComponent>(
+                createIDComponentDelegate.Invoke(entityID));
+
+
+            //Mark entity as in need of resolving and provide a source as a payload to the component
+            entity.Set<TResolveWorldIdentityComponent>(
+                createResolveWorldIdentityComponentDelegate.Invoke(source));
+
+            //Process freshly spawned entity with resolve systems
+            resolveSystems?.Update(entity);
+
+            //Don't need it anymore. Bye!
+            entity.Remove<TResolveWorldIdentityComponent>();
+
+
+            //Process freshly resolved entity with initialization systems
+            initializationSystems?.Update(entity);
+
+            return true;
+        }
+        
+        public bool TrySpawnAndResolveEntityWithIDFromPrototype(
+            string prototypeID,
+            TEntityID entityID,
+            Entity @override,
+            object source,
+            out Entity entity)
+        {
+            if (!TryClonePrototypeEntityToWorld(
+                prototypeID,
+                @override,
                 out entity))
             {
                 return false;
@@ -379,6 +495,48 @@ namespace HereticalSolutions.Entities
 
             return true;
         }
+        
+        public bool TrySpawnEntityFromRegistry(
+            Entity registryEntity,
+            Entity overrideEntity,
+            out Entity localEntity)
+        {
+            localEntity = default;
+
+            if (!registryEntity.Has<TWorldIdentityComponent>())
+            {
+                return false;
+            }
+
+            //Get the target ID from the registry entity
+
+            var entityID = getEntityIDFromIDComponentDelegate.Invoke(
+                registryEntity.Get<TEntityIDComponent>());
+
+
+            //Get the prototype ID from the registry entity
+            var entityIdentityComponent = registryEntity.Get<TWorldIdentityComponent>();
+
+            var prototypeID = getPrototypeIDFromWorldIdentityComponentDelegate.Invoke(entityIdentityComponent);
+
+
+            if (!TrySpawnEntityWithIDFromPrototype(
+                prototypeID,
+                entityID,
+                overrideEntity,
+                out localEntity))
+            {
+                return false;
+            }
+
+            //And now let's link registry entity to the one we just created
+            registryEntity.Set<TWorldIdentityComponent>(
+                createWorldIdentityComponentDelegate.Invoke(
+                    prototypeID,
+                    localEntity));
+
+            return true;
+        }
 
         public bool TrySpawnAndResolveEntityFromRegistry(
             Entity registryEntity,
@@ -409,6 +567,52 @@ namespace HereticalSolutions.Entities
             if (!TrySpawnAndResolveEntityWithIDFromPrototype(
                 prototypeID,
                 entityID,
+                source,
+                out localEntity))
+            {
+                return false;
+            }
+
+            //And now let's link registry entity to the one we just created
+            registryEntity.Set<TWorldIdentityComponent>(
+                createWorldIdentityComponentDelegate.Invoke(
+                    prototypeID,
+                    localEntity));
+
+            return true;
+        }
+        
+        public bool TrySpawnAndResolveEntityFromRegistry(
+            Entity registryEntity,
+            Entity overrideEntity,
+            object source,
+            out Entity localEntity)
+        {
+            localEntity = default;
+
+            if (!registryEntity.Has<TWorldIdentityComponent>())
+            {
+                return false;
+            }
+
+            //Get the target ID from the registry entity
+
+            //var guid = registryEntity.Get<GUIDComponent>().GUID;
+
+            var entityID = getEntityIDFromIDComponentDelegate.Invoke(
+                registryEntity.Get<TEntityIDComponent>());
+
+
+            //Get the prototype ID from the registry entity
+            var entityIdentityComponent = registryEntity.Get<TWorldIdentityComponent>();
+
+            var prototypeID = getPrototypeIDFromWorldIdentityComponentDelegate.Invoke(entityIdentityComponent);
+
+
+            if (!TrySpawnAndResolveEntityWithIDFromPrototype(
+                prototypeID,
+                entityID,
+                overrideEntity,
                 source,
                 out localEntity))
             {
@@ -630,7 +834,97 @@ namespace HereticalSolutions.Entities
                 return false;
             }
 
-            entity = prototypeEntity.CopyTo(World);
+            if (prototypeEntity.Has<NestedPrototypeComponent>())
+            {
+                if (!TryClonePrototypeEntityToWorld(
+                    prototypeEntity.Get<NestedPrototypeComponent>().BasePrototypeID,
+                    out entity))
+                {
+                    return false;
+                }
+                
+                componentCloner.Clone(
+                    prototypeEntity,
+                    entity);
+                
+                entity.Remove<NestedPrototypeComponent>();
+            }
+            else
+            {
+                entity = prototypeEntity.CopyTo(
+                    World,
+                    componentCloner);
+            }
+            
+            entity.Set<PrototypeInstanceComponent>(
+                new PrototypeInstanceComponent
+                {
+                    PrototypeID = prototypeID
+                });
+
+            return true;
+        }
+        
+        private bool TryClonePrototypeEntityToWorld(
+            string prototypeID,
+            Entity @override,
+            out Entity entity)
+        {
+            entity = default(Entity);
+
+            if (string.IsNullOrEmpty(prototypeID))
+            {
+                logger?.LogError(
+                    GetType(),
+                    $"INVALID PROTOTYPE ID");
+
+                return false;
+            }
+
+            if (!prototypeRepository.TryGetPrototype(
+                prototypeID,
+                out var prototypeEntity))
+            {
+                logger?.LogError(
+                    GetType(),
+                    $"NO PROTOTYPE REGISTERED BY ID {prototypeID}");
+
+                return false;
+            }
+
+            if (prototypeEntity.Has<NestedPrototypeComponent>())
+            {
+                if (!TryClonePrototypeEntityToWorld(
+                    prototypeEntity.Get<NestedPrototypeComponent>().BasePrototypeID,
+                    out entity))
+                {
+                    return false;
+                }
+                
+                componentCloner.Clone(
+                    prototypeEntity,
+                    entity);
+                
+                entity.Remove<NestedPrototypeComponent>();
+            }
+            else
+            {
+                entity = prototypeEntity.CopyTo(
+                    World,
+                    componentCloner);
+            }
+            
+            componentCloner.Clone(
+                @override,
+                entity);
+            
+            @override.Dispose();
+            
+            entity.Set<PrototypeInstanceComponent>(
+                new PrototypeInstanceComponent
+                {
+                    PrototypeID = prototypeID
+                });
 
             return true;
         }

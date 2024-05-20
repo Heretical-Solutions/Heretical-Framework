@@ -20,6 +20,8 @@ namespace HereticalSolutions.Entities
 
         private readonly IPrototypesRepository<World, Entity> prototypeRepository;
 
+        private readonly ComponentCloner componentCloner;
+
         private readonly ILogger logger;
 
         public DefaultECSRegistryWorldController(
@@ -28,6 +30,7 @@ namespace HereticalSolutions.Entities
             Func<TEntityID, TEntityIDComponent> createIDComponentDelegate,
 
             IPrototypesRepository<World, Entity> prototypeRepository,
+            ComponentCloner componentCloner,
             ILogger logger = null)
         {
             World = world;
@@ -37,6 +40,8 @@ namespace HereticalSolutions.Entities
 
 
             this.prototypeRepository = prototypeRepository;
+            
+            this.componentCloner = componentCloner;
 
             this.logger = logger;
         }
@@ -108,7 +113,59 @@ namespace HereticalSolutions.Entities
                 return false;
             }
 
-            entity = prototypeEntity.CopyTo(World);
+            entity = prototypeEntity.CopyTo(
+                World,
+                componentCloner);
+            
+            entity.Set<PrototypeInstanceComponent>(
+                new PrototypeInstanceComponent
+                {
+                    PrototypeID = prototypeID
+                });
+
+            return true;
+        }
+        
+        public bool TrySpawnEntityFromPrototype(
+            string prototypeID,
+            Entity @override,
+            out Entity entity)
+        {
+            entity = default(Entity);
+
+            if (string.IsNullOrEmpty(prototypeID))
+            {
+                logger?.LogError<DefaultECSRegistryWorldController<TEntityID, TEntityIDComponent>>(
+                    $"INVALID PROTOTYPE ID");
+
+                return false;
+            }
+
+            if (!prototypeRepository.TryGetPrototype(
+                    prototypeID,
+                    out var prototypeEntity))
+            {
+                logger?.LogError<DefaultECSRegistryWorldController<TEntityID, TEntityIDComponent>>(
+                    $"NO PROTOTYPE REGISTERED BY ID {prototypeID}");
+
+                return false;
+            }
+
+            entity = prototypeEntity.CopyTo(
+                World,
+                componentCloner);
+            
+            componentCloner.Clone(
+                @override,
+                entity);
+            
+            @override.Dispose();
+            
+            entity.Set<PrototypeInstanceComponent>(
+                new PrototypeInstanceComponent
+                {
+                    PrototypeID = prototypeID
+                });
 
             return true;
         }
@@ -121,6 +178,19 @@ namespace HereticalSolutions.Entities
             //There's no use in resolving in registry world (for now)
             return TrySpawnEntityFromPrototype(
                 prototypeID,
+                out entity);
+        }
+
+        public bool TrySpawnAndResolveEntityFromPrototype(
+            string prototypeID,
+            Entity @override,
+            object source,
+            out Entity entity)
+        {
+            //There's no use in resolving in registry world (for now)
+            return TrySpawnEntityFromPrototype(
+                prototypeID,
+                @override,
                 out entity);
         }
 
@@ -149,6 +219,30 @@ namespace HereticalSolutions.Entities
 
             return true;
         }
+        
+        public bool TrySpawnEntityWithIDFromPrototype(
+            string prototypeID,
+            TEntityID entityID,
+            Entity @override,
+            out Entity entity)
+        {
+            if (!TrySpawnEntityFromPrototype(
+                prototypeID,
+                @override,
+                out entity))
+            {
+                return false;
+            }
+
+            //ref GUIDComponent guidComponent = ref entity.Get<GUIDComponent>();
+            //
+            //guidComponent.GUID = guid;
+
+            entity.Set<TEntityIDComponent>(
+                createIDComponentDelegate.Invoke(entityID));
+
+            return true;
+        }
 
         public bool TrySpawnAndResolveEntityWithIDFromPrototype(
             string prototypeID,
@@ -158,6 +252,32 @@ namespace HereticalSolutions.Entities
         {
             if (!TrySpawnAndResolveEntityFromPrototype(
                 prototypeID,
+                source,
+                out entity))
+            {
+                return false;
+            }
+
+            //ref GUIDComponent guidComponent = ref entity.Get<GUIDComponent>();
+            //
+            //guidComponent.GUID = guid;
+
+            entity.Set<TEntityIDComponent>(
+                createIDComponentDelegate.Invoke(entityID));
+
+            return true;
+        }
+        
+        public bool TrySpawnAndResolveEntityWithIDFromPrototype(
+            string prototypeID,
+            TEntityID entityID,
+            Entity @override,
+            object source,
+            out Entity entity)
+        {
+            if (!TrySpawnAndResolveEntityFromPrototype(
+                prototypeID,
+                @override,
                 source,
                 out entity))
             {

@@ -65,9 +65,13 @@ namespace HereticalSolutions.Pools.Factories
 
 	        resizablePoolBuilder.Initialize(
 		        valueAllocationDelegate,
+				true,
+
 		        metadataDescriptorBuilders,
+
 		        initialAllocation,
 		        additionalAllocation,
+				
 		        callbacks);
 	        
 	        #endregion

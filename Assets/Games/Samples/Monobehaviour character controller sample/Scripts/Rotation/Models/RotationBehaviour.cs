@@ -39,10 +39,7 @@ namespace HereticalSolutions.Samples.MonobehaviourCharacterControllerSample.Mode
                           * Mathf.Rad2Deg
                           + 90f;
 
-            rotationTransform.eulerAngles = new Vector3(
-                0f,
-                angle,
-                0f);
+            rotationTransform.eulerAngles = MathHelpersUnity.AxisVector3Y(angle);
         }
     }
 }

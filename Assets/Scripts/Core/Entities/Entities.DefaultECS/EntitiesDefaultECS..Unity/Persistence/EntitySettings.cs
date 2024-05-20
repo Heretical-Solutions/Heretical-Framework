@@ -3,6 +3,8 @@ using HereticalSolutions.Persistence.Serializers;
 
 using HereticalSolutions.Persistence.Factories;
 
+using HereticalSolutions.Logging;
+
 using UnityEngine;
 
 namespace HereticalSolutions.Entities
@@ -25,25 +27,23 @@ namespace HereticalSolutions.Entities
 		/// <summary>
 		/// The EntityPrototypeDTO object representing the entity's prototype.
 		/// </summary>
-		public EntityPrototypeDTO PrototypeDTO
+		public EntityPrototypeDTO GetPrototypeDTO(
+			ILoggerResolver loggerResolver = null)
 		{
-			get
-			{
-				if (jsonSerializer == null)
-					jsonSerializer = UnityPersistenceFactory.BuildSimpleUnityJSONSerializer();
+			if (jsonSerializer == null)
+				jsonSerializer = UnityPersistenceFactory.BuildSimpleUnityJSONSerializer(loggerResolver);
 
-				if (stringArgument == null)
-					stringArgument = new StringArgument();
+			if (stringArgument == null)
+				stringArgument = new StringArgument();
 
-				stringArgument.Value = EntityJson;
+			stringArgument.Value = EntityJson;
 
-				bool success = jsonSerializer.Deserialize(
-					stringArgument,
-					typeof(EntityPrototypeDTO),
-					out object newEntityDTO);
+			bool success = jsonSerializer.Deserialize(
+				stringArgument,
+				typeof(EntityPrototypeDTO),
+				out object newEntityDTO);
 
-				return (EntityPrototypeDTO)newEntityDTO;
-			}
+			return (EntityPrototypeDTO)newEntityDTO;
 		}
 	}
 }

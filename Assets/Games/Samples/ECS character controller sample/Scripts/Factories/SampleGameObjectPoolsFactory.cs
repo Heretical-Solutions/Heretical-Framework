@@ -135,9 +135,13 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Factories
 					// Initialize the resizable pool builder.
 					resizablePoolBuilder.Initialize(
 						valueAllocationDelegate,
+						true,
+
 						metadataDescriptorBuilders,
+
 						currentVariant.Initial,
 						currentVariant.Additional,
+						
 						callbacks);
 
 					// Build the resizable pool.

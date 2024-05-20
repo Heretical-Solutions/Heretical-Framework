@@ -109,7 +109,7 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 									entityName.SplitAddressBySeparator(),
 									out IReadOnlyResourceData resourceData))
 								{
-									logger.LogError<ResourceImporterFromScriptable>(
+									logger?.LogError<SampleEntityPrototypeImportInstaller>(
 										$"COULD NOT FIND RESOURCE FOR ENTITY: {entityName}");
 
 									continue;
@@ -120,16 +120,16 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 									out IResourceVariantData registryVariant))
 								{
 									if (!registryWorldPrototypeVisitor.Load(
-										registryVariant.StorageHandle.GetResource<EntitySettings>().PrototypeDTO,
+										registryVariant.StorageHandle.GetResource<EntitySettings>().GetPrototypeDTO(loggerResolver),
 										out Entity registryEntity))
 									{
-										logger.LogError<ResourceImporterFromScriptable>(
+										logger?.LogError<SampleEntityPrototypeImportInstaller>(
 											$"COULD NOT LOAD REGISTRY ENTITY FOR: {entityName}");
 
 										continue;
 									}
 
-									logger?.Log<ResourceImporterFromScriptable>(
+									logger?.Log<SampleEntityPrototypeImportInstaller>(
 										$"LOADED REGISTRY ENTITY FOR: {entityName}");
 								}
 								else
@@ -143,16 +143,16 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 									out IResourceVariantData simulationVariant))
 								{
 									if (!simulationWorldPrototypeVisitor.Load(
-										simulationVariant.StorageHandle.GetResource<EntitySettings>().PrototypeDTO,
+										simulationVariant.StorageHandle.GetResource<EntitySettings>().GetPrototypeDTO(loggerResolver),
 										out Entity simulationEntity))
 									{
-										logger.LogError<ResourceImporterFromScriptable>(
+										logger?.LogError<SampleEntityPrototypeImportInstaller>(
 											$"COULD NOT LOAD SIMULATION ENTITY FOR: {entityName}");
 
 										continue;
 									}
 
-									logger?.Log<ResourceImporterFromScriptable>(
+									logger?.Log<SampleEntityPrototypeImportInstaller>(
 										$"LOADED SIMULATION ENTITY FOR: {entityName}");
 								}
 								else
@@ -166,16 +166,16 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 									out IResourceVariantData viewVariant))
 								{
 									if (!viewWorldPrototypeVisitor.Load(
-										viewVariant.StorageHandle.GetResource<EntitySettings>().PrototypeDTO,
+										viewVariant.StorageHandle.GetResource<EntitySettings>().GetPrototypeDTO(loggerResolver),
 										out Entity viewEntity))
 									{
-										logger.LogError<ResourceImporterFromScriptable>(
+										logger?.LogError<SampleEntityPrototypeImportInstaller>(
 											$"COULD NOT LOAD VIEW ENTITY FOR: {entityName}");
 
 										continue;
 									}
 
-									logger?.Log<ResourceImporterFromScriptable>(
+									logger?.Log<SampleEntityPrototypeImportInstaller>(
 										$"LOADED VIEW ENTITY FOR: {entityName}");
 								}
 								else

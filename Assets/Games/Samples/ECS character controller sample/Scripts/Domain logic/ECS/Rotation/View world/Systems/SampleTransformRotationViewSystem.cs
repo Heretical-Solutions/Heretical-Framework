@@ -28,10 +28,8 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample
 				return;
 			}
 
-			sampleTransformRotationViewComponent.RotationPivotTransform.eulerAngles = new Vector3(
-				0f,
-				sampleTransformRotationViewComponent.Angle,
-				0f);
+			sampleTransformRotationViewComponent.RotationPivotTransform.eulerAngles =
+				MathHelpersUnity.AxisVector3Y(sampleTransformRotationViewComponent.Angle);
 
 			sampleTransformRotationViewComponent.Dirty = false;
 		}

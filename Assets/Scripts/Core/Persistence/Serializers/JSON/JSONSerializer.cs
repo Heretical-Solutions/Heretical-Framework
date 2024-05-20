@@ -1,10 +1,14 @@
 using System;
+using System.Collections.Generic;
+
+using System.Linq;
 
 using HereticalSolutions.Repositories;
 
 using HereticalSolutions.Logging;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace HereticalSolutions.Persistence.Serializers
 {
@@ -25,9 +29,9 @@ namespace HereticalSolutions.Persistence.Serializers
             writeSerializerSettings = new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto,
-                //TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple, //COMMENTED OUT BECAUSE THIS OPTION IS NOT PRESENT IN JSON.NET.AOT
+                //TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,   //COMMENTED OUT BECAUSE THIS OPTION IS NOT PRESENT IN JSON.NET.AOT
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
-                //NullValueHandling = NullValueHandling.Ignore,
+                NullValueHandling = NullValueHandling.Ignore,                               //Tell me something... Why did I comment this out before?
                 DateFormatHandling = DateFormatHandling.MicrosoftDateFormat
             };
 
@@ -36,9 +40,24 @@ namespace HereticalSolutions.Persistence.Serializers
             readSerializerSettings = new JsonSerializerSettings
             {
                 TypeNameHandling = TypeNameHandling.Auto,
-                //NullValueHandling = NullValueHandling.Ignore,
-                //TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple, //COMMENTED OUT BECAUSE THIS OPTION IS NOT PRESENT IN JSON.NET.AOT
-                MaxDepth = 10
+                NullValueHandling = NullValueHandling.Ignore,                               //Tell me something... Why did I comment this out before?
+                //TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Simple,   //COMMENTED OUT BECAUSE THIS OPTION IS NOT PRESENT IN JSON.NET.AOT
+                MaxDepth = 10,
+
+                //Courtesy of https://stackoverflow.com/questions/39383098/ignore-missing-types-during-deserialization-of-list
+                SerializationBinder = new JsonSerializationBinder(new DefaultSerializationBinder()),
+                Error = (sender, args) =>
+                {
+                    if (args.CurrentObject == args.ErrorContext.OriginalObject
+                        && args.ErrorContext.Error.InnerExceptionsAndSelf().OfType<JsonSerializationBinderException>().Any()
+                        && args.ErrorContext.OriginalObject.GetType().GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IList<>)))
+                    {
+                        logger?.LogError<JSONSerializer>(
+                            $"EXCEPTION WAS THROWN DURING DESERIALIZATION: {args.ErrorContext.Error.Message}");
+
+                        args.ErrorContext.Handled = true;
+                    }
+                }
             };
 
             this.strategyRepository = strategyRepository;

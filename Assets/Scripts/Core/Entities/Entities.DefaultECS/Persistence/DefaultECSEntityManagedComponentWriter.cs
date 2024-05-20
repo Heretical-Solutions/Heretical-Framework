@@ -32,7 +32,7 @@ namespace HereticalSolutions.Entities
 		{
 			if (viewComponentTypes == null)
 			{
-				DefaultECSEntityFactory.BuildComponentTypesListWithAttribute<ViewComponentAttribute>(
+				TypeHelpers.GetTypesWithAttribute<ViewComponentAttribute>(
 					out viewComponentTypes);
 			}
 

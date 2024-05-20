@@ -47,7 +47,8 @@ namespace HereticalSolutions.AssetImport
 			if (runtimeResourceManager == null)
 			{
 				throw new Exception(
-					logger.FormatException(
+					logger.TryFormat(
+						GetType(),
 						"RUNTIME RESOURCE MANAGER IS NOT INITIALIZED"));
 			}
 
@@ -209,7 +210,8 @@ namespace HereticalSolutions.AssetImport
 			if (runtimeResourceManager == null)
 			{
 				throw new Exception(
-					logger.FormatException(
+					logger.TryFormat(
+						GetType(),
 						"RUNTIME RESOURCE MANAGER IS NOT INITIALIZED"));
 			}
 

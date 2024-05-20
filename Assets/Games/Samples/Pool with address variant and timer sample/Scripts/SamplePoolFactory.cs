@@ -6,9 +6,9 @@ using HereticalSolutions.Pools;
 using HereticalSolutions.Pools.AllocationCallbacks;
 using HereticalSolutions.Pools.Factories;
 
-using HereticalSolutions.Synchronization;
-
 using HereticalSolutions.Metadata.Allocations;
+
+using HereticalSolutions.Time;
 
 using HereticalSolutions.Logging;
 
@@ -23,7 +23,7 @@ namespace HereticalSolutions.Samples.PoolWithAddressVariantAndTimerSample
         public static INonAllocDecoratedPool<GameObject> BuildPool(
             DiContainer container,
             SamplePoolSettings settings,
-            ISynchronizationProvider synchronizationProvider,
+            ITimerManager timerManager,
             Transform parentTransform = null,
             ILoggerResolver loggerResolver = null)
         {
@@ -63,7 +63,7 @@ namespace HereticalSolutions.Samples.PoolWithAddressVariantAndTimerSample
                 PoolsFactory.BuildIndexedMetadataDescriptor,
                 AddressDecoratorsPoolsFactory.BuildAddressMetadataDescriptor,
                 VariantsDecoratorsPoolsFactory.BuildVariantMetadataDescriptor,
-                TimersDecoratorsPoolsFactory.BuildRuntimeTimerMetadataDescriptor
+                TimersDecoratorsPoolsFactory.BuildRuntimeTimerWithPushSubscriptionMetadataDescriptor
             };
 
             #endregion
@@ -105,9 +105,8 @@ namespace HereticalSolutions.Samples.PoolWithAddressVariantAndTimerSample
                         VariantsDecoratorsPoolsFactory.BuildSetVariantCallback<GameObject>(i);
 
                     // Build a set runtime timer callback.
-                    SetRuntimeTimerCallback<GameObject> setRuntimeTimerCallback =
-                        TimersDecoratorsPoolsFactory.BuildSetRuntimeTimerCallback<GameObject>(
-                            $"{currentVariantName} Timer",
+                    SetDurationAndPushSubscriptionCallback<GameObject> setRuntimeTimerWithPushSubscriptionCallback =
+                        TimersDecoratorsPoolsFactory.BuildSetDurationAndPushSubscriptionCallback<GameObject>(
                             currentVariant.Duration,
                             loggerResolver);
 
@@ -125,7 +124,7 @@ namespace HereticalSolutions.Samples.PoolWithAddressVariantAndTimerSample
                         renameCallback,
                         setAddressCallback,
                         setVariantCallback,
-                        setRuntimeTimerCallback,
+                        setRuntimeTimerWithPushSubscriptionCallback,
                         pushCallback
                     };
 
@@ -147,9 +146,13 @@ namespace HereticalSolutions.Samples.PoolWithAddressVariantAndTimerSample
                     // Initialize the resizable pool builder.
                     resizablePoolBuilder.Initialize(
                         valueAllocationDelegate,
+                        true,
+
                         metadataDescriptorBuilders,
+
                         currentVariant.Initial,
                         currentVariant.Additional,
+                        
                         callbacks);
 
                     // Build the resizable pool.
@@ -168,7 +171,7 @@ namespace HereticalSolutions.Samples.PoolWithAddressVariantAndTimerSample
                     // Build the pool with runtime timers.
                     var poolWithRuntimeTimers = TimersDecoratorsPoolsFactory.BuildNonAllocPoolWithRuntimeTimer(
                         prefabInstancePool,
-                        synchronizationProvider,
+                        timerManager,
                         loggerResolver);
 
                     // Add the variant to the pool with variants builder.

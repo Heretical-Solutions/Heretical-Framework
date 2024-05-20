@@ -2,7 +2,7 @@ using System;
 
 using HereticalSolutions.Pools.Arguments;
 
-using HereticalSolutions.Synchronization;
+using HereticalSolutions.Time;
 
 using HereticalSolutions.Logging;
 
@@ -10,22 +10,17 @@ namespace HereticalSolutions.Pools.Decorators
 {
 	public class NonAllocPoolWithRuntimeTimer<T> : ANonAllocDecoratorPool<T>
 	{
-		private readonly ISynchronizationProvider provider;
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="NonAllocPoolWithRuntimeTimer{T}"/> class.
-		/// </summary>
-		/// <param name="innerPool">The inner pool to decorate.</param>
-		/// <param name="provider">The synchronization provider for the runtime timer.</param>
+		private ITimerManager timerManager;
+		
 		public NonAllocPoolWithRuntimeTimer(
 			INonAllocDecoratedPool<T> innerPool,
-			ISynchronizationProvider provider,
+			ITimerManager timerManager,
 			ILogger logger = null)
 			: base(
 				innerPool,
 				logger)
 		{
-			this.provider = provider;
+			this.timerManager = timerManager;
 		}
 		
 		protected override void OnAfterPop(
@@ -37,32 +32,62 @@ namespace HereticalSolutions.Pools.Decorators
 					logger.TryFormat<NonAllocPoolWithRuntimeTimer<T>>(
 						"INVALID INSTANCE"));
 
+			//Get metadata
 			var metadata = instance.Metadata.Get<IContainsRuntimeTimer>();
+
+			var metadataWithPushSubscription = metadata as IPushOnTimerFinish;
+
+
+			//Calculate duration
+			float duration = 0f;
+
+			if (metadataWithPushSubscription != null)
+				duration = metadataWithPushSubscription.Duration;
+			else if (metadata.RuntimeTimer != null)
+				duration = metadata.RuntimeTimer.CurrentDuration;
 
 			if (args.TryGetArgument<DurationArgument>(out var arg))
 			{
-				float newDuration = arg.Duration;
-				
-				if (newDuration < 0f)
-					return;
-
-				metadata.RuntimeTimer.OnFinish.Subscribe(metadata.PushSubscription);
-
-				provider.Subscribe(metadata.UpdateSubscription);
-
-				metadata.RuntimeTimer.Start(newDuration);
-
-				return;
+				duration = arg.Duration;
 			}
 
-			if (metadata.RuntimeTimer.DefaultDuration < 0f)
+
+			//Early return
+			if (duration < 0f)
 				return;
 
-			metadata.RuntimeTimer.OnFinish.Subscribe(metadata.PushSubscription);
+
+			//Get the timer
+			IRuntimeTimer timer;
+
+			if (metadataWithPushSubscription != null)
+			{
+				timerManager.CreateTimer(
+					out var timerID,
+					out timer);
+
+				metadata.RuntimeTimer = timer;
+
+				metadataWithPushSubscription.TimerID = timerID;
+
+				timer.OnFinish.Subscribe(
+					metadataWithPushSubscription.PushSubscription);
+			}
+			else
+			{
+				timer = metadata.RuntimeTimer;
+			}
+
+
+			if (timer == null)
+				throw new Exception(
+					logger.TryFormat<NonAllocPoolWithRuntimeTimer<T>>(
+						"INVALID TIMER"));
 			
-			provider.Subscribe(metadata.UpdateSubscription);
-			
-			metadata.RuntimeTimer.Start();
+
+			timer.Reset(duration);
+
+			timer.Start();
 		}
 
 		/// <summary>
@@ -77,14 +102,30 @@ namespace HereticalSolutions.Pools.Decorators
 						"INVALID INSTANCE"));
 
 			var metadata = instance.Metadata.Get<IContainsRuntimeTimer>();
-			
-			metadata.RuntimeTimer.Reset();
-			
-			if (metadata.UpdateSubscription.Active)
-				provider.Unsubscribe(metadata.UpdateSubscription);
-			
-			if (metadata.PushSubscription.Active)
-				metadata.RuntimeTimer.OnFinish.Unsubscribe(metadata.PushSubscription);
+
+			var metadataWithPushSubscription = metadata as IPushOnTimerFinish;
+
+
+			var timer = metadata.RuntimeTimer;
+
+			if (timer != null)
+			{
+				timer.Reset();
+
+
+				if (metadataWithPushSubscription != null)
+				{
+					if (metadataWithPushSubscription.PushSubscription.Active)
+						timer.OnFinish.Unsubscribe(metadataWithPushSubscription.PushSubscription);
+
+					timerManager.TryDestroyTimer(
+						metadataWithPushSubscription.TimerID);
+
+					metadata.RuntimeTimer = null;
+
+					metadataWithPushSubscription.TimerID = -1;
+				}
+			}
 		}
 	}
 }

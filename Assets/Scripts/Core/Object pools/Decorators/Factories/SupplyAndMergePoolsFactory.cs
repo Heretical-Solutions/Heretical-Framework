@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 
 using HereticalSolutions.Allocations;
 using HereticalSolutions.Allocations.Factories;
@@ -19,10 +18,15 @@ namespace HereticalSolutions.Pools.Factories
 
         public static SupplyAndMergePool<T> BuildSupplyAndMergePoolWithAllocationCallback<T>(
             Func<T> valueAllocationDelegate,
+            bool topUpIfElementValueIsNull,
+
             MetadataAllocationDescriptor[] metadataDescriptors,
+
             AllocationCommandDescriptor initialAllocation,
             AllocationCommandDescriptor additionalAllocation,
+
             IAllocationCallback<T> callback,
+
             ILoggerResolver loggerResolver = null)
         {
             Func<T> nullAllocation = AllocationsFactory.NullAllocationDelegate<T>;
@@ -38,7 +42,10 @@ namespace HereticalSolutions.Pools.Factories
                     nullAllocation,
                     metadataDescriptors,
                     callback),
+
                 valueAllocationDelegate,
+                topUpIfElementValueIsNull,
+
                 loggerResolver);
 
             return supplyAndMergePool;
@@ -46,9 +53,14 @@ namespace HereticalSolutions.Pools.Factories
 
         public static SupplyAndMergePool<T> BuildSupplyAndMergePool<T>(
             Func<T> valueAllocationDelegate,
+            bool topUpIfElementValueIsNull,
+
+
             MetadataAllocationDescriptor[] metadataDescriptors,
+
             AllocationCommandDescriptor initialAllocation,
             AllocationCommandDescriptor additionalAllocation,
+
             ILoggerResolver loggerResolver = null)
         {
             Func<T> nullAllocation = AllocationsFactory.NullAllocationDelegate<T>;
@@ -62,7 +74,10 @@ namespace HereticalSolutions.Pools.Factories
                     additionalAllocation,
                     nullAllocation,
                     metadataDescriptors),
+
                 valueAllocationDelegate,
+                topUpIfElementValueIsNull,
+
                 loggerResolver);
 
             return supplyAndMergePool;
@@ -71,25 +86,45 @@ namespace HereticalSolutions.Pools.Factories
         public static SupplyAndMergePool<T> BuildSupplyAndMergePool<T>(
             AllocationCommand<IPoolElement<T>> initialAllocationCommand,
             AllocationCommand<IPoolElement<T>> appendAllocationCommand,
+
             Func<T> topUpAllocationDelegate,
+            bool topUpIfElementValueIsNull,
+
             ILoggerResolver loggerResolver = null)
         {
             var basePool = BuildPackedArrayPool<T>(
                 initialAllocationCommand,
                 loggerResolver);
 
+            //¯\_(ツ)_/¯
+            //TODO: fix
+            if (appendAllocationCommand.Descriptor.Rule == EAllocationAmountRule.DOUBLE_AMOUNT)
+            {
+                throw new Exception($"[SupplyAndMergePoolsFactory] CANNOT USE \"DOUBLE_AMOUNT\" RULE FOR APPEND ALLOCATION COMMAND IN SUPPLY AND MERGE POOL");
+            }
+
             var supplyPool = BuildPackedArrayPool<T>(
                 appendAllocationCommand,
                 loggerResolver);
 
+            ILogger logger =
+                loggerResolver?.GetLogger<SupplyAndMergePool<T>>()
+                ?? null;
+
             return new SupplyAndMergePool<T>(
                 basePool,
                 supplyPool,
+
                 supplyPool,
                 supplyPool,
+
                 appendAllocationCommand,
                 MergePools,
-                topUpAllocationDelegate);
+
+                topUpAllocationDelegate,
+                topUpIfElementValueIsNull,
+
+                logger);
         }
 
         public static void MergePools<T>(

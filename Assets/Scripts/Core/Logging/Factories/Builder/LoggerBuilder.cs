@@ -80,10 +80,28 @@ namespace HereticalSolutions.Logging
 		{
 			bool provide = allowedByDefault;
 
-			if (explicitLogSourceRules.Has(
-				logSourceType))
+			if (logSourceType.IsGenericType)
 			{
-				provide = explicitLogSourceRules.Get(logSourceType);
+				var genericTypeDefinition = logSourceType.GetGenericTypeDefinition();
+
+				if (explicitLogSourceRules.Has(
+					genericTypeDefinition))
+				{
+					provide = explicitLogSourceRules.Get(genericTypeDefinition);
+				}
+				else if (explicitLogSourceRules.Has(
+					logSourceType))
+				{
+					provide = explicitLogSourceRules.Get(logSourceType);
+				}
+			}
+			else
+			{
+				if (explicitLogSourceRules.Has(
+					logSourceType))
+				{
+					provide = explicitLogSourceRules.Get(logSourceType);
+				}
 			}
 
 			if (provide)

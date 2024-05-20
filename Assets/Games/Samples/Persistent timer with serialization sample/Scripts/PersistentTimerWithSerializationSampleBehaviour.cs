@@ -138,17 +138,17 @@ namespace HereticalSolutions.Samples.PersistentTimerWithSerializationSample
 			loadVisitor = visitor;
 
 			//Initialize serializers
-			binarySerializer = UnityPersistenceFactory.BuildSimpleUnityBinarySerializer();
+			binarySerializer = UnityPersistenceFactory.BuildSimpleUnityBinarySerializer(loggerResolver);
 
-			protobufSerializer = UnityPersistenceFactory.BuildSimpleUnityProtobufSerializer();
+			protobufSerializer = UnityPersistenceFactory.BuildSimpleUnityProtobufSerializer(loggerResolver);
 
-			jsonSerializer = UnityPersistenceFactory.BuildSimpleUnityJSONSerializer();
+			jsonSerializer = UnityPersistenceFactory.BuildSimpleUnityJSONSerializer(loggerResolver);
 
-			xmlSerializer = UnityPersistenceFactory.BuildSimpleUnityXMLSerializer();
+			xmlSerializer = UnityPersistenceFactory.BuildSimpleUnityXMLSerializer(loggerResolver);
 
-			yamlSerializer = UnityPersistenceFactory.BuildSimpleUnityYAMLSerializer();
+			yamlSerializer = UnityPersistenceFactory.BuildSimpleUnityYAMLSerializer(loggerResolver);
 
-			csvSerializer = UnityPersistenceFactory.BuildSimpleUnityCSVSerializer();
+			csvSerializer = UnityPersistenceFactory.BuildSimpleUnityCSVSerializer(loggerResolver);
 
 			//Initialize arguments
 			binaryStreamArgument = new UnityStreamArgument();

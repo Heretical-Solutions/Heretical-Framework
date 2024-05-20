@@ -3,6 +3,7 @@ using System;
 using HereticalSolutions.MVVM.View;
 
 using HereticalSolutions.Logging;
+using ILogger = HereticalSolutions.Logging.ILogger;
 
 using UnityEngine.UIElements;
 
@@ -36,7 +37,7 @@ namespace HereticalSolutions.MVVM.UIToolkit
 
             if (onClickCommand == null)
                 throw new Exception(
-                    logger.FormatException(
+                    logger.TryFormat<ButtonView>(
                         $"Could not obtain command \"{commandID}\" from ViewModel \"{viewModel.GetType()}\""));
             
             button.RegisterCallback<ClickEvent>(OnButtonClicked);

@@ -36,7 +36,7 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample
 			}
 
 
-			var pooledViewComponent = targetEntity.Get<PooledGameObjectView>();
+			var pooledViewComponent = targetEntity.Get<PooledGameObjectViewComponent>();
 
 			var transform = pooledViewComponent.Element.Value.transform;
 

@@ -152,6 +152,7 @@ namespace HereticalSolutions.Entities.Factories
                 createIDComponentDelegate,
 
                 prototypeRepository,
+                new ComponentCloner(),
                 logger);
         }
 
@@ -203,6 +204,7 @@ namespace HereticalSolutions.Entities.Factories
                     createResolveWorldIdentityComponentDelegate,
 
                     BuildDefaultECSPrototypesRepository(),
+                    new ComponentCloner(),
                     logger);
         }
 
@@ -250,79 +252,7 @@ namespace HereticalSolutions.Entities.Factories
 
         #endregion
 
-        #region Component types with attribute lists
-
-        /// <summary>
-        /// Builds a list of component types with the specified attribute.
-        /// </summary>
-        /// <typeparam name="TAttribute">The attribute type to filter the component types with.</typeparam>
-        /// <param name="componentTypes">The resulting list of component types.</param>
-        public static void BuildComponentTypesListWithAttribute<TAttribute>(
-            out Type[] componentTypes)
-            where TAttribute : System.Attribute
-        {
-            List<Type> result = new List<Type>();
-
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                foreach (Type type in assembly.GetTypes())
-                {
-                    if (type.GetCustomAttribute<TAttribute>(false) != null)
-                    {
-                        result.Add(type);
-                    }
-                }
-            }
-
-            componentTypes = result.ToArray();
-        }
-        
-        /// <summary>
-        /// Builds a list of component types with the specified attribute.
-        /// </summary>
-        /// <typeparam name="TAttribute">The attribute type to filter the component types with.</typeparam>
-        /// <param name="componentTypes">The resulting list of component types.</param>
-        /// <param name="hashToType">The repository mapping component hash values to their types.</param>
-        /// <param name="typeToHash">The repository mapping component types to their hash values.</param>
-        public static void BuildComponentTypesListWithAttribute<TAttribute>(
-            out Type[] componentTypes,
-            out IReadOnlyRepository<int, Type> hashToType,
-            out IReadOnlyRepository<Type, int> typeToHash)
-            where TAttribute : System.Attribute
-        {
-            hashToType = RepositoriesFactory.BuildDictionaryRepository<int, Type>();
-
-            typeToHash = RepositoriesFactory.BuildDictionaryRepository<Type, int>();
-
-            List<Type> result = new List<Type>();
-
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                foreach (Type type in assembly.GetTypes())
-                {
-                    if (type.GetCustomAttribute<TAttribute>(false) != null)
-                    {
-                        result.Add(type);
-                    }
-                }
-            }
-
-            foreach (Type type in result)
-            {
-                string typeFullString = type.ToString();
-
-                int typeHash = typeFullString.GetHashCode();
-                
-                ((IRepository<int, Type>)hashToType).AddOrUpdate(typeHash, type);
-                
-                ((IRepository<Type, int>)typeToHash).AddOrUpdate(type, typeHash);
-            }
-
-            componentTypes = result.ToArray();
-        }
-
-        #endregion
-
+        /*
         #region Component readers and writers
 
         public static ReadComponentToDTOsListDelegate[] BuildComponentReaders(
@@ -400,12 +330,6 @@ namespace HereticalSolutions.Entities.Factories
             if (componentDTO.Data == null)
                 return;
             
-            /*
-            if (!entity.Has<TComponent>())
-            {
-                return;
-            }
-            */
 
             var component = (TComponent)FromBytes(componentDTO.Data, typeof(TComponent));
             
@@ -476,5 +400,6 @@ namespace HereticalSolutions.Entities.Factories
         }
 
         #endregion
+        */
     }
 }

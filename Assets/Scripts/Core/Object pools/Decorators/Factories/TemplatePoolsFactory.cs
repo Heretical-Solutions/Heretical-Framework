@@ -49,9 +49,13 @@ namespace HereticalSolutions.Pools.Factories
 
 			resizablePoolBuilder.Initialize(
 				valueAllocationDelegate,
+				true,
+
 				metadataDescriptorBuilders,
+
 				initialAllocation,
 				additionalAllocation,
+
 				null);
 
 			var resizablePool = resizablePoolBuilder.BuildResizablePool();
@@ -97,9 +101,13 @@ namespace HereticalSolutions.Pools.Factories
 
 			resizablePoolBuilder.Initialize(
 				valueAllocationDelegate,
+				true,
+
 				metadataDescriptorBuilders,
+
 				initialAllocation,
 				additionalAllocation,
+				
 				null);
 
 			var resizablePool = resizablePoolBuilder.BuildResizablePool();

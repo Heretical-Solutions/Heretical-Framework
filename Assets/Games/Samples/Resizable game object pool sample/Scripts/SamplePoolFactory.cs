@@ -73,9 +73,13 @@ namespace HereticalSolutions.Samples.ResizableGameObjectPoolSample
             // Initialize the resizable pool builder.
             resizablePoolBuilder.Initialize(
                 valueAllocationDelegate,
+                true,
+
                 metadataDescriptorBuilders,
+
                 settings.Initial,
                 settings.Additional,
+                
                 callbacks);
 
             // Build the resizable pool.

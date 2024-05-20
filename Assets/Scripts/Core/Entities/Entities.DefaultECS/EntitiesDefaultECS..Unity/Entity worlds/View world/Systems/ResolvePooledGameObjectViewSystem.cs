@@ -9,7 +9,6 @@ using ILogger = HereticalSolutions.Logging.ILogger;
 using UnityEngine;
 
 using DefaultEcs;
-using DefaultEcs.System;
 
 namespace HereticalSolutions.Entities
 {
@@ -54,18 +53,18 @@ namespace HereticalSolutions.Entities
 			if (!entity.Has<ResolveViewComponent>())
 				return;
 
-			if (!entity.Has<SpawnPooledGameObjectView>())
+			if (!entity.Has<SpawnPooledGameObjectViewComponent>())
 			{
 				return;
 
 				//throw new Exception(
-				//	logger.FormatException(
-				//		$"ENTITY {entity.Get<GUIDComponent>().GUID} WAS REQUESTED TO BE RESOLVED BUT HAS NO SpawnPooledGameObjectView"));
+				//	logger.TryFormat<ResolvePooledGameObjectViewSystem>(
+				//		$"ENTITY {entity.Get<GUIDComponent>().GUID} WAS REQUESTED TO BE RESOLVED BUT HAS NO SpawnPooledGameObjectViewComponent"));
 			}
 
 			ref ResolveViewComponent resolveViewComponent = ref entity.Get<ResolveViewComponent>();
 
-			ref SpawnPooledGameObjectView spawnViewComponent = ref entity.Get<SpawnPooledGameObjectView>();
+			ref SpawnPooledGameObjectViewComponent spawnViewComponent = ref entity.Get<SpawnPooledGameObjectViewComponent>();
 
 			string address = spawnViewComponent.Address;
 
@@ -76,18 +75,31 @@ namespace HereticalSolutions.Entities
 			var pooledViewElement = pool
 				.Pop(arguments);
 
+			if (pooledViewElement.Value != null)
+			{
+				throw new Exception(
+					logger.TryFormat<ResolvePooledGameObjectViewSystem<TSceneEntity>>(
+						$"POOLED ELEMENT'S VALUE IS NOT NULL"));
+			}
+
+			if (pooledViewElement.Status != EPoolElementStatus.POPPED)
+			{
+				throw new Exception(
+					logger.TryFormat<ResolvePooledGameObjectViewSystem<TSceneEntity>>(
+						$"POOLED ELEMENT'S STATUS IS INVALID ({pooledViewElement.Value.name})"));
+			}
 
 			pooledViewElement.Value = (GameObject)resolveViewComponent.Source;
 
 
-			var pooledGameObjectViewComponent = new PooledGameObjectView();
+			var pooledGameObjectViewComponent = new PooledGameObjectViewComponent();
 
 			pooledGameObjectViewComponent.Element = pooledViewElement;
 
-			entity.Set<PooledGameObjectView>(pooledGameObjectViewComponent);
+			entity.Set<PooledGameObjectViewComponent>(pooledGameObjectViewComponent);
 
 
-			entity.Remove<SpawnPooledGameObjectView>();
+			entity.Remove<SpawnPooledGameObjectViewComponent>();
 
 
 			var sceneEntity = pooledViewElement.Value.GetComponentInChildren<TSceneEntity>();
@@ -97,15 +109,38 @@ namespace HereticalSolutions.Entities
 
 
 			var viewEntityAdapter = pooledViewElement.Value.GetComponentInChildren<GameObjectViewEntityAdapter>();
+			
+			if (viewEntityAdapter == null)
+			{
+				logger?.LogError<ResolvePooledGameObjectViewSystem<TSceneEntity>>(
+					$"NO VIEW ENTITY ADAPTER ON POOLED GAME OBJECT",
+					new object[]
+					{
+						pooledViewElement.Value
+					});
+				
+				UnityEngine.Debug.Break();
+				
+				return;
+			}
+			
+			if (viewEntityAdapter.ViewEntity.IsAlive)
+			{
+				logger?.LogError<ResolvePooledGameObjectViewSystem<TSceneEntity>>(
+					$"VIEW ENTITY ADAPTER'S ENTITY IS STILL ALIVE (CURRENT ENTITY: {viewEntityAdapter.ViewEntity} DESIRED ENTITY: {entity})",
+					new object[]
+					{
+						pooledViewElement.Value
+					});
+				
+				UnityEngine.Debug.Break();
+				
+				return;
+			}
 
 			if (viewEntityAdapter != null)
 			{
 				viewEntityAdapter.Initialize(entity);
-			}
-			else
-			{
-				logger?.LogError(
-					$"POOL ELEMENT {pooledViewElement.Value.name} HAS NO GameObjectViewEntityAdapter", new[] { pooledViewElement.Value });
 			}
 		}
 

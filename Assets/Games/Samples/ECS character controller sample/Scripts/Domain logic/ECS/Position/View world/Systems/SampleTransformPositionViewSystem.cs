@@ -28,10 +28,8 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample
 				return;
 			}
 
-			sampleTransformPositionViewComponent.PositionTransform.position = new Vector3(
-				sampleTransformPositionViewComponent.Position.x,
-				0f,
-				sampleTransformPositionViewComponent.Position.y);
+			sampleTransformPositionViewComponent.PositionTransform.position =
+				MathHelpersUnity.Vector2XZTo3(sampleTransformPositionViewComponent.Position);
 
 			sampleTransformPositionViewComponent.Dirty = false;
 		}

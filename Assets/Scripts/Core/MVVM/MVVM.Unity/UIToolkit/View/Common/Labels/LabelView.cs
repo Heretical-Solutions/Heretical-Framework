@@ -3,6 +3,7 @@ using System;
 using HereticalSolutions.MVVM.View;
 
 using HereticalSolutions.Logging;
+using ILogger = HereticalSolutions.Logging.ILogger;
 
 using UnityEngine.UIElements;
 
@@ -34,7 +35,7 @@ namespace HereticalSolutions.MVVM.UIToolkit
         {
             if (!viewModel.GetObservable<string>(propertyID, out textProperty))
                 throw new Exception(
-                    logger.FormatException(
+                    logger.TryFormat<LabelView>(
                         $"Could not obtain property \"{propertyID}\" from ViewModel \"{viewModel.GetType()}\""));
 
             textProperty.OnValueChanged += OnTextChanged;

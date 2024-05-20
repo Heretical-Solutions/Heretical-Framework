@@ -56,7 +56,7 @@ namespace HereticalSolutions.AssetImport
                     if (!resourceAssetReference.RuntimeKeyIsValid())
                     {
                         // Log an error if the runtime key is invalid for the asset
-                        logger.LogError<ResourceImporterFromAddressables>(
+                        logger?.LogError<ResourceImporterFromAddressables>(
                             $"RUNTIME KEY IS INVALID FOR ASSET {resourceDataSettings.ResourceID} VARIANT {resourceVariantDataSettings.VariantID}");
 
                         continue;

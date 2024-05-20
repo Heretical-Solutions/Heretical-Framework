@@ -25,20 +25,6 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 
 			foreach (var gameObjectWithTag in gameObjectsWithTag)
 			{
-				var adapter = gameObjectWithTag.GetComponent<GameObjectViewEntityAdapter>();
-
-				if (adapter == null)
-				{
-					logger?.LogError<SampleResolveEntitiesOnSceneInstaller>(
-						$"GAME OBJECT {gameObjectWithTag.name} HAS AN ENTITY TAG BUT NO GameObjectViewEntityAdapter COMPONENT",
-						new object[]
-						{
-							gameObjectWithTag
-						});
-
-					continue;
-				}
-
 				var sceneEntity = gameObjectWithTag.GetComponent<SampleSceneEntity>();
 
 				var worldLocalSceneEntity = gameObjectWithTag.GetComponent<WorldLocalSceneEntity>();
@@ -65,26 +51,26 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 
 				if (sceneEntity != null)
 				{
+					ResolveChildren(
+						sceneEntity,
+						logger);
+
 					entityManager.ResolveEntity(
 						sceneEntity.EntityID,
 						gameObjectWithTag,
 						sceneEntity.PrototypeID);
-
-					ResolveChildren(
-						sceneEntity,
-						logger);
 				}
 
 				if (worldLocalSceneEntity != null)
 				{
+					ResolveChildren(
+						worldLocalSceneEntity,
+						logger);
+
 					entityManager.ResolveWorldLocalEntity(
 						worldLocalSceneEntity.PrototypeID,
 						gameObjectWithTag,
 						worldLocalSceneEntity.WorldID);
-
-					ResolveChildren(
-						worldLocalSceneEntity,
-						logger);
 				}
 			}
 		}
@@ -93,24 +79,12 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 			ASceneEntity parentSceneEntity,
 			ILogger logger = null)
 		{
-			if (parentSceneEntity.childEntities == null)
+			if (parentSceneEntity.ChildEntities == null)
 				return;
 
-			foreach (var childSceneEntity in parentSceneEntity.childEntities)
+			foreach (var childSceneEntityDescriptor in parentSceneEntity.ChildEntities)
 			{
-				var childAdapter = childSceneEntity.GetComponent<GameObjectViewEntityAdapter>();
-
-				if (childAdapter == null)
-				{
-					logger?.LogError<SampleResolveEntitiesOnSceneInstaller>(
-						$"GAME OBJECT {childSceneEntity.name} HAS AN ENTITY TAG BUT NO ViewEntityAdapter COMPONENT",
-						new object[]
-						{
-							childSceneEntity
-						});
-
-					continue;
-				}
+				var childSceneEntity = childSceneEntityDescriptor.SceneEntity;
 
 				logger?.Log<SampleResolveEntitiesOnSceneInstaller>(
 					$"RESOLVING GAME OBJECT {childSceneEntity.gameObject.name}",
@@ -123,6 +97,10 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 
 				if (childSampleSceneEntity != null)
 				{
+					ResolveChildren(
+						childSampleSceneEntity,
+						logger);
+
 					entityManager.ResolveEntity(
 						childSampleSceneEntity.EntityID,
 						childSceneEntity.gameObject,
@@ -133,6 +111,10 @@ namespace HereticalSolutions.Samples.ECSCharacterControllerSample.Installers
 
 				if (childWorldLocalSceneEntity != null)
 				{
+					ResolveChildren(
+						childWorldLocalSceneEntity,
+						logger);
+
 					entityManager.ResolveWorldLocalEntity(
 						childWorldLocalSceneEntity.PrototypeID,
 						childWorldLocalSceneEntity.gameObject,

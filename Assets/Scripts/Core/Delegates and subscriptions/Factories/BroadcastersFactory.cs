@@ -19,6 +19,8 @@ namespace HereticalSolutions.Delegates.Factories
 {
     public static partial class DelegatesFactory
     {
+        private const int DEFAULT_BROADCASTER_CAPACITY = 16;
+
         #region Broadcaster multiple args
 
         public static BroadcasterMultipleArgs BuildBroadcasterMultipleArgs(
@@ -86,13 +88,17 @@ namespace HereticalSolutions.Delegates.Factories
 
             var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<ISubscription>(
                 valueAllocationDelegate,
+                false,
+
                 new []
                 {
                     PoolsFactory.BuildIndexedMetadataDescriptor()
                 },
                 new AllocationCommandDescriptor
                 {
-                    Rule = EAllocationAmountRule.ADD_ONE
+                    Rule = EAllocationAmountRule.ADD_PREDEFINED_AMOUNT,
+
+                    Amount = DEFAULT_BROADCASTER_CAPACITY
                 },
                 new AllocationCommandDescriptor
                 {
@@ -114,6 +120,8 @@ namespace HereticalSolutions.Delegates.Factories
 
             var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<ISubscription>(
                 valueAllocationDelegate,
+                false,
+
                 new []
                 {
                     PoolsFactory.BuildIndexedMetadataDescriptor()
@@ -198,13 +206,17 @@ namespace HereticalSolutions.Delegates.Factories
 
             var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<ISubscription>(
                 valueAllocationDelegate,
+                false,
+
                 new []
                 {
                     PoolsFactory.BuildIndexedMetadataDescriptor()
                 },
                 new AllocationCommandDescriptor
                 {
-                    Rule = EAllocationAmountRule.ADD_ONE
+                    Rule = EAllocationAmountRule.ADD_PREDEFINED_AMOUNT,
+
+                    Amount = DEFAULT_BROADCASTER_CAPACITY
                 },
                 new AllocationCommandDescriptor
                 {
@@ -226,6 +238,8 @@ namespace HereticalSolutions.Delegates.Factories
 
             var subscriptionsPool = PoolsFactory.BuildResizableNonAllocPool<ISubscription>(
                 valueAllocationDelegate,
+                false,
+
                 new []
                 {
                     PoolsFactory.BuildIndexedMetadataDescriptor()

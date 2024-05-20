@@ -6,9 +6,6 @@ using DefaultEcs;
 
 namespace HereticalSolutions.Entities
 {
-    /// <summary>
-    /// Represents a class for building event entities.
-    /// </summary>
     public class DefaultECSEventEntityBuilder<TEntityID>
         : IEventEntityBuilder<Entity, TEntityID>
     {
@@ -41,6 +38,34 @@ namespace HereticalSolutions.Entities
             return this;
         }
 
+        public IEventEntityBuilder<Entity, TEntityID> AddressedToEntity(
+            Entity eventEntity,
+            TEntityID receiverEntity)
+        {
+            eventEntity
+                .Set<EventReceiverEntityComponent<TEntityID>>(
+                    new EventReceiverEntityComponent<TEntityID>
+                    {
+                        ReceiverID = receiverEntity
+                    });
+
+            return this;
+        }
+
+        public IEventEntityBuilder<Entity, TEntityID> AddressedToWorldLocalEntity(
+            Entity eventEntity,
+            Entity receiverEntity)
+        {
+            eventEntity
+                .Set<EventReceiverWorldLocalEntityComponent<Entity>>(
+                    new EventReceiverWorldLocalEntityComponent<Entity>
+                    {
+                        Receiver = receiverEntity
+                    });
+
+            return this;
+        }
+
         public IEventEntityBuilder<Entity, TEntityID> CausedByEntity(
             Entity eventEntity,
             TEntityID sourceEntity)
@@ -55,6 +80,20 @@ namespace HereticalSolutions.Entities
             return this;
         }
 
+        public IEventEntityBuilder<Entity, TEntityID> CausedByWorldLocalEntity(
+            Entity eventEntity,
+            Entity sourceEntity)
+        {
+            eventEntity
+                .Set<EventSourceWorldLocalEntityComponent<Entity>>(
+                    new EventSourceWorldLocalEntityComponent<Entity>
+                    {
+                        Source = sourceEntity
+                    });
+
+            return this;
+        }
+
         public IEventEntityBuilder<Entity, TEntityID> TargetedAtEntity(
             Entity eventEntity,
             TEntityID targetEntity)
@@ -64,6 +103,20 @@ namespace HereticalSolutions.Entities
                     new EventTargetEntityComponent<TEntityID>
                     {
                         TargetID = targetEntity
+                    });
+
+            return this;
+        }
+
+        public IEventEntityBuilder<Entity, TEntityID> TargetedAtWorldLocalEntity(
+            Entity eventEntity,
+            Entity targetEntity)
+        {
+            eventEntity
+                .Set<EventTargetWorldLocalEntityComponent<Entity>>(
+                    new EventTargetWorldLocalEntityComponent<Entity>
+                    {
+                        Target = targetEntity
                     });
 
             return this;

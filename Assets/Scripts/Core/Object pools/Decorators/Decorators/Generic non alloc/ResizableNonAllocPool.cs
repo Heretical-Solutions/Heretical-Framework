@@ -10,6 +10,8 @@ using HereticalSolutions.LifetimeManagement;
 using HereticalSolutions.Pools.Arguments;
 using HereticalSolutions.Pools.Behaviours;
 
+using HereticalSolutions.Logging;
+
 namespace HereticalSolutions.Pools.Decorators
 {
     public class ResizableNonAllocPool<T>
@@ -21,30 +23,52 @@ namespace HereticalSolutions.Pools.Decorators
           ICleanUppable,
           IDisposable
     {
-        private INonAllocPool<T> contents;
-
         private readonly ICountUpdateable contentsAsCountUpdateable;
 
         private readonly IPushBehaviourHandler<T> pushBehaviourHandler;
 
+
+        private readonly Func<T> topUpAllocationDelegate;
+
+        private readonly bool topUpIfElementValueIsNull;
+
+
+        private readonly ILogger logger;
+
+
+        private INonAllocPool<T> contents;
+
+
         public ResizableNonAllocPool(
             INonAllocPool<T> contents,
             ICountUpdateable contentsAsCountUpdateable,
+            
             Action<ResizableNonAllocPool<T>> resizeDelegate,
             AllocationCommand<IPoolElement<T>> resizeAllocationCommand,
-            Func<T> topUpAllocationDelegate)
+
+            Func<T> topUpAllocationDelegate,
+            bool topUpIfElementValueIsNull,
+
+            ILogger logger = null)
         {
             this.contents = contents;
 
             this.contentsAsCountUpdateable = contentsAsCountUpdateable;
 
+
             this.resizeDelegate = resizeDelegate;
 
+
             this.topUpAllocationDelegate = topUpAllocationDelegate;
+
+            this.topUpIfElementValueIsNull = topUpIfElementValueIsNull;
+
 
             ResizeAllocationCommand = resizeAllocationCommand;
 
             pushBehaviourHandler = new PushToDecoratedPoolBehaviour<T>(this);
+
+            this.logger = logger;
         }
 
         #region IModifiable
@@ -58,6 +82,9 @@ namespace HereticalSolutions.Pools.Decorators
 
         public void UpdateCount(int newCount)
         {
+            logger?.Log<ResizableNonAllocPool<T>>(
+                $"NEW POOL SIZE: {newCount}");
+
             contentsAsCountUpdateable.UpdateCount(newCount);
         }
 
@@ -71,6 +98,9 @@ namespace HereticalSolutions.Pools.Decorators
 
         public void Resize()
         {
+            logger?.Log<ResizableNonAllocPool<T>>(
+                "RESIZE INVOKED");
+
             resizeDelegate(this);
         }
 
@@ -78,10 +108,11 @@ namespace HereticalSolutions.Pools.Decorators
 
         #region ITopUppable
 
-        private readonly Func<T> topUpAllocationDelegate;
-
         public void TopUp(IPoolElement<T> element)
         {
+            logger?.Log<ResizableNonAllocPool<T>>(
+                "TOP UP INVOKED");
+
             element.Value = topUpAllocationDelegate.Invoke();
         }
 
@@ -95,6 +126,9 @@ namespace HereticalSolutions.Pools.Decorators
 
             if (!contents.HasFreeSpace)
             {
+                logger?.Log<ResizableNonAllocPool<T>>(
+                    "POOL SIZE EXCEEDED, RESIZING");
+
                 resizeDelegate(this);
             }
 
@@ -104,8 +138,12 @@ namespace HereticalSolutions.Pools.Decorators
 
             #region Top up
 
-            if (EqualityComparer<T>.Default.Equals(result.Value, default(T)))
+            if (topUpIfElementValueIsNull
+                && EqualityComparer<T>.Default.Equals(result.Value, default(T)))
             {
+                logger?.Log<ResizableNonAllocPool<T>>(
+                    "POOL ELEMENT IS NULL OR DEFAULT, TOPPING UP");
+
                 TopUp(result);
             }
 

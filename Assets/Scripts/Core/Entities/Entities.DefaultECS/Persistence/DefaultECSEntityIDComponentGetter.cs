@@ -50,7 +50,7 @@ namespace HereticalSolutions.Entities
 		{
 			if (idComponentTypes == null)
 			{
-				DefaultECSEntityFactory.BuildComponentTypesListWithAttribute<EntityIDComponentAttribute>(
+				TypeHelpers.GetTypesWithAttribute<EntityIDComponentAttribute>(
 					out idComponentTypes);
 			}
 

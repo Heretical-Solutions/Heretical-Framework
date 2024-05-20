@@ -1,5 +1,3 @@
-using System;
-
 namespace HereticalSolutions.Entities
 {
     [NetworkEventComponent]
