@@ -1,2 +1,2 @@
-# Heresy-Unity-Framework
-Framework that enhances Unity with tools, scripts and templates required to speed up the prototyping and development process
+# Heretical Framework
+The comprehensive, engine-agnostic game development toolkit designed for modularity, performance, and flexibility across different environments (POCO, Unity, and potentially other engines)
